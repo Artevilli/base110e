@@ -131,7 +131,6 @@ CG_CVAR(cg_projectileNudge, "cg_projectileNudge", "1", CVAR_ARCHIVE)
 CG_CVAR(cg_buildScript, "com_buildScript", "0", 0) //force loading of all possible data amd error on failures
 CG_CVAR(cg_paused, "cl_paused", "0", CVAR_ROM)
 CG_CVAR(cg_blood, "com_blood", "1", CVAR_ARCHIVE)
-CG_CVAR(cg_synchronousClients, "g_synchronousClients", "0", 0) //communicated by systeminfo
 CG_CVAR(cg_cameraOrbit, "cg_cameraOrbit", "0", CVAR_CHEAT)
 CG_CVAR(cg_cameraOrbitDelay, "cg_cameraOrbitDelay", "50", CVAR_ARCHIVE)
 CG_CVAR(cg_timescaleFadeEnd, "cg_timescaleFadeEnd", "1", 0)

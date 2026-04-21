@@ -1391,6 +1391,8 @@ typedef struct
   qboolean      pmove_fixed;
   int           pmove_msec;
 
+  qboolean      synchronousClients;
+
   // 1.1.0e only
   qboolean      pm_fixedPmove;
   int           pm_fixedPmoveFPS;

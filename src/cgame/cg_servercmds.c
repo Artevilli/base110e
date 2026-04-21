@@ -121,26 +121,38 @@ void CG_ParseServerinfo( void )
 }
 
 
-void CG_ParseSysteminfo( void ) {
-        const char  *info;
+void
+CG_ParseSysteminfo(void)
+{
+  const char  *info;
 
-        info = CG_ConfigString( CS_SYSTEMINFO );
+  info = CG_ConfigString( CS_SYSTEMINFO );
 
-        cgs.pmove_fixed = ( atoi( Info_ValueForKey( info, "pmove_fixed" ) ) ) ? qtrue : qfalse;
-        cgs.pmove_msec = atoi( Info_ValueForKey( info, "pmove_msec" ) );
-        if ( cgs.pmove_msec < 8 ) {
-                cgs.pmove_msec = 8;
-        } else if ( cgs.pmove_msec > 33 ) {
-                cgs.pmove_msec = 33;
-        }
+  cgs.pmove_fixed = (atoi(Info_ValueForKey(info, "pmove_fixed"))) ? qtrue:qfalse;
+  cgs.pmove_msec = atoi(Info_ValueForKey(info, "pmove_msec"));
 
-        cgs.pm_fixedPmove = ( atoi( Info_ValueForKey( info, "pm_fixedPmove" ) ) ) ? qtrue : qfalse;
-        cgs.pm_fixedPmoveFPS = atoi( Info_ValueForKey( info, "pm_fixedPmoveFPS" ) );
-        if ( cgs.pm_fixedPmoveFPS < 60 ) {
-                cgs.pm_fixedPmoveFPS = 60;
-        } else if ( cgs.pm_fixedPmoveFPS > 333 ) {
-                cgs.pm_fixedPmoveFPS = 333;
-        }
+  if (cgs.pmove_msec < 8)
+  {
+    cgs.pmove_msec = 8;
+  }
+  else if (cgs.pmove_msec > 33)
+  {
+    cgs.pmove_msec = 33;
+  }
+
+  cgs.pm_fixedPmove = (atoi(Info_ValueForKey(info, "pm_fixedPmove"))) ? qtrue:qfalse;
+  cgs.pm_fixedPmoveFPS = atoi(Info_ValueForKey(info, "pm_fixedPmoveFPS"));
+
+  if (cgs.pm_fixedPmoveFPS < 60)
+  {
+    cgs.pm_fixedPmoveFPS = 60;
+  }
+  else if (cgs.pm_fixedPmoveFPS > 333)
+  {
+    cgs.pm_fixedPmoveFPS = 333;
+  }
+
+  cgs.synchronousClients = (atoi(Info_ValueForKey(info, "g_synchronousClients"))) ? qtrue:qfalse;
 }
 
 /*

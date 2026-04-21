@@ -2279,7 +2279,7 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
 
   trap_R_SetColor( NULL );
 
-  if( cg_nopredict.integer || cg_synchronousClients.integer )
+  if( cg_nopredict.integer || cgs.synchronousClients )
     CG_Text_Paint( ax, ay, 0.5, white, "snc", 0, 0, ITEM_TEXTSTYLE_NORMAL );
   else
   {
