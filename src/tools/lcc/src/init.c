@@ -94,7 +94,7 @@ static int initchar(int len, Type ty) {
 	char buf[16], *s = buf;
 
 	do {
-		*s++ = initvalue(ty)->u.v.i;
+		*s++ = (char)(initvalue(ty)->u.v.i);
 		if (++n%inttype->size == 0) {
 			(*IR->defstring)(inttype->size, buf);
 			s = buf;
@@ -123,8 +123,8 @@ static int initfields(Field p, Field q) {
 	do {
 		i = initvalue(inttype)->u.v.i;
 		if (fieldsize(p) < 8*p->type->size) {
-			if ((p->type == inttype &&
-			   (i < -(int)(fieldmask(p)>>1)-1 || i > (int)(fieldmask(p)>>1)))
+			if (((p->type == inttype &&
+			   (i < -(int)(fieldmask(p)>>1)-1)) || i > (int)(fieldmask(p)>>1))
 			||  (p->type == unsignedtype && (i&~fieldmask(p)) !=  0))
 				warning("initializer exceeds bit-field width\n");
 			i &= fieldmask(p);
@@ -192,7 +192,7 @@ static int initstruct(int len, Type ty, int lev) {
 	return n;
 }
 
-/* initializer - constexpr | { constexpr ( , constexpr )* [ , ] } */
+/* initializer - constantexpr | { constantexpr ( , constantexpr )* [ , ] } */
 Type initializer(Type ty, int lev) {
 	int n = 0;
 	Tree e;

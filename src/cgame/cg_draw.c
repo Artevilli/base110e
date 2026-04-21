@@ -3305,7 +3305,6 @@ static void CG_Draw2D( void )
       !( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) && menu &&
       ( cg.snap->ps.stats[ STAT_HEALTH ] > 0 ) )
   {
-    CG_DrawBuildableStatus( );
     if( cg_drawStatus.integer )
       Menu_Paint( menu, qtrue );
 

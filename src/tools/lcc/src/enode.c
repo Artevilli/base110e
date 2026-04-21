@@ -1,5 +1,6 @@
 #include "c.h"
 
+//static char rcsid[] = "$Id$";
 
 static Tree addtree(int, Tree, Tree);
 static Tree andtree(int, Tree, Tree);
@@ -63,9 +64,12 @@ Tree call(Tree f, Type fty, Coordinate src) {
 					else
 						q = cast(q, promote(q->type));
 				}
-			if (!IR->wants_argb && isstruct(q->type)) {
+			if (!IR->wants_argb && isstruct(q->type))
+			{
 				if (iscallb(q))
+				{
 					q = addrof(q);
+				}
 				else {
 					Symbol t1 = temporary(AUTO, unqual(q->type));
 					q = asgn(t1, q);
@@ -165,6 +169,10 @@ static Tree addtree(int op, Tree l, Tree r) {
 			l = cast(l, promote(l->type));
 			if (n > 1)
 				l = multree(MUL, cnsttree(signedptr, n), l);
+			if (isunsigned(l->type))
+				l = cast(l, unsignedptr);
+			else
+				l = cast(l, signedptr);
 			if (YYcheck && !isaddrop(r->op))		/* omit */
 				return nullcall(ty, YYcheck, r, l);	/* omit */
 			return simplify(ADD, ty, l, r);
@@ -191,11 +199,11 @@ Tree cnsttree(Type ty, ...) {
 	return p;
 }
 
-Tree consttree(unsigned n, Type ty) {
+Tree consttree(int n, Type ty) {
 	if (isarray(ty))
 		ty = atop(ty);
 	else assert(isint(ty));
-	return cnsttree(ty, (unsigned long)n);
+	return cnsttree(ty, (long)n);
 }
 static Tree cmptree(int op, Tree l, Tree r) {
 	Type ty;
@@ -215,6 +223,8 @@ static Tree cmptree(int op, Tree l, Tree r) {
 	return simplify(mkop(op,ty), inttype, l, r);
 }
 static int compatible(Type ty1, Type ty2) {
+	ty1 = unqual(ty1);
+	ty2 = unqual(ty2);
 	return isptr(ty1) && !isfunc(ty1->type)
 	    && isptr(ty2) && !isfunc(ty2->type)
 	    && eqtype(unqual(ty1->type), unqual(ty2->type), 0);
@@ -228,11 +238,11 @@ int isnullptr(Tree e) {
 	     || (isvoidptr(ty)      && e->u.v.p == NULL));
 }
 Tree eqtree(int op, Tree l, Tree r) {
-	Type xty = l->type, yty = r->type;
+	Type xty = unqual(l->type), yty = unqual(r->type);
 
 	if ((isptr(xty) && isnullptr(r))
 	||  (isptr(xty) && !isfunc(xty->type) && isvoidptr(yty))
-	||  (isptr(xty) && isptr(yty)
+	||  ((isptr(xty) && isptr(yty))
 	    && eqtype(unqual(xty->type), unqual(yty->type), 1))) {
 		Type ty = unsignedptr;
 		l = cast(l, ty);
@@ -301,8 +311,9 @@ Tree asgntree(int op, Tree l, Tree r) {
 	aty = l->type;
 	if (isptr(aty))
 		aty = unqual(aty)->type;
-	if ( isconst(aty)
-	||  (isstruct(aty) && unqual(aty)->u.sym->u.s.cfields)) {
+	if ( (isconst(aty))
+	||  ((isstruct(aty) && unqual(aty)->u.sym->u.s.cfields)))
+	{
 		if (isaddrop(l->op)
 		&& !l->u.sym->computed && !l->u.sym->generated)
 			error("assignment to const identifier `%s'\n",

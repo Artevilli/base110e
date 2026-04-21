@@ -314,7 +314,7 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
   if( PM_SlideMove( gravity ) == 0 )
   {
     VectorCopy( start_o, down );
-    VectorMA( down, -STEPSIZE, normal, down );
+    VectorMA( down, -PM_STEP_HEIGHT, normal, down );
     pm->trace( &trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask );
 
     //we can step down
@@ -330,7 +330,7 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
   else
   {
     VectorCopy( start_o, down );
-    VectorMA( down, -STEPSIZE, normal, down );
+    VectorMA( down, -PM_STEP_HEIGHT, normal, down );
     pm->trace( &trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask );
     // never step up when you still have up velocity
     if( DotProduct( trace.plane.normal, pm->ps->velocity ) > 0.0f &&
@@ -343,7 +343,7 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
     VectorCopy( pm->ps->velocity, down_v );
 
     VectorCopy( start_o, up );
-    VectorMA( up, STEPSIZE, normal, up );
+    VectorMA( up, PM_STEP_HEIGHT, normal, up );
 
     // test the player position if they were a stepheight higher
     pm->trace( &trace, start_o, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask );

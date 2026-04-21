@@ -95,6 +95,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins,
   trace_t       trace;
   entityState_t *ent;
   clipHandle_t  cmodel;
+  vec3_t        tmins, tmaxs;
   vec3_t        bmins, bmaxs;
   vec3_t        origin, angles;
   centity_t     *cent;
@@ -105,6 +106,24 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins,
     j = cg_numSolidEntities + 1;
   else
     j = cg_numSolidEntities;
+
+  if (cg_fpsFix.integer)
+  {
+    // calculate bounding box of the trace
+    ClearBounds(tmins, tmaxs);
+    AddPointToBounds(start, tmins, tmaxs);
+    AddPointToBounds(end, tmins, tmaxs);
+
+    if (mins)
+    {
+      VectorAdd(mins, tmins, tmins);
+    }
+
+    if (maxs)
+    {
+      VectorAdd(maxs, tmaxs, tmaxs);
+    }
+  }
 
   for( i = 0; i < j; i++ )
   {
@@ -140,9 +159,28 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins,
       if( i == cg_numSolidEntities )
         BG_FindBBoxForClass( ( ent->powerups >> 8 ) & 0xFF, bmins, bmaxs, NULL, NULL, NULL );
 
+      if (cg_fpsFix.integer)
+      {
+        VectorAdd(cent->lerpOrigin, bmins, bmins);
+        VectorAdd(cent->lerpOrigin, bmaxs, bmaxs);
+
+        if (!BoundsIntersect(bmins, bmaxs, tmins, tmaxs))
+        {
+          continue;
+        }
+      }
+
       cmodel = trap_CM_TempBoxModel( bmins, bmaxs );
       VectorCopy( vec3_origin, angles );
-      VectorCopy( cent->lerpOrigin, origin );
+
+      if (cg_fpsFix.integer)
+      {
+        VectorCopy(vec3_origin, origin);
+      }
+      else
+      {
+        VectorCopy( cent->lerpOrigin, origin );
+      }
     }
 
 
@@ -636,13 +674,8 @@ void CG_PredictPlayerState( void )
     cg.physicsTime = cg.snap->serverTime;
   }
 
-  if( pmove_msec.integer < 8 )
-    trap_Cvar_Set( "pmove_msec", "8" );
-  else if( pmove_msec.integer > 33 )
-    trap_Cvar_Set( "pmove_msec", "33" );
-
-  cg_pmove.pmove_fixed = pmove_fixed.integer;// | cg_pmove_fixed.integer;
-  cg_pmove.pmove_msec = pmove_msec.integer;
+  cg_pmove.pmove_fixed = cgs.pmove_fixed;
+  cg_pmove.pmove_msec = cgs.pmove_msec;
 
   // Like the comments described above, a player's state is entirely
   // re-predicted from the last valid snapshot every client frame, which
@@ -744,7 +777,7 @@ void CG_PredictPlayerState( void )
     // get the command
     trap_GetUserCmd( cmdNum, &cg_pmove.cmd );
 
-    if( cg_pmove.pmove_fixed )
+    if( cg_pmove.pmove_fixed && !cg_pmove.fixedPmove )
       PM_UpdateViewAngles( cg_pmove.ps, &cg_pmove.cmd );
 
     // don't do anything if the time is before the snapshot player time
@@ -825,9 +858,12 @@ void CG_PredictPlayerState( void )
     for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
       cg_pmove.autoWeaponHit[ i ] = qfalse;
 
-    if( cg_pmove.pmove_fixed )
-      cg_pmove.cmd.serverTime = ( ( cg_pmove.cmd.serverTime + pmove_msec.integer - 1 ) /
-                                  pmove_msec.integer ) * pmove_msec.integer;
+    cg_pmove.fixedPmove = cgs.pm_fixedPmove;
+    cg_pmove.fixedPmoveFPS = cgs.pm_fixedPmoveFPS;
+
+    if( cg_pmove.pmove_fixed && !cg_pmove.fixedPmove )
+      cg_pmove.cmd.serverTime = ( ( cg_pmove.cmd.serverTime + cg_pmove.pmove_msec - 1 ) /
+                                  cg_pmove.pmove_msec ) * cg_pmove.pmove_msec;
 
     if( !cg_optimizePrediction.integer )
     {

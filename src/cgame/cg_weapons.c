@@ -1011,7 +1011,7 @@ void CG_AddViewWeapon( playerState_t *ps )
   }
 
   // no gun if in third person view
-  if( cg.renderingThirdPerson )
+  if( cg.renderingThirdPerson || cg.renderingEyesPerson )
     return;
 
   // allow the gun to be completely removed

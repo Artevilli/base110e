@@ -17,7 +17,6 @@ static void     dumpcover(Node, int, int);
 static void     dumpregs(char *, char *, char *);
 static void     dumprule(int);
 static void     dumptree(Node);
-static unsigned	emitasm(Node, int);
 static void     genreload(Node, Symbol, int);
 static void     genspill(Symbol, Node, Symbol);
 static Symbol   getreg(Symbol, unsigned*, Node);
@@ -328,7 +327,7 @@ static void dumprule(int rulenum) {
 	if (!IR->x._isinstruction[rulenum])
 		fprint(stderr, "\n");
 }
-static unsigned emitasm(Node p, int nt) {
+unsigned emitasm(Node p, int nt) {
 	int rulenum;
 	short *nts;
 	char *fmt;
@@ -824,7 +823,7 @@ int getregnum(Node p) {
 
 
 unsigned regloc(Symbol p) {
-	assert(p && p->sclass == REGISTER && p->sclass == REGISTER && p->x.regnode);
+	assert(p && p->sclass == REGISTER && p->x.regnode);
 	return p->x.regnode->set<<8 | p->x.regnode->number;
 }
 

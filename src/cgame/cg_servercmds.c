@@ -120,6 +120,29 @@ void CG_ParseServerinfo( void )
   Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", mapname );
 }
 
+
+void CG_ParseSysteminfo( void ) {
+        const char  *info;
+
+        info = CG_ConfigString( CS_SYSTEMINFO );
+
+        cgs.pmove_fixed = ( atoi( Info_ValueForKey( info, "pmove_fixed" ) ) ) ? qtrue : qfalse;
+        cgs.pmove_msec = atoi( Info_ValueForKey( info, "pmove_msec" ) );
+        if ( cgs.pmove_msec < 8 ) {
+                cgs.pmove_msec = 8;
+        } else if ( cgs.pmove_msec > 33 ) {
+                cgs.pmove_msec = 33;
+        }
+
+        cgs.pm_fixedPmove = ( atoi( Info_ValueForKey( info, "pm_fixedPmove" ) ) ) ? qtrue : qfalse;
+        cgs.pm_fixedPmoveFPS = atoi( Info_ValueForKey( info, "pm_fixedPmoveFPS" ) );
+        if ( cgs.pm_fixedPmoveFPS < 60 ) {
+                cgs.pm_fixedPmoveFPS = 60;
+        } else if ( cgs.pm_fixedPmoveFPS > 333 ) {
+                cgs.pm_fixedPmoveFPS = 333;
+        }
+}
+
 /*
 ==================
 CG_ParseWarmup
@@ -268,6 +291,9 @@ static void CG_ConfigStringModified( void )
   // do something with it if necessary
   if( num == CS_MUSIC )
     CG_StartMusic( );
+  else if ( num == CS_SYSTEMINFO ) {
+          CG_ParseSysteminfo();
+  }
   else if( num == CS_SERVERINFO )
     CG_ParseServerinfo( );
   else if( num == CS_WARMUP )

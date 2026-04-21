@@ -1773,7 +1773,7 @@ static void PM_GroundClimbTrace( void )
         if( pml.groundPlane != qfalse && PM_PredictStepMove( ) )
         {
           //step down
-          VectorMA( pm->ps->origin, -STEPSIZE, surfNormal, point );
+          VectorMA( pm->ps->origin, -PM_STEP_HEIGHT, surfNormal, point );
           pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
         }
         else
@@ -2087,7 +2087,7 @@ static void PM_GroundTrace( void )
       //step down
       point[ 0 ] = pm->ps->origin[ 0 ];
       point[ 1 ] = pm->ps->origin[ 1 ];
-      point[ 2 ] = pm->ps->origin[ 2 ] - STEPSIZE;
+      point[ 2 ] = pm->ps->origin[ 2 ] - PM_STEP_HEIGHT;
       pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
 
       //if we hit something
@@ -2610,6 +2610,13 @@ static void PM_BeginWeaponChange( int weapon )
   if( pm->ps->weapon == WP_LUCIFER_CANNON )
     pm->ps->stats[ STAT_MISC ] = 0;
 
+  //cancel reload
+  pm->ps->pm_flags &= ~PMF_WEAPON_RELOAD;
+
+  if (pm->ps->weaponstate == WEAPON_RELOADING)
+  {
+    pm->ps->weaponTime = 0;
+  }
 
   // force this here to prevent flamer effect from continuing, among other issues
   pm->ps->generic1 = WPM_NOTFIRING;
@@ -3476,8 +3483,53 @@ void PmoveSingle( pmove_t *pmove )
   // entering / leaving water splashes
   PM_WaterEvents( );
 
-  // snap some parts of playerstate to save network bandwidth
-  trap_SnapVector( pm->ps->velocity );
+  if (pm->fixedPmove && !pmove->pmove_fixed)
+  {
+    //the new way: don't care so much about 6 bytes/frame
+    //or so of network bandwidth, and add some mostly framerate-
+    //independent error to make up for the lack of rounding error
+
+    //halt if not going fast enough (0.5 units/sec)
+    if (VectorLengthSquared(pm->ps->velocity) < 0.25f)
+    {
+      VectorClear(pm->ps->velocity);
+    }
+    else
+    {
+      int i;
+      float fac;
+
+      fac = (float)pml.msec / (1000.0f / (float)pm->fixedPmoveFPS);
+
+      //add some error...
+      for(i = 0;i < 3;i++)
+      {
+        //...if the velocity in this direction changed enough
+        if (fabs(pm->ps->velocity[i] - pml.previous_velocity[i]) > 0.5f / fac)
+        {
+          if (pm->ps->velocity[i] < 0)
+          {
+            pm->ps->velocity[i] -= 0.5f * fac;
+          }
+          else
+          {
+            pm->ps->velocity[i] += 0.5f * fac;
+          }
+        }
+      }
+
+      //we can stand a little bit of rounding error for the sake
+      //of lower bandwidth
+      VectorScale(pm->ps->velocity, 64.0f, pm->ps->velocity);
+      SnapVector(pm->ps->velocity);
+      VectorScale(pm->ps->velocity, 1.0f / 64.0f, pm->ps->velocity);
+    }
+  }
+  else
+  {
+    //snap some parts of playerstate to save network bandwidth
+    trap_SnapVector(pm->ps->velocity);
+  }
 }
 
 
@@ -3510,15 +3562,29 @@ void Pmove( pmove_t *pmove )
 
     msec = finalTime - pmove->ps->commandTime;
 
-    if( pmove->pmove_fixed )
+    if (!pm->fixedPmove)
     {
-      if( msec > pmove->pmove_msec )
-        msec = pmove->pmove_msec;
+      if (pmove->pmove_fixed)
+      {
+        if (msec > pmove->pmove_msec)
+        {
+          msec = pmove->pmove_msec;
+        }
+      }
+      else
+      {
+        if (msec > 66)
+        {
+          msec = 66;
+        }
+      }
     }
     else
     {
-      if( msec > 66 )
+      if (msec > 66)
+      {
         msec = 66;
+      }
     }
 
 

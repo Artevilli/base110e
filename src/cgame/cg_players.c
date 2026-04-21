@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-char *cg_customSoundNames[ MAX_CUSTOM_SOUNDS ] =
+const char *cg_customSoundNames[ MAX_CUSTOM_SOUNDS ] =
 {
   "*death1.wav",
   "*death2.wav",
@@ -43,6 +43,8 @@ char *cg_customSoundNames[ MAX_CUSTOM_SOUNDS ] =
   "*taunt.wav"
 };
 
+vec3_t headpos;
+vec3_t headang;
 
 /*
 ================
@@ -1206,11 +1208,19 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t srcAngles,
   float         speed;
   int           dir, clientNum;
   clientInfo_t  *ci;
+  int           camereyes;
 
   VectorCopy( srcAngles, headAngles );
   headAngles[ YAW ] = AngleMod( headAngles[ YAW ] );
   VectorClear( legsAngles );
   VectorClear( torsoAngles );
+
+  camereyes = 0;
+
+  if( cent->currentState.number == cg.snap->ps.clientNum )
+  {
+    camereyes = 1; // it's me!
+  }
 
   // --------- yaw -------------
 
@@ -1279,6 +1289,8 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t srcAngles,
     ci = &cgs.clientinfo[ clientNum ];
     if( ci->fixedtorso )
       torsoAngles[ PITCH ] = 0.0f;
+    if( cg.renderingEyesPerson )
+      torsoAngles[ PITCH ] = 0.0f;
   }
 
   // --------- roll -------------
@@ -1320,6 +1332,13 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t srcAngles,
 
   // pain twitch
   CG_AddPainTwitch( cent, torsoAngles );
+
+  if( camereyes )
+  {
+    cent->eyesAngles[ YAW ] = headAngles[ YAW ];
+    cent->eyesAngles[ PITCH ] = headAngles[ PITCH ];
+    cent->eyesAngles[ ROLL ] = headAngles[ ROLL ];
+  }
 
   // pull the angles back out of the hierarchial chain
   AnglesSubtract( headAngles, torsoAngles, headAngles );
@@ -2018,6 +2037,7 @@ void CG_Player( centity_t *cent )
   vec3_t        angles;
   int           held = es->modelindex;
   vec3_t        surfNormal = { 0.0f, 0.0f, 1.0f };
+  int           camereyes = 0;
 
   // the client number is stored in clientNum.  It can't be derived
   // from the entity number, because a single client may have
@@ -2041,6 +2061,7 @@ void CG_Player( centity_t *cent )
   renderfx = 0;
   if( es->number == cg.snap->ps.clientNum )
   {
+    camereyes = 1; // it's me!
     if( !cg.renderingThirdPerson )
       renderfx = RF_THIRD_PERSON;     // only draw in mirrors
     else if( cg_cameraMode.integer )
@@ -2139,6 +2160,11 @@ void CG_Player( centity_t *cent )
   legs.renderfx = renderfx;
   VectorCopy( legs.origin, legs.oldorigin ); // don't positionally lerp at all
 
+  if( cg.renderingEyesPerson )
+  {
+    legs.renderfx &= RF_FIRST_PERSON;
+  }
+
   //move the origin closer into the wall with a CapTrace
   if( es->eFlags & EF_WALLCLIMB && !( es->eFlags & EF_DEAD ) && !( cg.intermissionStarted ) )
   {
@@ -2210,6 +2236,11 @@ void CG_Player( centity_t *cent )
     torso.shadowPlane = shadowPlane;
     torso.renderfx = renderfx;
 
+    if( cg.renderingEyesPerson )
+    {
+      torso.renderfx &= RF_FIRST_PERSON;
+    }
+
     trap_R_AddRefEntityToScene( &torso );
 
     //
@@ -2228,6 +2259,25 @@ void CG_Player( centity_t *cent )
     VectorCopy( cent->lerpOrigin, head.lightingOrigin );
 
     CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head" );
+
+    if( camereyes )
+    {
+      cent->eyesOrigin[ 0 ] = head.origin[ 0 ];
+      cent->eyesOrigin[ 1 ] = head.origin[ 1 ];
+      cent->eyesOrigin[ 2 ] = head.origin[ 2 ];
+
+      if( cg.renderingEyesPerson )
+      {
+        VectorCopy( cent->lerpAngles, headang );
+      }
+
+      if( cg.renderingEyesPerson )
+      {
+        VectorCopy( head.origin, cent->eyesOrigin );
+        VectorSubtract( cent->eyesOrigin, cent->lerpOrigin, cent->eyesOrigin );
+        VectorCopy( cent->eyesOrigin, headpos );
+      }
+    }
 
     head.shadowPlane = shadowPlane;
     head.renderfx = renderfx;

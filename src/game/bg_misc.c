@@ -4605,101 +4605,10 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
   }
 }
 
-char *eventnames[ ] =
-{
-  "EV_NONE",
-
-  "EV_FOOTSTEP",
-  "EV_FOOTSTEP_METAL",
-  "EV_FOOTSTEP_SQUELCH",
-  "EV_FOOTSPLASH",
-  "EV_FOOTWADE",
-  "EV_SWIM",
-
-  "EV_STEP_4",
-  "EV_STEP_8",
-  "EV_STEP_12",
-  "EV_STEP_16",
-
-  "EV_STEPDN_4",
-  "EV_STEPDN_8",
-  "EV_STEPDN_12",
-  "EV_STEPDN_16",
-
-  "EV_FALL_SHORT",
-  "EV_FALL_MEDIUM",
-  "EV_FALL_FAR",
-  "EV_FALLING",
-
-  "EV_JUMP",
-  "EV_WATER_TOUCH", // foot touches
-  "EV_WATER_LEAVE", // foot leaves
-  "EV_WATER_UNDER", // head touches
-  "EV_WATER_CLEAR", // head leaves
-
-  "EV_NOAMMO",
-  "EV_CHANGE_WEAPON",
-  "EV_FIRE_WEAPON",
-  "EV_FIRE_WEAPON2",
-  "EV_FIRE_WEAPON3",
-
-  "EV_PLAYER_RESPAWN", //TA: for fovwarp effects
-  "EV_PLAYER_TELEPORT_IN",
-  "EV_PLAYER_TELEPORT_OUT",
-
-  "EV_GRENADE_BOUNCE",    // eventParm will be the soundindex
-
-  "EV_GENERAL_SOUND",
-  "EV_GLOBAL_SOUND",    // no attenuation
-
-  "EV_BULLET_HIT_FLESH",
-  "EV_BULLET_HIT_WALL",
-
-  "EV_SHOTGUN",
-
-  "EV_MISSILE_HIT",
-  "EV_MISSILE_MISS",
-  "EV_MISSILE_MISS_METAL",
-  "EV_TESLATRAIL",
-  "EV_BULLET",        // otherEntity is the shooter
-
-  "EV_LEV1_GRAB",
-  "EV_LEV4_CHARGE_PREPARE",
-  "EV_LEV4_CHARGE_START",
-
-  "EV_PAIN",
-  "EV_DEATH1",
-  "EV_DEATH2",
-  "EV_DEATH3",
-  "EV_OBITUARY",
-
-  "EV_GIB_PLAYER",      // gib a previously living player
-
-  "EV_BUILD_CONSTRUCT", //TA
-  "EV_BUILD_DESTROY",   //TA
-  "EV_BUILD_DELAY",     //TA: can't build yet
-  "EV_BUILD_REPAIR",    //TA: repairing buildable
-  "EV_BUILD_REPAIRED",  //TA: buildable has full health
-  "EV_HUMAN_BUILDABLE_EXPLOSION",
-  "EV_ALIEN_BUILDABLE_EXPLOSION",
-  "EV_ALIEN_ACIDTUBE",
-
-  "EV_MEDKIT_USED",
-
-  "EV_ALIEN_EVOLVE",
-  "EV_ALIEN_EVOLVE_FAILED",
-
-  "EV_DEBUG_LINE",
-  "EV_STOPLOOPINGSOUND",
-  "EV_TAUNT",
-
-  "EV_OVERMIND_ATTACK", //TA: overmind under attack
-  "EV_OVERMIND_DYING",  //TA: overmind close to death
-  "EV_OVERMIND_SPAWNS", //TA: overmind needs spawns
-
-  "EV_DCC_ATTACK",      //TA: dcc under attack
-
-  "EV_RPTUSE_SOUND"     //TA: trigger a sound
+const char *eventnames[EV_MAX] = {
+#define EVENT_STRINGS
+        #include "bg_events.h"
+#undef EVENT_STRINGS
 };
 
 /*

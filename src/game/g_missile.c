@@ -329,6 +329,11 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->r.mins[ 0 ] = bolt->r.mins[ 1 ] = bolt->r.mins[ 2 ] = -15.0f;
   bolt->r.maxs[ 0 ] = bolt->r.maxs[ 1 ] = bolt->r.maxs[ 2 ] = 15.0f;
 
+  // missile owner
+  bolt->s.clientNum = self->s.clientNum;
+  // unlagged
+  bolt->s.otherEntityNum = self->s.number;
+
   bolt->s.pos.trType = TR_LINEAR;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
@@ -373,6 +378,11 @@ gentity_t *fire_blaster( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
 
+  // missile owner
+  bolt->s.clientNum = self->s.clientNum;
+  // unlagged
+  bolt->s.otherEntityNum = self->s.number;
+
   bolt->s.pos.trType = TR_LINEAR;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
@@ -415,6 +425,11 @@ gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->splashMethodOfDeath = MOD_PRIFLE;
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
+
+  // missile owner
+  bolt->s.clientNum = self->s.clientNum;
+  // unlagged
+  bolt->s.otherEntityNum = self->s.number;
 
   bolt->s.pos.trType = TR_LINEAR;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
@@ -466,6 +481,11 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int da
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
 
+  // missile owner
+  bolt->s.clientNum = self->s.clientNum;
+  // unlagged
+  bolt->s.otherEntityNum = self->s.number;
+
   bolt->s.pos.trType = TR_LINEAR;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
@@ -510,6 +530,11 @@ gentity_t *launch_grenade( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->r.mins[ 0 ] = bolt->r.mins[ 1 ] = bolt->r.mins[ 2 ] = -3.0f;
   bolt->r.maxs[ 0 ] = bolt->r.maxs[ 1 ] = bolt->r.maxs[ 2 ] = 3.0f;
   bolt->s.time = level.time;
+
+  // missile owner
+  bolt->s.clientNum = self->s.clientNum;
+  // unlagged
+  bolt->s.otherEntityNum = self->s.number;
 
   bolt->s.pos.trType = TR_GRAVITY;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
@@ -721,6 +746,11 @@ gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
 
+  // missile owner
+  bolt->s.clientNum = self->s.clientNum;
+  // unlagged
+  bolt->s.otherEntityNum = self->s.number;
+
   bolt->s.pos.trType = TR_GRAVITY;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
@@ -796,6 +826,11 @@ gentity_t *fire_bounceBall( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->splashMethodOfDeath = MOD_LEVEL3_BOUNCEBALL;
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
+
+  // missile owner
+  bolt->s.clientNum = self->s.clientNum;
+  // unlagged
+  bolt->s.otherEntityNum = self->s.number;
 
   bolt->s.pos.trType = TR_GRAVITY;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame

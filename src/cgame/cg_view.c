@@ -63,6 +63,9 @@ console doesn't pause the game.
 =============================================================================
 */
 
+extern vec3_t headpos;
+extern vec3_t headang;
+
 /*
 =================
 CG_TestModel_f
@@ -707,107 +710,162 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 
 #define FOVWARPTIME     400.0
 
-static int CG_CalcFov( void )
+/*
+====================
+CG_CalcFov
+
+Fixed fov at intermissions, otherwise account for fov variable and zooms.
+====================
+*/
+#define WAVE_AMPLITUDE  1
+#define WAVE_FREQUENCY  0.4
+
+#define FOVWARPTIME     400.0
+
+static int
+CG_CalcFov(void)
 {
-  float     x;
-  float     phase;
-  float     v;
-  int       contents;
-  float     fov_x, fov_y;
-  float     zoomFov;
-  float     f;
-  int       inwater;
-  int       attribFov;
+  float x;
+  float phase;
+  float v;
+  int contents;
+  float fov_x;
+  float fov_y;
+  float zoomFov;
+  float temp;
+  float temp2;
+  float f;
+  int inwater;
+  int attribFov;
   usercmd_t cmd;
-  int       cmdNum;
+  int cmdNum;
+  playerState_t *ps = &cg.predictedPlayerState;
+  
+  cmdNum = trap_GetCurrentCmdNumber();
+  trap_GetUserCmd(cmdNum, &cmd);
 
-  cmdNum = trap_GetCurrentCmdNumber( );
-  trap_GetUserCmd( cmdNum, &cmd );
-
-  if( cg.predictedPlayerState.pm_type == PM_INTERMISSION ||
-      ( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ) )
+  if (cg.predictedPlayerState.pm_type == PM_INTERMISSION || (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR))
   {
-    // if in intermission, use a fixed value
+    //if in intermission, use a fixed value
     fov_x = 90;
   }
   else
   {
-    // don't lock the fov globally - we need to be able to change it
-    attribFov = BG_FindFovForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
-    fov_x = attribFov;
+    //TA: don't lock the fov globally - we need to be able to change it
+    attribFov = BG_FindFovForClass(cg.predictedPlayerState.stats[STAT_PCLASS]);
 
-    if ( fov_x < 1 )
-      fov_x = 1;
-    else if ( fov_x > 160 )
-      fov_x = 160;
-
-    if( cg.spawnTime > ( cg.time - FOVWARPTIME ) &&
-        BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_FOVWARPS ) )
+    if (!cg_fovCustom.integer)
     {
-      float temp, temp2;
+      fov_x = attribFov;
+    }
+    else
+    {
+      fov_x = cg_fov.integer;
+    }
 
-      temp = (float)( cg.time - cg.spawnTime ) / FOVWARPTIME;
-      temp2 = ( 170 - fov_x ) * temp;
+    if (fov_x < 1)
+    {
+      fov_x = 1;
+    }
+    else if (fov_x > 160)
+    {
+      fov_x = 160;
+    }
 
-      //Com_Printf( "%f %f\n", temp*100, temp2*100 );
-
+    if (cg.spawnTime > (cg.time - FOVWARPTIME) && BG_ClassHasAbility(cg.predictedPlayerState.stats[STAT_PCLASS], SCA_FOVWARPS))
+    {
+      temp = (float)(cg.time - cg.spawnTime) / FOVWARPTIME;
+      temp2 = (170 - fov_x) * temp;
+      //Com_Printf("%f %f\n", temp*100, temp2*100);
       fov_x = 170 - temp2;
     }
 
-    // account for zooms
-    zoomFov = BG_FindZoomFovForWeapon( cg.predictedPlayerState.weapon );
-    if ( zoomFov < 1 )
-      zoomFov = 1;
-    else if ( zoomFov > attribFov )
-      zoomFov = attribFov;
+    //account for zooms
+    zoomFov = BG_FindZoomFovForWeapon(cg.predictedPlayerState.weapon);
 
-    // only do all the zoom stuff if the client CAN zoom
-    // FIXME: zoom control is currently hard coded to BUTTON_ATTACK2
-    if( BG_WeaponCanZoom( cg.predictedPlayerState.weapon ) )
+    if (!cg_fovCustom.integer)
     {
-      if ( cg.zoomed )
+      if (zoomFov < 1)
       {
-        f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
+        zoomFov = 1;
+      }
+      else if (zoomFov > attribFov)
+      {
+        zoomFov = attribFov;
+      }
+    }
+    else
+    {
+      if (zoomFov < 1)
+      {
+        zoomFov = 1;
+      }
+      else if (zoomFov > cg_fov.integer)
+      {
+        zoomFov = cg_fov.integer;
+      }
+    }
 
-        if ( f > 1.0 )
-          fov_x = zoomFov;
-        else
-          fov_x = fov_x + f * ( zoomFov - fov_x );
+    //TA: only do all the zoom stuff if the client CAN zoom
+    //FIXME: zoom control is currently hard coded to BUTTON_ATTACK2
+    if (BG_WeaponCanZoom(cg.predictedPlayerState.weapon))
+    {
+      if (cg.zoomed)
+      {
+        f = (cg.time - cg.zoomTime) / (float)ZOOM_TIME;
+        fov_x = f > 1.0 ? zoomFov:fov_x + f * (zoomFov - fov_x);
 
-        // BUTTON_ATTACK2 isn't held so unzoom next time
-        if( !( cmd.buttons & BUTTON_ATTACK2 ) )
+        //BUTTON_ATTACK2 isn't held so unzoom next time
+        if (!(cmd.buttons & BUTTON_ATTACK2))
         {
-          cg.zoomed   = qfalse;
+          cg.zoomed = qfalse;
           cg.zoomTime = cg.time;
+
+          /*if(ps->weapon == WP_MASS_DRIVER)
+          {
+            cg_thirdPersonhax.integer = 1;
+          }*/
         }
       }
       else
       {
-        f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
+        f = (cg.time - cg.zoomTime) / (float)ZOOM_TIME;
+        fov_x = f > 1.0 ? fov_x:zoomFov + f * (fov_x - zoomFov);
 
-        if ( f > 1.0 )
-          fov_x = fov_x;
-        else
-          fov_x = zoomFov + f * ( fov_x - zoomFov );
-
-        // BUTTON_ATTACK2 is held so zoom next time
-        if( cmd.buttons & BUTTON_ATTACK2 )
+        //BUTTON_ATTACK2 is held so zoom next time
+        if (cmd.buttons & BUTTON_ATTACK2)
         {
-          cg.zoomed   = qtrue;
+          cg.zoomed = qtrue;
           cg.zoomTime = cg.time;
+
+          /*if (ps->weapon == WP_MASS_DRIVER)
+          {
+            cg_thirdPersonhax.integer = 0;
+          }*/
         }
       }
     }
   }
 
-  x = cg.refdef.width / tan( fov_x / 360 * M_PI );
-  fov_y = atan2( cg.refdef.height, x );
+  if (cg_fovAdjust.integer)
+  {
+    //based on LordHavoc's code for Darkplaces
+    //http://www.quakeworld.nu/forum/topic/53/what-does-your-qw-look-like/page/30
+    const float baseAspect = 0.75f; //3/4
+    const float aspect = (float)cg.refdef.width / (float)cg.refdef.height;
+    const float desiredFov = fov_x;
+
+    fov_x = atan2(tan(desiredFov * M_PI / 360.0f) * baseAspect * aspect, 1) * 360.0f / M_PI;
+  }
+
+  x = cg.refdef.width / tan(fov_x / 360 * M_PI);
+  fov_y = atan2(cg.refdef.height, x);
   fov_y = fov_y * 360 / M_PI;
 
-  // warp if underwater
+  //warp if underwater
   contents = CG_PointContents( cg.refdef.vieworg, -1 );
 
-  if( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) )
+  if (contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
   {
     phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
     v = WAVE_AMPLITUDE * sin( phase );
@@ -818,27 +876,19 @@ static int CG_CalcFov( void )
   else
     inwater = qfalse;
 
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
-      cg.predictedPlayerState.stats[ STAT_HEALTH ] > 0 &&
-      !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
+  if (cg.predictedPlayerState.stats[STAT_STATE] & SS_POISONCLOUDED && cg.predictedPlayerState.stats[STAT_HEALTH] > 0 && !(cg.snap->ps.pm_flags & PMF_FOLLOW))
   {
     phase = cg.time / 1000.0 * PCLOUD_ZOOM_FREQUENCY * M_PI * 2;
     v = PCLOUD_ZOOM_AMPLITUDE * sin( phase );
-    v *= 1.0f - ( ( cg.time - cg.poisonedTime ) / (float)LEVEL1_PCLOUD_TIME );
+    v *= 1.0f - ((cg.time - cg.poisonedTime) / (float)LEVEL1_PCLOUD_TIME);
     fov_x += v;
     fov_y += v;
   }
 
-
-  // set it
+  //set it
   cg.refdef.fov_x = fov_x;
   cg.refdef.fov_y = fov_y;
-
-  if( !cg.zoomed )
-    cg.zoomSensitivity = 1;
-  else
-    cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
-
+  cg.zoomSensitivity = !cg.zoomed ? 1:cg.refdef.fov_y / 75.0;
   return inwater;
 }
 
@@ -1157,6 +1207,29 @@ static int CG_CalcViewValues( void )
     CG_OffsetFirstPersonView( );
   }
 
+  // leilei - View-from-the-model-eyes feature, aka "fullbody awareness" lol
+  if( cg.renderingEyesPerson && !cg.renderingThirdPerson )
+  {
+    vec3_t forward;
+    vec3_t up;
+
+    cg.refdefViewAngles[ ROLL ] = headang[ ROLL ];
+    cg.refdefViewAngles[ PITCH ] = headang[ PITCH ];
+    cg.refdefViewAngles[ YAW ] = headang[ YAW ];
+
+    AngleVectors( headang, forward, NULL, up );
+
+    if( cg.renderingEyesPerson )
+    {
+      VectorMA( headpos, cg_cameraEyes_Fwd.value, forward, headpos );
+      VectorMA( headpos, cg_cameraEyes_Up.value, up, headpos );
+    }
+
+    cg.refdef.vieworg[ 0 ] = ps->origin[ 0 ] + headpos[ 0 ];
+    cg.refdef.vieworg[ 1 ] = ps->origin[ 1 ] + headpos[ 1 ];
+    cg.refdef.vieworg[ 2 ] = ps->origin[ 2 ] + headpos[ 2 ];
+  }
+
   // position eye reletive to origin
   AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
 
@@ -1263,6 +1336,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 
   // decide on third person view
   cg.renderingThirdPerson = cg_thirdPerson.integer || ( cg.snap->ps.stats[ STAT_HEALTH ] <= 0 );
+  cg.renderingEyesPerson = !cg_thirdPerson.integer && cg_cameraEyes.integer && cg.predictedPlayerState.pm_type != PM_INTERMISSION && cg.snap->ps.persistant[ PERS_TEAM ] != TEAM_SPECTATOR && cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS;
 
   // build cg.refdef
   inwater = CG_CalcViewValues( );

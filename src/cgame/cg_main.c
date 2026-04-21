@@ -108,284 +108,25 @@ upgradeInfo_t   cg_upgrades[ 32 ];
 
 buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
 
-vmCvar_t  cg_teslaTrailTime;
-vmCvar_t  cg_railTrailTime;
-vmCvar_t  cg_centertime;
-vmCvar_t  cg_runpitch;
-vmCvar_t  cg_runroll;
-vmCvar_t  cg_bobup;
-vmCvar_t  cg_bobpitch;
-vmCvar_t  cg_bobroll;
-vmCvar_t  cg_swingSpeed;
-vmCvar_t  cg_shadows;
-vmCvar_t  cg_gibs;
-vmCvar_t  cg_drawTimer;
-vmCvar_t  cg_drawClock;
-vmCvar_t  cg_drawFPS;
-vmCvar_t  cg_drawDemoState;
-vmCvar_t  cg_drawSnapshot;
-vmCvar_t  cg_draw3dIcons;
-vmCvar_t  cg_drawIcons;
-vmCvar_t  cg_drawAmmoWarning;
-vmCvar_t  cg_drawCrosshair;
-vmCvar_t  cg_drawCrosshairNames;
-vmCvar_t  cg_drawRewards;
-vmCvar_t  cg_crosshairX;
-vmCvar_t  cg_crosshairY;
-vmCvar_t  cg_draw2D;
-vmCvar_t  cg_drawStatus;
-vmCvar_t  cg_animSpeed;
-vmCvar_t  cg_debugAnim;
-vmCvar_t  cg_debugPosition;
-vmCvar_t  cg_debugEvents;
-vmCvar_t  cg_errorDecay;
-vmCvar_t  cg_nopredict;
-vmCvar_t  cg_debugMove;
-vmCvar_t  cg_noPlayerAnims;
-vmCvar_t  cg_showmiss;
-vmCvar_t  cg_footsteps;
-vmCvar_t  cg_addMarks;
-vmCvar_t  cg_brassTime;
-vmCvar_t  cg_viewsize;
-vmCvar_t  cg_drawGun;
-vmCvar_t  cg_gun_frame;
-vmCvar_t  cg_gun_x;
-vmCvar_t  cg_gun_y;
-vmCvar_t  cg_gun_z;
-vmCvar_t  cg_tracerChance;
-vmCvar_t  cg_tracerWidth;
-vmCvar_t  cg_tracerLength;
-vmCvar_t  cg_autoswitch;
-vmCvar_t  cg_ignore;
-vmCvar_t  cg_simpleItems;
-vmCvar_t  cg_fov;
-vmCvar_t  cg_zoomFov;
-vmCvar_t  cg_thirdPerson;
-vmCvar_t  cg_thirdPersonRange;
-vmCvar_t  cg_thirdPersonAngle;
-vmCvar_t  cg_stereoSeparation;
-vmCvar_t  cg_lagometer;
-vmCvar_t  cg_drawAttacker;
-vmCvar_t  cg_synchronousClients;
-vmCvar_t  cg_stats;
-vmCvar_t  cg_buildScript;
-vmCvar_t  cg_forceModel;
-vmCvar_t  cg_paused;
-vmCvar_t  cg_blood;
-vmCvar_t  cg_predictItems;
-vmCvar_t  cg_deferPlayers;
-vmCvar_t  cg_drawTeamOverlay;
-vmCvar_t  cg_teamOverlayUserinfo;
-vmCvar_t  cg_drawFriend;
-vmCvar_t  cg_teamChatsOnly;
-vmCvar_t  cg_noVoiceChats;
-vmCvar_t  cg_noVoiceText;
-vmCvar_t  cg_hudFiles;
-vmCvar_t  cg_scorePlum;
-vmCvar_t  cg_smoothClients;
-vmCvar_t  pmove_fixed;
-//vmCvar_t  cg_pmove_fixed;
-vmCvar_t  pmove_msec;
-vmCvar_t  cg_pmove_msec;
-vmCvar_t  cg_cameraMode;
-vmCvar_t  cg_cameraOrbit;
-vmCvar_t  cg_cameraOrbitDelay;
-vmCvar_t  cg_timescaleFadeEnd;
-vmCvar_t  cg_timescaleFadeSpeed;
-vmCvar_t  cg_timescale;
-vmCvar_t  cg_smallFont;
-vmCvar_t  cg_bigFont;
-vmCvar_t  cg_noTaunt;
-vmCvar_t  cg_noProjectileTrail;
-vmCvar_t  cg_oldRail;
-vmCvar_t  cg_oldRocket;
-vmCvar_t  cg_oldPlasma;
-vmCvar_t  cg_trueLightning;
-vmCvar_t  cg_creepRes;
-vmCvar_t  cg_drawSurfNormal;
-vmCvar_t  cg_drawBBOX;
-vmCvar_t  cg_debugAlloc;
-vmCvar_t  cg_wwSmoothTime;
-vmCvar_t  cg_wwFollow;
-vmCvar_t  cg_wwToggle;
-vmCvar_t  cg_depthSortParticles;
-vmCvar_t  cg_bounceParticles;
-vmCvar_t  cg_consoleLatency;
-vmCvar_t  cg_lightFlare;
-vmCvar_t  cg_debugParticles;
-vmCvar_t  cg_debugTrails;
-vmCvar_t  cg_debugPVS;
-vmCvar_t  cg_disableWarningDialogs;
-vmCvar_t  cg_disableScannerPlane;
-vmCvar_t  cg_tutorial;
-
-vmCvar_t  cg_painBlendUpRate;
-vmCvar_t  cg_painBlendDownRate;
-vmCvar_t  cg_painBlendMax;
-vmCvar_t  cg_painBlendScale;
-vmCvar_t  cg_painBlendZoom;
-
-//TA: hack to get class and carriage through to UI module
-vmCvar_t  ui_currentClass;
-vmCvar_t  ui_carriage;
-vmCvar_t  ui_stages;
-vmCvar_t  ui_dialog;
-vmCvar_t  ui_loading;
-vmCvar_t  ui_voteActive;
-vmCvar_t  ui_alienTeamVoteActive;
-vmCvar_t  ui_humanTeamVoteActive;
-
-vmCvar_t  cg_debugRandom;
-
-vmCvar_t  cg_optimizePrediction;
-vmCvar_t  cg_projectileNudge;
-vmCvar_t  cg_unlagged;
+#define DECLARE_CG_CVAR
+#include "cg_cvar.h"
+#undef DECLARE_CG_CVAR
 
 
 typedef struct
 {
   vmCvar_t  *vmCvar;
-  char      *cvarName;
-  char      *defaultString;
-  int       cvarFlags;
+  const char      *cvarName;
+  const char      *defaultString;
+  const int       cvarFlags;
 } cvarTable_t;
 
-static cvarTable_t cvarTable[ ] =
+static const cvarTable_t cvarTable[] =
 {
-  { &cg_ignore, "cg_ignore", "0", 0 },  // used for debugging
-  { &cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE },
-  { &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
-  { &cg_zoomFov, "cg_zoomfov", "22.5", CVAR_ARCHIVE },
-  { &cg_fov, "cg_fov", "90", CVAR_ARCHIVE },
-  { &cg_viewsize, "cg_viewsize", "100", CVAR_ARCHIVE },
-  { &cg_stereoSeparation, "cg_stereoSeparation", "0.4", CVAR_ARCHIVE  },
-  { &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE  },
-  { &cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE  },
-  { &cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE  },
-  { &cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE  },
-  { &cg_drawTimer, "cg_drawTimer", "1", CVAR_ARCHIVE  },
-  { &cg_drawClock, "cg_drawClock", "0", CVAR_ARCHIVE  },
-  { &cg_drawFPS, "cg_drawFPS", "1", CVAR_ARCHIVE  },
-  { &cg_drawDemoState, "cg_drawDemoState", "1", CVAR_ARCHIVE  },
-  { &cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE  },
-  { &cg_draw3dIcons, "cg_draw3dIcons", "1", CVAR_ARCHIVE  },
-  { &cg_drawIcons, "cg_drawIcons", "1", CVAR_ARCHIVE  },
-  { &cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE  },
-  { &cg_drawAttacker, "cg_drawAttacker", "1", CVAR_ARCHIVE  },
-  { &cg_drawCrosshair, "cg_drawCrosshair", "1", CVAR_ARCHIVE },
-  { &cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
-  { &cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE },
-  { &cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE },
-  { &cg_crosshairY, "cg_crosshairY", "0", CVAR_ARCHIVE },
-  { &cg_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE },
-  { &cg_simpleItems, "cg_simpleItems", "0", CVAR_ARCHIVE },
-  { &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },
-  { &cg_lagometer, "cg_lagometer", "0", CVAR_ARCHIVE },
-  { &cg_teslaTrailTime, "cg_teslaTrailTime", "250", CVAR_ARCHIVE  },
-  { &cg_railTrailTime, "cg_railTrailTime", "400", CVAR_ARCHIVE  },
-  { &cg_gun_x, "cg_gunX", "0", CVAR_CHEAT },
-  { &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },
-  { &cg_gun_z, "cg_gunZ", "0", CVAR_CHEAT },
-  { &cg_centertime, "cg_centertime", "3", CVAR_CHEAT },
-  { &cg_runpitch, "cg_runpitch", "0.002", CVAR_ARCHIVE},
-  { &cg_runroll, "cg_runroll", "0.005", CVAR_ARCHIVE },
-  { &cg_bobup , "cg_bobup", "0.005", CVAR_CHEAT },
-  { &cg_bobpitch, "cg_bobpitch", "0.002", CVAR_ARCHIVE },
-  { &cg_bobroll, "cg_bobroll", "0.002", CVAR_ARCHIVE },
-  { &cg_swingSpeed, "cg_swingSpeed", "0.3", CVAR_CHEAT },
-  { &cg_animSpeed, "cg_animspeed", "1", CVAR_CHEAT },
-  { &cg_debugAnim, "cg_debuganim", "0", CVAR_CHEAT },
-  { &cg_debugPosition, "cg_debugposition", "0", CVAR_CHEAT },
-  { &cg_debugEvents, "cg_debugevents", "0", CVAR_CHEAT },
-  { &cg_errorDecay, "cg_errordecay", "100", 0 },
-  { &cg_nopredict, "cg_nopredict", "0", 0 },
-  { &cg_debugMove, "cg_debugMove", "0", 0 },
-  { &cg_noPlayerAnims, "cg_noplayeranims", "0", CVAR_CHEAT },
-  { &cg_showmiss, "cg_showmiss", "0", 0 },
-  { &cg_footsteps, "cg_footsteps", "1", CVAR_CHEAT },
-  { &cg_tracerChance, "cg_tracerchance", "0.4", CVAR_CHEAT },
-  { &cg_tracerWidth, "cg_tracerwidth", "1", CVAR_CHEAT },
-  { &cg_tracerLength, "cg_tracerlength", "100", CVAR_CHEAT },
-  { &cg_thirdPersonRange, "cg_thirdPersonRange", "40", CVAR_CHEAT },
-  { &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_CHEAT },
-  { &cg_thirdPerson, "cg_thirdPerson", "0", CVAR_CHEAT },
-  { &cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE  },
-  { &cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE },
-  { &cg_deferPlayers, "cg_deferPlayers", "1", CVAR_ARCHIVE },
-  { &cg_drawTeamOverlay, "cg_drawTeamOverlay", "0", CVAR_ARCHIVE },
-  { &cg_teamOverlayUserinfo, "teamoverlay", "0", CVAR_ROM | CVAR_USERINFO },
-  { &cg_stats, "cg_stats", "0", 0 },
-  { &cg_drawFriend, "cg_drawFriend", "1", CVAR_ARCHIVE },
-  { &cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE },
-  { &cg_noVoiceChats, "cg_noVoiceChats", "0", CVAR_ARCHIVE },
-  { &cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE },
-  { &cg_creepRes, "cg_creepRes", "16", CVAR_ARCHIVE },
-  { &cg_drawSurfNormal, "cg_drawSurfNormal", "0", CVAR_CHEAT },
-  { &cg_drawBBOX, "cg_drawBBOX", "0", CVAR_CHEAT },
-  { &cg_debugAlloc, "cg_debugAlloc", "0", 0 },
-  { &cg_wwSmoothTime, "cg_wwSmoothTime", "300", CVAR_ARCHIVE },
-  { &cg_wwFollow, "cg_wwFollow", "1", CVAR_ARCHIVE|CVAR_USERINFO },
-  { &cg_wwToggle, "cg_wwToggle", "1", CVAR_ARCHIVE|CVAR_USERINFO },
-  { &cg_unlagged, "cg_unlagged", "1", CVAR_ARCHIVE|CVAR_USERINFO },
-  { &cg_depthSortParticles, "cg_depthSortParticles", "1", CVAR_ARCHIVE },
-  { &cg_bounceParticles, "cg_bounceParticles", "0", CVAR_ARCHIVE },
-  { &cg_consoleLatency, "cg_consoleLatency", "3000", CVAR_ARCHIVE },
-  { &cg_lightFlare, "cg_lightFlare", "3", CVAR_ARCHIVE },
-  { &cg_debugParticles, "cg_debugParticles", "0", CVAR_CHEAT },
-  { &cg_debugTrails, "cg_debugTrails", "0", CVAR_CHEAT },
-  { &cg_debugPVS, "cg_debugPVS", "0", CVAR_CHEAT },
-  { &cg_disableWarningDialogs, "cg_disableWarningDialogs", "0", CVAR_ARCHIVE },
-  { &cg_disableScannerPlane, "cg_disableScannerPlane", "0", CVAR_ARCHIVE },
-  { &cg_tutorial, "cg_tutorial", "1", CVAR_ARCHIVE },
-  { &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
 
-  { &cg_painBlendUpRate, "cg_painBlendUpRate", "10.0", 0 },
-  { &cg_painBlendDownRate, "cg_painBlendDownRate", "0.5", 0 },
-  { &cg_painBlendMax, "cg_painBlendMax", "0.7", 0 },
-  { &cg_painBlendScale, "cg_painBlendScale", "7.0", 0 },
-  { &cg_painBlendZoom, "cg_painBlendZoom", "0.65", 0 },
-
-  { &ui_currentClass, "ui_currentClass", "0", 0 },
-  { &ui_carriage, "ui_carriage", "", 0 },
-  { &ui_stages, "ui_stages", "0 0", 0 },
-  { &ui_dialog, "ui_dialog", "Text not set", 0 },
-  { &ui_loading, "ui_loading", "0", 0 },
-  { &ui_voteActive, "ui_voteActive", "0", 0 },
-  { &ui_humanTeamVoteActive, "ui_humanTeamVoteActive", "0", 0 },
-  { &ui_alienTeamVoteActive, "ui_alienTeamVoteActive", "0", 0 },
-
-  { &cg_debugRandom, "cg_debugRandom", "0", 0 },
-  
-  { &cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE },
-  { &cg_projectileNudge, "cg_projectileNudge", "1", CVAR_ARCHIVE },
-
-  // the following variables are created in other parts of the system,
-  // but we also reference them here
-
-  { &cg_buildScript, "com_buildScript", "0", 0 }, // force loading of all possible data amd error on failures
-  { &cg_paused, "cl_paused", "0", CVAR_ROM },
-  { &cg_blood, "com_blood", "1", CVAR_ARCHIVE },
-  { &cg_synchronousClients, "g_synchronousClients", "0", 0 }, // communicated by systeminfo
-  { &cg_cameraOrbit, "cg_cameraOrbit", "0", CVAR_CHEAT},
-  { &cg_cameraOrbitDelay, "cg_cameraOrbitDelay", "50", CVAR_ARCHIVE},
-  { &cg_timescaleFadeEnd, "cg_timescaleFadeEnd", "1", 0},
-  { &cg_timescaleFadeSpeed, "cg_timescaleFadeSpeed", "0", 0},
-  { &cg_timescale, "timescale", "1", 0},
-  { &cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
-  { &cg_smoothClients, "cg_smoothClients", "0", CVAR_USERINFO | CVAR_ARCHIVE},
-  { &cg_cameraMode, "com_cameraMode", "0", CVAR_CHEAT},
-
-  { &pmove_fixed, "pmove_fixed", "0", 0},
-  { &pmove_msec, "pmove_msec", "8", 0},
-  { &cg_noTaunt, "cg_noTaunt", "0", CVAR_ARCHIVE},
-  { &cg_noProjectileTrail, "cg_noProjectileTrail", "0", CVAR_ARCHIVE},
-  { &cg_smallFont, "ui_smallFont", "0.2", CVAR_ARCHIVE},
-  { &cg_bigFont, "ui_bigFont", "0.5", CVAR_ARCHIVE},
-  { &cg_oldRail, "cg_oldRail", "1", CVAR_ARCHIVE},
-  { &cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
-  { &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
-  { &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE}
-//  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
+#define CG_CVAR_LIST
+#include "cg_cvar.h"
+#undef CG_CVAR_LIST
 };
 
 static int   cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
@@ -398,7 +139,7 @@ CG_RegisterCvars
 void CG_RegisterCvars( void )
 {
   int         i;
-  cvarTable_t *cv;
+  const cvarTable_t *cv;
   char        var[ MAX_TOKEN_CHARS ];
 
   for( i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++ )
@@ -453,7 +194,7 @@ CG_UpdateCvars
 void CG_UpdateCvars( void )
 {
   int         i;
-  cvarTable_t *cv;
+  const cvarTable_t *cv;
 
   for( i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++ )
     trap_Cvar_Update( cv->vmCvar );
@@ -790,6 +531,7 @@ static void CG_RegisterGraphics( void )
   //TA: building shaders
   cgs.media.greenBuildShader          = trap_R_RegisterShader("gfx/misc/greenbuild" );
   cgs.media.redBuildShader            = trap_R_RegisterShader("gfx/misc/redbuild" );
+  cgs.media.noPowerShader             = trap_R_RegisterShader("gfx/misc/nopower" );
   cgs.media.humanSpawningShader       = trap_R_RegisterShader("models/buildables/telenode/rep_cyl" );
 
   for( i = 0; i < 8; i++ )
@@ -824,9 +566,6 @@ static void CG_RegisterGraphics( void )
 
   cgs.media.alienBleedPS              = CG_RegisterParticleSystem( "alienBleedPS" );
   cgs.media.humanBleedPS              = CG_RegisterParticleSystem( "humanBleedPS" );
-
-  CG_BuildableStatusParse( "ui/assets/human/buildstat.cfg", &cgs.humanBuildStat );
-  CG_BuildableStatusParse( "ui/assets/alien/buildstat.cfg", &cgs.alienBuildStat );
  
   // register the inline models
   cgs.numInlineModels = trap_CM_NumInlineModels( );
@@ -1780,6 +1519,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   cgs.levelStartTime = atoi( s );
 
   CG_ParseServerinfo( );
+  CG_ParseSysteminfo();
 
   // load the new map
   trap_CM_LoadMap( cgs.mapname );

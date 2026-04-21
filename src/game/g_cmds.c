@@ -1001,7 +1001,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
   gentity_t   *other;
   int         color;
   const char  *prefix;
-  char        name[ 64 ];
+  char        name[ 64 + 64 + 12 ]; // name + location + formatting
   // don't let text be too long for malicious reasons
   char        text[ MAX_SAY_TEXT ];
   char        location[ 64 ];
@@ -1737,52 +1737,63 @@ void Cmd_CallVote_f( gentity_t *ent )
         "End match in a draw" );
     level.votePassThreshold = g_mapVotesPercent.integer;
   }
-   else if( !Q_stricmp( arg1, "poll" ) )
+  else if (!Q_stricmp(arg1, "poll"))
+  {
+    if (arg2plus[0] == '\0')
     {
-      if( arg2plus[ 0 ] == '\0' )
-      {
-        trap_SendServerCommand( ent-g_entities, "print \"callvote: You forgot to specify what people should vote on.\n\"" );
-        return;
-      }
-      Com_sprintf( level.voteString, sizeof( level.voteString ), nullstring);
-      Com_sprintf( level.voteDisplayString,
-          sizeof( level.voteDisplayString ), "[Poll] \'%s\'", arg2plus );
-   }
-   else if( !Q_stricmp( arg1, "sudden_death" ) ||
-     !Q_stricmp( arg1, "suddendeath" ) )
-   {
-     if(!g_suddenDeathVotePercent.integer)
-     {
-       trap_SendServerCommand( ent-g_entities, "print \"Sudden Death votes have been disabled\n\"" );
-       return;
-     } 
-     else if( g_suddenDeath.integer ) 
-     {
-      trap_SendServerCommand( ent - g_entities, va( "print \"callvote: Sudden Death has already begun\n\"") );
+      trap_SendServerCommand(ent - g_entities, "print \"callvote: You forgot to specify what people should vote on.\n\"");
       return;
-     }
-     else if( G_TimeTilSuddenDeath() <= g_suddenDeathVoteDelay.integer * 1000 )
-     {
-      trap_SendServerCommand( ent - g_entities, va( "print \"callvote: Sudden Death is already immenent\n\"") );
+    }
+
+    Com_sprintf(level.voteString, sizeof(level.voteString), nullstring);
+    Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "[Poll] \'%s\'", arg2plus);
+  }
+  else if (!Q_stricmp(arg1, "sudden_death") || !Q_stricmp(arg1, "suddendeath"))
+  {
+    if (!g_suddenDeathVotePercent.integer)
+    {
+      trap_SendServerCommand(ent - g_entities, "print \"Sudden Death votes have been disabled\n\"");
       return;
-     }
+    } 
+    else if (g_suddenDeath.integer) 
+    {
+      trap_SendServerCommand(ent - g_entities, va("print \"callvote: Sudden Death has already begun\n\""));
+      return;
+    }
+    else if (G_TimeTilSuddenDeath() <= g_suddenDeathVoteDelay.integer * 1000)
+    {
+      trap_SendServerCommand(ent - g_entities, va("print \"callvote: Sudden Death is already immenent\n\""));
+      return;
+    }
     else 
-     {
-       level.votePassThreshold = g_suddenDeathVotePercent.integer;
-       Com_sprintf( level.voteString, sizeof( level.voteString ), "suddendeath" );
-       Com_sprintf( level.voteDisplayString,
-           sizeof( level.voteDisplayString ), "Begin sudden death" );
+    {
+      level.votePassThreshold = g_suddenDeathVotePercent.integer;
+      Com_sprintf(level.voteString, sizeof( level.voteString ), "suddendeath" );
+      Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Begin sudden death");
 
-       if( g_suddenDeathVoteDelay.integer )
-         Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " in %d seconds", g_suddenDeathVoteDelay.integer ) );
-
-     }
-   }
+      if (g_suddenDeathVoteDelay.integer)
+      {
+        Q_strcat(level.voteDisplayString, sizeof(level.voteDisplayString), va(" in %d seconds", g_suddenDeathVoteDelay.integer));
+      }
+    }
+  }
+  else if (!Q_stricmp(arg1, "extend"))
+  {
+    if (g_extendVoteTime.value <= 0)
+    {
+      trap_SendServerCommand(ent - g_entities, va("print \"Extend votes are disabled\n\""));
+    }
+    else
+    {
+      //the calculations go in g_main.c
+      Com_sprintf(level.voteString, sizeof( level.voteString ), "set g_extendVote 1", clientNum);
+      Com_sprintf(level.voteDisplayString, sizeof( level.voteDisplayString ), "Extend game time by %i minutes", g_extendVoteTime.integer);
+    }
+  }
   else
   {
-    trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
-    trap_SendServerCommand( ent-g_entities, "print \"Valid vote commands are: "
-      "map, map_restart, draw, nextmap, kick, mute, unmute, poll, and sudden_death\n" );
+    trap_SendServerCommand(ent - g_entities, "print \"Invalid vote string\n\"");
+    trap_SendServerCommand(ent - g_entities, "print \"Valid vote commands are:\nmap, map_restart, draw, nextmap, kick, mute, unmute, poll, sudden_death, and extend\n");
     return;
   }
   

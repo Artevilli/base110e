@@ -3,12 +3,12 @@
 #include <string.h>
 #include "cpp.h"
 
+extern	int lcc_getopt(int, char *const *, const char *);
 extern	char	*optarg;
 extern	int	optind;
 extern	int	verbose;
 extern	int	Cplusplus;
 Nlist	*kwdefined;
-char	wd[128];
 
 #define	NLSIZE	128
 
@@ -29,11 +29,11 @@ struct	kwtab {
 	{"define",	KDEFINE,	ISKW},
 	{"undef",	KUNDEF,		ISKW},
 	{"line",		KLINE,		ISKW},
-	{"warning",	KWARNING,	ISKW},
 	{"error",	KERROR,		ISKW},
 	{"pragma",	KPRAGMA,	ISKW},
 	{"eval",		KEVAL,		ISKW},
 	{"defined",	KDEFINED,	ISDEFINED+ISUNCHANGE},
+	{"ident",	KPRAGMA,	ISKW},	/* treat like pragma (ignored) */
 	{"__LINE__",	KLINENO,	ISMAC+ISUNCHANGE},
 	{"__FILE__",	KFILE,		ISMAC+ISUNCHANGE},
 	{"__DATE__",	KDATE,		ISMAC+ISUNCHANGE},
@@ -78,7 +78,7 @@ lookup(Token *tp, int install)
 
 	h = 0;
 	for (cp=tp->t, cpe=cp+tp->len; cp<cpe; )
-		h += *cp++;
+		h = h * 101 + *cp++;
 	h %= NLSIZE;
 	np = nlist[h];
 	while (np) {

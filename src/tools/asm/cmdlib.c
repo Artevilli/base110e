@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2000-2006 Tim Angus
 
 This file is part of Tremulous.
 
@@ -64,7 +64,7 @@ char	*ex_argv[MAX_EX_ARGC];
 void ExpandWildcards( int *argc, char ***argv )
 {
 	struct _finddata_t fileinfo;
-	intptr_t	handle;
+	int		handle;
 	int		i;
 	char	filename[1024];
 	char	filebase[1024];
@@ -340,13 +340,22 @@ char *ExpandPathAndArchive (const char *path)
 {
 	char	*expanded;
 	char	archivename[1024];
+	int     len;
 
 	expanded = ExpandPath (path);
 
 	if (archive)
 	{
-		sprintf (archivename, "%s/%s", archivedir, path);
-		QCopyFile (expanded, archivename);
+		len = snprintf (archivename, sizeof(archivename), "%s/%s", archivedir, path);
+
+                if (len >= sizeof(archivename))
+                {
+                  Error("expandpathandarchive path too long");
+                }
+                else
+                {
+		  QCopyFile (expanded, archivename);
+		}
 	}
 	return expanded;
 }
@@ -397,12 +406,11 @@ void Q_getwd (char *out)
 	int i = 0;
 
 #ifdef WIN32
-   if (_getcwd (out, 256) == NULL)
-     strcpy(out, ".");  /* shrug */
+   _getcwd (out, 256);
    strcat (out, "\\");
 #else
    if (getcwd (out, 256) == NULL)
-     strcpy(out, ".");  /* shrug */
+    Error("getcwd out is null");
    strcat (out, "/");
 #endif
 
@@ -978,7 +986,13 @@ int ParseNum (const char *str)
 ============================================================================
 */
 
-short   ShortSwap (short l)
+#ifdef _SGI_SOURCE
+#define	__BIG_ENDIAN__
+#endif
+
+#ifdef __BIG_ENDIAN__
+
+short   LittleShort (short l)
 {
 	byte    b1,b2;
 
@@ -988,7 +1002,13 @@ short   ShortSwap (short l)
 	return (b1<<8) + b2;
 }
 
-int    LongSwap (int l)
+short   BigShort (short l)
+{
+	return l;
+}
+
+
+int    LittleLong (int l)
 {
 	byte    b1,b2,b3,b4;
 
@@ -1000,19 +1020,88 @@ int    LongSwap (int l)
 	return ((int)b1<<24) + ((int)b2<<16) + ((int)b3<<8) + b4;
 }
 
-typedef union {
-    float	f;
-    unsigned int i;
-} _FloatByteUnion;
+int    BigLong (int l)
+{
+	return l;
+}
 
-float FloatSwap (const float *f) {
-	_FloatByteUnion out;
 
-	out.f = *f;
-	out.i = LongSwap(out.i);
-
+float	LittleFloat (float l)
+{
+	union {byte b[4]; float f;} in, out;
+	
+	in.f = l;
+	out.b[0] = in.b[3];
+	out.b[1] = in.b[2];
+	out.b[2] = in.b[1];
+	out.b[3] = in.b[0];
+	
 	return out.f;
 }
+
+float	BigFloat (float l)
+{
+	return l;
+}
+
+
+#else
+
+
+short   BigShort (short l)
+{
+	byte    b1,b2;
+
+	b1 = l&255;
+	b2 = (l>>8)&255;
+
+	return (b1<<8) + b2;
+}
+
+short   LittleShort (short l)
+{
+	return l;
+}
+
+
+int    BigLong (int l)
+{
+	byte    b1,b2,b3,b4;
+
+	b1 = l&255;
+	b2 = (l>>8)&255;
+	b3 = (l>>16)&255;
+	b4 = (l>>24)&255;
+
+	return ((int)b1<<24) + ((int)b2<<16) + ((int)b3<<8) + b4;
+}
+
+int    LittleLong (int l)
+{
+	return l;
+}
+
+float	BigFloat (float l)
+{
+	union {byte b[4]; float f;} in, out;
+	
+	in.f = l;
+	out.b[0] = in.b[3];
+	out.b[1] = in.b[2];
+	out.b[2] = in.b[1];
+	out.b[3] = in.b[0];
+	
+	return out.f;
+}
+
+float	LittleFloat (float l)
+{
+	return l;
+}
+
+
+#endif
+
 
 //=======================================================
 

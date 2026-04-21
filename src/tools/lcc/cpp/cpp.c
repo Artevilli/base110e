@@ -5,11 +5,9 @@
 #include <stdarg.h>
 #include "cpp.h"
 
-char rcsid[] = "cpp.c - faked rcsid";
-
 #define	OUTS	16384
 char	outbuf[OUTS];
-char	*outbufp = outbuf;
+char	*out_p = outbuf;
 Source	*cursource;
 int	nerrs;
 struct	token nltoken = { NL, 0, 0, 0, 1, (uchar*)"\n" };
@@ -19,6 +17,7 @@ int	ifdepth;
 int	ifsatisfied[NIF];
 int	skipping;
 
+char rcsid[] = "$Revision$ $Date$";
 
 int
 main(int argc, char **argv)
@@ -51,7 +50,7 @@ process(Tokenrow *trp)
 	for (;;) {
 		if (trp->tp >= trp->lp) {
 			trp->tp = trp->lp = trp->bp;
-			outbufp = outbuf;
+			out_p = outbuf;
 			anymacros |= gettokens(trp, 1);
 			trp->tp = trp->bp;
 		}
@@ -105,6 +104,8 @@ control(Tokenrow *trp)
 		return;
 	}
 	if (skipping) {
+		if ((np->flag&ISKW)==0)
+			return;
 		switch (np->val) {
 		case KENDIF:
 			if (--ifdepth<skipping)
@@ -204,14 +205,9 @@ control(Tokenrow *trp)
 			error(WARNING, "Syntax error in #endif");
 		break;
 
-	case KWARNING:
-		trp->tp = tp+1;
-		error(WARNING, "#warning directive: %r", trp);
-		break;
-
 	case KERROR:
 		trp->tp = tp+1;
-		error(ERROR, "#error directive: %r", trp);
+		error(WARNING, "#error directive: %r", trp);
 		break;
 
 	case KLINE:
@@ -219,8 +215,8 @@ control(Tokenrow *trp)
 		expandrow(trp, "<line>");
 		tp = trp->bp+2;
 	kline:
-		if (tp+1>=trp->lp || tp->type!=NUMBER || tp+3<trp->lp
-		 || ((tp+3==trp->lp && ((tp+1)->type!=STRING))||*(tp+1)->t=='L')){
+		if ((tp+1>=trp->lp || tp->type!=NUMBER || tp+3<trp->lp
+		 || (tp+3==trp->lp)) && (((tp+1)->type!=STRING)||*(tp+1)->t=='L')){
 			error(ERROR, "Syntax error in #line");
 			return;
 		}
@@ -250,6 +246,7 @@ control(Tokenrow *trp)
 		break;
 	}
 	setempty(trp);
+	return;
 }
 
 void *

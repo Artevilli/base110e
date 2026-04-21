@@ -685,7 +685,8 @@ int gettok(void) {
 			}
 			goto id;
 		default:
-			if ((map[cp[-1]]&BLANK) == 0) {
+			if ((map[cp[-1]]&BLANK) == 0)
+			{
 				if (cp[-1] < ' ' || cp[-1] >= 0177)
 					error("illegal character `\\0%o'\n", cp[-1]);
 				else
@@ -829,9 +830,8 @@ static void *scon(int q, void *put(int c, void *cl), void *cl) {
 			c = *cp++;
 			if (c == '\\') {
 				if (map[*cp]&NEWLINE) {
-					if (cp < limit)
-						break;
-					cp++;
+					if (cp++ < limit)
+						continue;
 					nextline();
 				}
 				if (limit - cp < MAXTOKEN)
@@ -846,6 +846,12 @@ static void *scon(int q, void *put(int c, void *cl), void *cl) {
 			cp++;
 		else
 			error("missing %c\n", q);
+		if (q == '"' && put == wcput && getchr() == 'L') {
+			if (limit - cp < 2)
+				fillbuf();
+			if (cp[1] == '"')
+				cp++;
+		}
 	} while (q == '"' && getchr() == '"');
 	cl = put(0, cl);
 	if (n >= BUFSIZE)

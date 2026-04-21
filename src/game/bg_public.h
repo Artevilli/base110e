@@ -39,6 +39,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CROUCH_VIEWHEIGHT       12
 #define DEAD_VIEWHEIGHT         -14 //TA: watch for mins[ 2 ] less than this causing
 
+#define PM_STEP_HEIGHT 18
+
 //
 // config strings are a general means of communicating variable length strings
 // from the server to all connected clients.
@@ -183,6 +185,10 @@ typedef struct
   // for fixed msec Pmove
   int           pmove_fixed;
   int           pmove_msec;
+
+  // 1.1.0e only
+  int           fixedPmove;
+  int           fixedPmoveFPS;
 
   // callbacks to test the world
   // these will be different functions during game and cgame
@@ -486,99 +492,9 @@ typedef enum
 
 typedef enum
 {
-  EV_NONE,
-
-  EV_FOOTSTEP,
-  EV_FOOTSTEP_METAL,
-  EV_FOOTSTEP_SQUELCH,
-  EV_FOOTSPLASH,
-  EV_FOOTWADE,
-  EV_SWIM,
-
-  EV_STEP_4,
-  EV_STEP_8,
-  EV_STEP_12,
-  EV_STEP_16,
-
-  EV_STEPDN_4,
-  EV_STEPDN_8,
-  EV_STEPDN_12,
-  EV_STEPDN_16,
-
-  EV_FALL_SHORT,
-  EV_FALL_MEDIUM,
-  EV_FALL_FAR,
-  EV_FALLING,
-
-  EV_JUMP,
-  EV_WATER_TOUCH, // foot touches
-  EV_WATER_LEAVE, // foot leaves
-  EV_WATER_UNDER, // head touches
-  EV_WATER_CLEAR, // head leaves
-
-  EV_NOAMMO,
-  EV_CHANGE_WEAPON,
-  EV_FIRE_WEAPON,
-  EV_FIRE_WEAPON2,
-  EV_FIRE_WEAPON3,
-
-  EV_PLAYER_RESPAWN, //TA: for fovwarp effects
-  EV_PLAYER_TELEPORT_IN,
-  EV_PLAYER_TELEPORT_OUT,
-
-  EV_GRENADE_BOUNCE,    // eventParm will be the soundindex
-
-  EV_GENERAL_SOUND,
-  EV_GLOBAL_SOUND,    // no attenuation
-
-  EV_BULLET_HIT_FLESH,
-  EV_BULLET_HIT_WALL,
-
-  EV_SHOTGUN,
-
-  EV_MISSILE_HIT,
-  EV_MISSILE_MISS,
-  EV_MISSILE_MISS_METAL,
-  EV_TESLATRAIL,
-  EV_BULLET,        // otherEntity is the shooter
-
-  EV_LEV1_GRAB,
-  EV_LEV4_CHARGE_PREPARE,
-  EV_LEV4_CHARGE_START,
-
-  EV_PAIN,
-  EV_DEATH1,
-  EV_DEATH2,
-  EV_DEATH3,
-  EV_OBITUARY,
-
-  EV_GIB_PLAYER,      // gib a previously living player
-
-  EV_BUILD_CONSTRUCT, //TA
-  EV_BUILD_DESTROY,   //TA
-  EV_BUILD_DELAY,     //TA: can't build yet
-  EV_BUILD_REPAIR,    //TA: repairing buildable
-  EV_BUILD_REPAIRED,  //TA: buildable has full health
-  EV_HUMAN_BUILDABLE_EXPLOSION,
-  EV_ALIEN_BUILDABLE_EXPLOSION,
-  EV_ALIEN_ACIDTUBE,
-
-  EV_MEDKIT_USED,
-
-  EV_ALIEN_EVOLVE,
-  EV_ALIEN_EVOLVE_FAILED,
-
-  EV_DEBUG_LINE,
-  EV_STOPLOOPINGSOUND,
-  EV_TAUNT,
-
-  EV_OVERMIND_ATTACK, //TA: overmind under attack
-  EV_OVERMIND_DYING,  //TA: overmind close to death
-  EV_OVERMIND_SPAWNS, //TA: overmind needs spawns
-
-  EV_DCC_ATTACK,      //TA: dcc under attack
-
-  EV_RPTUSE_SOUND     //TA: trigger a sound
+#define EVENT_ENUMS
+        #include "bg_events.h"
+#undef EVENT_ENUMS
 } entity_event_t;
 
 typedef enum
@@ -845,54 +761,9 @@ typedef enum
 // means of death
 typedef enum
 {
-  MOD_UNKNOWN,
-  MOD_SHOTGUN,
-  MOD_BLASTER,
-  MOD_PAINSAW,
-  MOD_MACHINEGUN,
-  MOD_CHAINGUN,
-  MOD_PRIFLE,
-  MOD_MDRIVER,
-  MOD_LASGUN,
-  MOD_LCANNON,
-  MOD_LCANNON_SPLASH,
-  MOD_FLAMER,
-  MOD_FLAMER_SPLASH,
-  MOD_GRENADE,
-  MOD_WATER,
-  MOD_SLIME,
-  MOD_LAVA,
-  MOD_CRUSH,
-  MOD_TELEFRAG,
-  MOD_FALLING,
-  MOD_SUICIDE,
-  MOD_TARGET_LASER,
-  MOD_TRIGGER_HURT,
-
-  MOD_ABUILDER_CLAW,
-  MOD_LEVEL0_BITE,
-  MOD_LEVEL1_CLAW,
-  MOD_LEVEL1_PCLOUD,
-  MOD_LEVEL3_CLAW,
-  MOD_LEVEL3_POUNCE,
-  MOD_LEVEL3_BOUNCEBALL,
-  MOD_LEVEL2_CLAW,
-  MOD_LEVEL2_ZAP,
-  MOD_LEVEL4_CLAW,
-  MOD_LEVEL4_CHARGE,
-
-  MOD_SLOWBLOB,
-  MOD_POISON,
-  MOD_SWARM,
-
-  MOD_HSPAWN,
-  MOD_TESLAGEN,
-  MOD_MGTURRET,
-  MOD_REACTOR,
-
-  MOD_ASPAWN,
-  MOD_ATUBE,
-  MOD_OVERMIND
+#define MOD_ENUMS
+  #include "bg_mods.h"
+#undef MOD_ENUMS
 } meansOfDeath_t;
 
 

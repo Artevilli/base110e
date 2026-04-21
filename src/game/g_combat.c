@@ -68,56 +68,11 @@ void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker )
 }
 
 // these are just for logging, the client prints its own messages
-char *modNames[ ] =
-{
-  "MOD_UNKNOWN",
-  "MOD_SHOTGUN",
-  "MOD_BLASTER",
-  "MOD_PAINSAW",
-  "MOD_MACHINEGUN",
-  "MOD_CHAINGUN",
-  "MOD_PRIFLE",
-  "MOD_MDRIVER",
-  "MOD_LASGUN",
-  "MOD_LCANNON",
-  "MOD_LCANNON_SPLASH",
-  "MOD_FLAMER",
-  "MOD_FLAMER_SPLASH",
-  "MOD_GRENADE",
-  "MOD_WATER",
-  "MOD_SLIME",
-  "MOD_LAVA",
-  "MOD_CRUSH",
-  "MOD_TELEFRAG",
-  "MOD_FALLING",
-  "MOD_SUICIDE",
-  "MOD_TARGET_LASER",
-  "MOD_TRIGGER_HURT",
-
-  "MOD_ABUILDER_CLAW",
-  "MOD_LEVEL0_BITE",
-  "MOD_LEVEL1_CLAW",
-  "MOD_LEVEL1_PCLOUD",
-  "MOD_LEVEL3_CLAW",
-  "MOD_LEVEL3_POUNCE",
-  "MOD_LEVEL3_BOUNCEBALL",
-  "MOD_LEVEL2_CLAW",
-  "MOD_LEVEL2_ZAP",
-  "MOD_LEVEL4_CLAW",
-  "MOD_LEVEL4_CHARGE",
-
-  "MOD_SLOWBLOB",
-  "MOD_POISON",
-  "MOD_SWARM",
-
-  "MOD_HSPAWN",
-  "MOD_TESLAGEN",
-  "MOD_MGTURRET",
-  "MOD_REACTOR",
-
-  "MOD_ASPAWN",
-  "MOD_ATUBE",
-  "MOD_OVERMIND"
+char *modNames[MOD_NUM_MAX] = {
+#define MOD_STRINGS
+        #include "bg_mods.h"
+#undef MOD_STRINGS
+        "NULL" // avoid -Wpedantic warnings
 };
 
 /*
@@ -144,6 +99,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   if( level.intermissiontime )
     return;
+
+  //unlag the client
+  G_UnTimeShiftClient( self );
 
   self->client->ps.pm_type = PM_DEAD;
   self->suicideTime = 0;
@@ -822,10 +780,7 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
   if( point == NULL )
     return 1.0f;
 
-  if( g_unlagged.integer && targ->client && targ->client->unlaggedCalc.used )
-    VectorCopy( targ->client->unlaggedCalc.origin, targOrigin );
-  else
-    VectorCopy( targ->r.currentOrigin, targOrigin );
+  VectorCopy( targ->r.currentOrigin, targOrigin );
 
   clientHeight = targ->r.maxs[ 2 ] - targ->r.mins[ 2 ];
 

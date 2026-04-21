@@ -272,13 +272,6 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm )
 
     other = &g_entities[ pm->touchents[ i ] ];
 
-    // see G_UnlaggedDetectCollisions(), this is the inverse of that.
-    // if our movement is blocked by another player's real position,
-    // don't use the unlagged position for them because they are 
-    // blocking or server-side Pmove() from reaching it
-    if( other->client && other->client->unlaggedCalc.used )
-      other->client->unlaggedCalc.used = qfalse;
-
     //charge attack
     if( ent->client->ps.weapon == WP_ALEVEL4 &&
         ent->client->ps.stats[ STAT_MISC ] > 0 &&
@@ -1072,293 +1065,6 @@ void SendPendingPredictableEvents( playerState_t *ps )
 
 /*
 ==============
- G_UnlaggedStore
-
- Called on every server frame.  Stores position data for the client at that 
- into client->unlaggedHist[] and the time into level.unlaggedTimes[].  
- This data is used by G_UnlaggedCalc()
-==============
-*/
-void G_UnlaggedStore( void )
-{
-  int i = 0;
-  gentity_t *ent;
-  unlagged_t *save;
-  
-  if( !g_unlagged.integer )
-    return;
-  level.unlaggedIndex++; 
-  if( level.unlaggedIndex >= MAX_UNLAGGED_MARKERS )
-    level.unlaggedIndex = 0;
-
-  level.unlaggedTimes[ level.unlaggedIndex ] = level.time;
- 
-  for( i = 0; i < level.maxclients; i++ )
-  {
-    ent = &g_entities[ i ];
-    save = &ent->client->unlaggedHist[ level.unlaggedIndex ];
-    save->used = qfalse; 
-    if( !ent->r.linked || !( ent->r.contents & CONTENTS_BODY ) )
-      continue;
-    if( ent->client->pers.connected != CON_CONNECTED )
-      continue; 
-    VectorCopy( ent->r.mins, save->mins );
-    VectorCopy( ent->r.maxs, save->maxs );
-    VectorCopy( ent->s.pos.trBase, save->origin );
-    save->used = qtrue;
-  }
-}
-
-/*
-==============
- G_UnlaggedClear
- 
- Mark all unlaggedHist[] markers for this client invalid.  Useful for
- preventing teleporting and death.
-==============
-*/
-void G_UnlaggedClear( gentity_t *ent )
-{
-  int i;
-
-  for( i = 0; i < MAX_UNLAGGED_MARKERS; i++ )
-    ent->client->unlaggedHist[ i ].used = qfalse;
-}
-
-/*
-==============
- G_UnlaggedCalc
-
- Loops through all active clients and calculates their predicted position
- for time then stores it in client->unlaggedCalc
-==============
-*/
-void G_UnlaggedCalc( int time, gentity_t *rewindEnt )
-{
-  int i = 0;
-  gentity_t *ent;
-  int startIndex = level.unlaggedIndex;
-  int stopIndex = -1;
-  int frameMsec = 0;
-  float lerp = 0.5f;
-
-  if( !g_unlagged.integer )
-    return;
- 
-  // clear any calculated values from a previous run
-  for( i = 0; i < level.maxclients; i++ )
-  {
-    ent = &g_entities[ i ];
-    ent->client->unlaggedCalc.used = qfalse;
-  }
-
-  for( i = 0; i < MAX_UNLAGGED_MARKERS; i++ )
-  {
-    if( level.unlaggedTimes[ startIndex ] <= time )
-      break;
-    stopIndex = startIndex;
-    if( --startIndex < 0 )
-      startIndex = MAX_UNLAGGED_MARKERS - 1;
-  }
-  if( i == MAX_UNLAGGED_MARKERS )
-  {
-    // if we searched all markers and the oldest one still isn't old enough
-    // just use the oldest marker with no lerping
-    lerp = 0.0f;
-  }
-
-  // client is on the current frame, no need for unlagged
-  if( stopIndex == -1 )
-    return;
-
-  // lerp between two markers
-  frameMsec = level.unlaggedTimes[ stopIndex ] -
-    level.unlaggedTimes[ startIndex ];
-  if( frameMsec > 0 )
-  {
-    lerp = ( float )( time - level.unlaggedTimes[ startIndex ] )
-      / ( float )frameMsec; 
-  }
-  
-  for( i = 0; i < level.maxclients; i++ )
-  {
-    ent = &g_entities[ i ];
-    if( ent == rewindEnt )
-      continue;
-    if( !ent->r.linked || !( ent->r.contents & CONTENTS_BODY ) )
-      continue;
-    if( ent->client->pers.connected != CON_CONNECTED )
-      continue;
-    if( !ent->client->unlaggedHist[ startIndex ].used )
-      continue;
-    if( !ent->client->unlaggedHist[ stopIndex ].used )
-      continue;
-
-    // between two unlagged markers
-    VectorLerp( lerp, ent->client->unlaggedHist[ startIndex ].mins,
-      ent->client->unlaggedHist[ stopIndex ].mins,
-      ent->client->unlaggedCalc.mins );
-    VectorLerp( lerp, ent->client->unlaggedHist[ startIndex ].maxs,
-      ent->client->unlaggedHist[ stopIndex ].maxs,
-      ent->client->unlaggedCalc.maxs );
-    VectorLerp( lerp, ent->client->unlaggedHist[ startIndex ].origin,
-      ent->client->unlaggedHist[ stopIndex ].origin,
-      ent->client->unlaggedCalc.origin );
-
-    ent->client->unlaggedCalc.used = qtrue;
-  }
-}
-
-/*
-==============
- G_UnlaggedOff
-
- Reverses the changes made to all active clients by G_UnlaggedOn()
-==============
-*/
-void G_UnlaggedOff( void )
-{
-  int i = 0;
-  gentity_t *ent;
-  
-  if( !g_unlagged.integer )
-    return;
-  
-  for( i = 0; i < level.maxclients; i++ )
-  {
-    ent = &g_entities[ i ];
-    if( !ent->client->unlaggedBackup.used )
-      continue;
-    VectorCopy( ent->client->unlaggedBackup.mins, ent->r.mins );
-    VectorCopy( ent->client->unlaggedBackup.maxs, ent->r.maxs );
-    VectorCopy( ent->client->unlaggedBackup.origin, ent->r.currentOrigin );
-    ent->client->unlaggedBackup.used = qfalse;
-    trap_LinkEntity( ent );
-  }
-}
-
-/*
-==============
- G_UnlaggedOn
-
- Called after G_UnlaggedCalc() to apply the calculated values to all active
- clients.  Once finished tracing, G_UnlaggedOff() must be called to restore
- the clients' position data
-
- As an optimization, all clients that have an unlagged position that is
- not touchable at "range" from "muzzle" will be ignored.  This is required
- to prevent a huge amount of trap_LinkEntity() calls per user cmd.
-==============
-*/
-
-void G_UnlaggedOn( gentity_t *attacker, vec3_t muzzle, float range )
-{
-  int i = 0;
-  gentity_t *ent;
-  unlagged_t *calc;
-  
-  if( !g_unlagged.integer )
-    return;
-
-  if( !attacker->client->pers.useUnlagged )
-    return;
-  
-  for( i = 0; i < level.maxclients; i++ )
-  {
-    ent = &g_entities[ i ];
-    calc = &ent->client->unlaggedCalc;
-
-    if( !calc->used )
-      continue;
-    if( ent->client->unlaggedBackup.used )
-      continue;
-    if( !ent->r.linked || !( ent->r.contents & CONTENTS_BODY ) )
-      continue;
-    if( VectorCompare( ent->r.currentOrigin, calc->origin ) )
-      continue;
-    if( muzzle )
-    {
-      float r1 = Distance( calc->origin, calc->maxs );
-      float r2 = Distance( calc->origin, calc->mins );
-      float maxRadius = ( r1 > r2 ) ? r1 : r2;
-
-      if( Distance( muzzle, calc->origin ) > range + maxRadius )
-        continue; 
-    }
-
-    // create a backup of the real positions
-    VectorCopy( ent->r.mins, ent->client->unlaggedBackup.mins );
-    VectorCopy( ent->r.maxs, ent->client->unlaggedBackup.maxs );
-    VectorCopy( ent->r.currentOrigin, ent->client->unlaggedBackup.origin );
-    ent->client->unlaggedBackup.used = qtrue;
-
-    // move the client to the calculated unlagged position
-    VectorCopy( calc->mins, ent->r.mins );
-    VectorCopy( calc->maxs, ent->r.maxs );
-    VectorCopy( calc->origin, ent->r.currentOrigin );
-    trap_LinkEntity( ent );
-  }
-}
-/*
-==============
- G_UnlaggedDetectCollisions
-
- cgame prediction will predict a client's own position all the way up to
- the current time, but only updates other player's positions up to the
- postition sent in the most recent snapshot.
-
- This allows player X to essentially "move through" the position of player Y 
- when player X's cmd is processed with Pmove() on the server.  This is because
- player Y was clipping player X's Pmove() on his client, but when the same
- cmd is processed with Pmove on the server it is not clipped.
-
- Long story short (too late): don't use unlagged positions for players who
- were blocking this player X's client-side Pmove().  This makes the assumption
- that if player X's movement was blocked in the client he's going to still
- be up against player Y when the Pmove() is run on the server with the
- same cmd.
-
- NOTE: this must be called after Pmove() and G_UnlaggedCalc()
-==============
-*/
-static void G_UnlaggedDetectCollisions( gentity_t *ent )
-{
-  unlagged_t *calc;
-  trace_t tr;
-  float r1, r2;
-  float range;
-
-  if( !g_unlagged.integer )
-    return;
-  if( !ent->client->pers.useUnlagged )
-    return;
-
-  calc = &ent->client->unlaggedCalc;
-
-  // if the client isn't moving, this is not necessary
-  if( VectorCompare( ent->client->oldOrigin, ent->client->ps.origin ) )
-    return;
-
-  range = Distance( ent->client->oldOrigin, ent->client->ps.origin );
-
-  // increase the range by the player's largest possible radius since it's
-  // the players bounding box that collides, not their origin
-  r1 = Distance( calc->origin, calc->mins );
-  r2 = Distance( calc->origin, calc->maxs );
-  range += ( r1 > r2 ) ? r1 : r2;
-
-  G_UnlaggedOn( ent, ent->client->oldOrigin, range );
-
-  trap_Trace(&tr, ent->client->oldOrigin, ent->r.mins, ent->r.maxs,
-    ent->client->ps.origin, ent->s.number,  MASK_PLAYERSOLID );
-  if( tr.entityNum >= 0 && tr.entityNum < MAX_CLIENTS )
-    g_entities[ tr.entityNum ].client->unlaggedCalc.used = qfalse; 
-
-  G_UnlaggedOff( );
-}
-
-/*
-==============
 ClientThink
 
 This will be called once for each client frame, which will
@@ -1411,6 +1117,11 @@ void ClientThink_real( gentity_t *ent )
   if( client->pers.ping < 0 )
     client->pers.ping = 0;
 
+  // unlagged
+  client->frameOffset = trap_Milliseconds( ) - level.frameStartTime;
+  client->lastCmdTime = ucmd->serverTime;
+  client->lastUpdateFrame = level.framenum;
+
   msec = ucmd->serverTime - client->ps.commandTime;
   // following others may result in bad times, but we still want
   // to check for follow toggles
@@ -1419,20 +1130,6 @@ void ClientThink_real( gentity_t *ent )
 
   if( msec > 200 )
     msec = 200;
-
-  client->unlaggedTime = ucmd->serverTime;
-
-  if( pmove_msec.integer < 8 )
-    trap_Cvar_Set( "pmove_msec", "8" );
-  else if( pmove_msec.integer > 33 )
-    trap_Cvar_Set( "pmove_msec", "33" );
-
-  if( pmove_fixed.integer || client->pers.pmoveFixed )
-  {
-    ucmd->serverTime = ( ( ucmd->serverTime + pmove_msec.integer - 1 ) / pmove_msec.integer ) * pmove_msec.integer;
-    //if (ucmd->serverTime - client->ps.commandTime <= 0)
-    //  return;
-  }
 
   //
   // check for exiting intermission
@@ -1459,9 +1156,6 @@ void ClientThink_real( gentity_t *ent )
   // check for inactivity timer, but never drop the local client of a non-dedicated server
   if( !ClientInactivityTimer( client ) )
     return;
-
-  // calculate where ent is currently seeing all the other active clients 
-  G_UnlaggedCalc( ent->client->unlaggedTime, ent );
 
   if( client->noclip )
     client->ps.pm_type = PM_NOCLIP;
@@ -1626,8 +1320,13 @@ void ClientThink_real( gentity_t *ent )
   pm.debugLevel = g_debugMove.integer;
   pm.noFootsteps = 0;
 
-  pm.pmove_fixed = pmove_fixed.integer | client->pers.pmoveFixed;
-  pm.pmove_msec = pmove_msec.integer;
+  if ( pm_fixedPmoveFPS.integer < 60 ) {
+          trap_Cvar_Set( "pm_fixedPmoveFPS", "60" );
+  } else if ( pm_fixedPmoveFPS.integer > 333 ) {
+          trap_Cvar_Set( "pm_fixedPmoveFPS", "333" );
+  }
+  pm.fixedPmove = pm_fixedPmove.integer;
+  pm.fixedPmoveFPS = pm_fixedPmoveFPS.integer;
 
   VectorCopy( client->ps.origin, client->oldOrigin );
 
@@ -1638,16 +1337,11 @@ void ClientThink_real( gentity_t *ent )
 
   Pmove( &pm );
 
-  G_UnlaggedDetectCollisions( ent );
-
   // save results of pmove
   if( ent->client->ps.eventSequence != oldEventSequence )
     ent->eventTime = level.time;
 
-  if( g_smoothClients.integer )
-    BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue );
-  else
-    BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
+  BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
 
   SendPendingPredictableEvents( &ent->client->ps );
 
@@ -1708,7 +1402,6 @@ void ClientThink_real( gentity_t *ent )
         //prevent lerping
         client->ps.eFlags ^= EF_TELEPORT_BIT;
         client->ps.eFlags &= ~EF_NODRAW;
-        G_UnlaggedClear( ent );
 
         //client leaves hovel
         client->ps.stats[ STAT_STATE ] &= ~SS_HOVELING;
@@ -1809,6 +1502,7 @@ void ClientThink_real( gentity_t *ent )
   }
 }
 
+
 /*
 ==================
 ClientThink
@@ -1825,7 +1519,9 @@ void ClientThink( int clientNum )
 
   // mark the time we got info, so we can display the
   // phone jack if they don't get any for a while
+#if 0 // unlagged
   ent->client->lastCmdTime = level.time;
+#endif
 
   if( !g_synchronousClients.integer )
     ClientThink_real( ent );
@@ -1914,6 +1610,12 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 void ClientEndFrame( gentity_t *ent )
 {
   clientPersistant_t  *pers;
+  gclient_t *client;
+  // unlagged
+  int frames;
+
+  if( !ent->client )
+    return;
 
   if( ent->client->sess.sessionTeam == TEAM_SPECTATOR )
   {
@@ -1921,18 +1623,22 @@ void ClientEndFrame( gentity_t *ent )
     return;
   }
 
-  pers = &ent->client->pers;
+  client = ent->client;
+  pers = &client->pers;
 
   // save a copy of certain playerState values in case of SPECTATOR_FOLLOW 
-  pers->score = ent->client->ps.persistant[ PERS_SCORE ];
-  pers->credit = ent->client->ps.persistant[ PERS_CREDIT ];
+  pers->score = client->ps.persistant[ PERS_SCORE ];
+  pers->credit = client->ps.persistant[ PERS_CREDIT ];
 
   //
   // If the end of unit layout is displayed, don't give
   // the player any normal movement attributes
   //
   if( level.intermissiontime )
+  {
+    client->ps.commandTime = client->pers.cmd.serverTime;
     return;
+  }
 
   // burn from lava, etc
   P_WorldEffects( ent );
@@ -1946,21 +1652,41 @@ void ClientEndFrame( gentity_t *ent )
   else
     ent->s.eFlags &= ~EF_CONNECTION;
 
-  ent->client->ps.stats[ STAT_HEALTH ] = ent->health; // FIXME: get rid of ent->health...
+  client->ps.stats[ STAT_HEALTH ] = ent->health; // FIXME: get rid of ent->health...
   
   // respawn if dead
-  if( ent->client->ps.stats[ STAT_HEALTH ] <= 0 && level.time >= ent->client->respawnTime )
+  if( client->ps.stats[ STAT_HEALTH ] <= 0 && level.time >= client->respawnTime )
     respawn( ent );
 
   G_SetClientSound( ent );
 
-  // set the latest infor
-  if( g_smoothClients.integer )
-    BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue );
-  else
-    BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
+  // set the latest info
+  BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
 
   SendPendingPredictableEvents( &ent->client->ps );
+
+  client->ps.eFlags &= ~EF_CONNECTION;
+  ent->s.eFlags &= ~EF_CONNECTION;
+
+  frames = level.framenum - client->lastUpdateFrame - 1;
+
+  if( frames > 2 )
+  {
+    // limit lagged player prediction to 2 server frames
+    frames = 2;
+    // and add the EF_CONNECTION flag if we haven't gotten commands recently
+    client->ps.eFlags |= EF_CONNECTION;
+    ent->s.eFlags |= EF_CONNECTION;
+  }
+
+  if( frames > 0 && g_smoothClients.integer )
+  {
+    G_PredictPlayerMove( ent, (float)frames / sv_fps.value );
+    SnapVector( ent->s.pos.trBase );
+  }
+
+  // unlagged
+  G_StoreHistory( ent );
 }
 
 

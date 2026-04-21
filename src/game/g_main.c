@@ -23,9 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-#define QVM_NAME       "Lakitu7's QVM"
-#define QVM_VERSIONNUM      "5.5"
-
 level_locals_t  level;
 
 typedef struct
@@ -42,314 +39,23 @@ typedef struct
 gentity_t   g_entities[ MAX_GENTITIES ];
 gclient_t   g_clients[ MAX_CLIENTS ];
 
-vmCvar_t  g_fraglimit;
-vmCvar_t  g_timelimit;
-vmCvar_t  g_suddenDeathTime;
-vmCvar_t  g_suddenDeath;
-vmCvar_t  g_suddenDeathMode;
-vmCvar_t  g_capturelimit;
-vmCvar_t  g_friendlyFire;
-vmCvar_t  g_friendlyFireAliens;
-vmCvar_t  g_friendlyFireHumans;
-vmCvar_t  g_friendlyFireMovementAttacks;
-vmCvar_t  g_retribution;
-vmCvar_t  g_friendlyBuildableFire;
-vmCvar_t  g_password;
-vmCvar_t  g_needpass;
-vmCvar_t  g_maxclients;
-vmCvar_t  g_maxGameClients;
-vmCvar_t  g_dedicated;
-vmCvar_t  g_speed;
-vmCvar_t  g_gravity;
-vmCvar_t  g_cheats;
-vmCvar_t  g_knockback;
-vmCvar_t  g_quadfactor;
-vmCvar_t  g_inactivity;
-vmCvar_t  g_debugMove;
-vmCvar_t  g_debugDamage;
-vmCvar_t  g_debugAlloc;
-vmCvar_t  g_weaponRespawn;
-vmCvar_t  g_weaponTeamRespawn;
-vmCvar_t  g_motd;
-vmCvar_t  g_synchronousClients;
-vmCvar_t  g_warmup;
-vmCvar_t  g_warmupMode;
-vmCvar_t  g_doWarmup;
-vmCvar_t  g_restarted;
-vmCvar_t  g_lockTeamsAtStart;
-vmCvar_t  g_logFile;
-vmCvar_t  g_logFileSync;
-vmCvar_t  g_blood;
-vmCvar_t  g_podiumDist;
-vmCvar_t  g_podiumDrop;
-vmCvar_t  g_allowVote;
-vmCvar_t  g_requireVoteReasons;
-vmCvar_t  g_voteLimit;
-vmCvar_t  g_suddenDeathVotePercent;
-vmCvar_t  g_suddenDeathVoteDelay;
-vmCvar_t  g_mapVotesPercent;
-vmCvar_t  g_designateVotes;
-vmCvar_t  g_teamAutoJoin;
-vmCvar_t  g_teamForceBalance;
-vmCvar_t  g_banIPs;
-vmCvar_t  g_filterBan;
-vmCvar_t  g_smoothClients;
-vmCvar_t  g_clientUpgradeNotice;
-vmCvar_t  pmove_fixed;
-vmCvar_t  pmove_msec;
-vmCvar_t  g_rankings;
-vmCvar_t  g_listEntity;
-vmCvar_t  g_minCommandPeriod;
-vmCvar_t  g_minNameChangePeriod;
-vmCvar_t  g_maxNameChanges;
-vmCvar_t  g_newbieNumbering;
-vmCvar_t  g_newbieNamePrefix;
+#define DECLARE_G_CVAR
+#include "g_cvar.h"
+#undef DECLARE_G_CVAR
 
-vmCvar_t  g_humanBuildPoints;
-vmCvar_t  g_alienBuildPoints;
-vmCvar_t  g_humanStage;
-vmCvar_t  g_humanKills;
-vmCvar_t  g_humanMaxStage;
-vmCvar_t  g_humanStage2Threshold;
-vmCvar_t  g_humanStage3Threshold;
-vmCvar_t  g_alienStage;
-vmCvar_t  g_alienKills;
-vmCvar_t  g_alienMaxStage;
-vmCvar_t  g_alienStage2Threshold;
-vmCvar_t  g_alienStage3Threshold;
-vmCvar_t  g_teamImbalanceWarnings;
-
-vmCvar_t  g_unlagged;
-
-vmCvar_t  g_disabledEquipment;
-vmCvar_t  g_disabledClasses;
-vmCvar_t  g_disabledBuildables;
-
-vmCvar_t  g_markDeconstruct;
-vmCvar_t  g_deconDead;
-
-vmCvar_t  g_debugMapRotation;
-vmCvar_t  g_currentMapRotation;
-vmCvar_t  g_currentMap;
-vmCvar_t  g_nextMap;
-vmCvar_t  g_initialMapRotation;
-
-vmCvar_t  g_shove;
-
-vmCvar_t  g_mapConfigs;
-vmCvar_t  g_chatTeamPrefix;
-vmCvar_t  g_actionPrefix;
-vmCvar_t  g_floodMaxDemerits;
-vmCvar_t  g_floodMinTime;
-
-vmCvar_t  g_layouts;
-vmCvar_t  g_layoutAuto;
-
-vmCvar_t  g_admin;
-vmCvar_t  g_adminLog;
-vmCvar_t  g_adminParseSay;
-vmCvar_t  g_adminSayFilter;
-vmCvar_t  g_adminNameProtect;
-vmCvar_t  g_adminTempBan;
-vmCvar_t  g_adminMaxBan;
-vmCvar_t  g_adminMapLog;
-vmCvar_t  g_minLevelToJoinTeam;
-vmCvar_t  g_forceAutoSelect;
-
-vmCvar_t  g_privateMessages;
-vmCvar_t  g_decolourLogfiles;
-vmCvar_t  g_minLevelToSpecMM1;
-vmCvar_t  g_publicSayadmins;
-vmCvar_t  g_myStats;
-vmCvar_t  g_antiSpawnBlock;
-vmCvar_t  g_banNotice;
-
-vmCvar_t  g_devmapKillerHP;
-
-vmCvar_t  g_buildLogMaxLength;
-
-vmCvar_t  g_tag;
-
-vmCvar_t  g_dretchPunt;
-
-vmCvar_t  g_allowShare;
-
-vmCvar_t  g_devmapNoGod;
-vmCvar_t  g_devmapNoStructDmg;
-
-vmCvar_t  g_voteMinTime;
-vmCvar_t  g_mapvoteMaxTime;
-vmCvar_t  g_votableMaps;
-
-vmCvar_t  g_msg;
-vmCvar_t  g_msgTime;
-
-static cvarTable_t   gameCvarTable[ ] =
+static cvarTable_t gameCvarTable[] =
 {
-  // don't override the cheat state set by the system
-  { &g_cheats, "sv_cheats", "", 0, 0, qfalse },
-
   // noset vars
-  { NULL, "gamename", GAME_VERSION , CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
-  { NULL, "gamedate", __DATE__ , CVAR_ROM, 0, qfalse  },
-  { &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
-  { &g_lockTeamsAtStart, "g_lockTeamsAtStart", "0", CVAR_ROM, 0, qfalse  },
-  { NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
-  { NULL, "P", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
-  { NULL, "ff", "0", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
-  { NULL, "qvm_version", QVM_NAME " " QVM_VERSIONNUM " (" __DATE__ ", " __TIME__ ")", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
+  {NULL, "gamename", GAME_VERSION , CVAR_SERVERINFO | CVAR_ROM, 0, qfalse},
+  {NULL, "gamedate", __DATE__ , CVAR_ROM, 0, qfalse},
+  {NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse},
+  {NULL, "P", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse},
+  {NULL, "ff", "0", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse},
+  {NULL, "g_mapConfigsLoaded", "0", CVAR_ROM, 0, qfalse},
 
-  // latched vars
-
-  { &g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
-  { &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue  },
-
-  // change anytime vars
-  { &g_timelimit, "timelimit", "45", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-  { &g_suddenDeathTime, "g_suddenDeathTime", "30", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-  { &g_suddenDeathMode, "g_suddenDeathMode", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-  { &g_suddenDeath, "g_suddenDeath", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qtrue },
-
-  { &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
-
-  { &g_friendlyFire, "g_friendlyFire", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue  },
-  { &g_friendlyFireAliens, "g_friendlyFireAliens", "0", CVAR_ARCHIVE, 0, qtrue  },
-  { &g_friendlyFireHumans, "g_friendlyFireHumans", "0", CVAR_ARCHIVE, 0, qtrue  },
-  { &g_retribution, "g_retribution", "0", CVAR_ARCHIVE, 0, qtrue  },
-  { &g_friendlyBuildableFire, "g_friendlyBuildableFire", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue  },
-  { &g_friendlyFireMovementAttacks, "g_friendlyFireMovementAttacks", "1", CVAR_ARCHIVE, 0, qtrue  },
-  { &g_devmapNoGod, "g_devmapNoGod", "0", CVAR_ARCHIVE, 0, qtrue  },
-  { &g_devmapNoStructDmg, "g_devmapNoStructDmg", "0", CVAR_ARCHIVE, 0, qtrue  },
-
-  { &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },
-  { &g_teamForceBalance, "g_teamForceBalance", "1", CVAR_ARCHIVE  },
-
-  { &g_warmup, "g_warmup", "10", CVAR_ARCHIVE, 0, qtrue  },
-  { &g_warmupMode, "g_warmupMode", "1", CVAR_ARCHIVE, 0, qtrue  },
-  { &g_doWarmup, "g_doWarmup", "1", CVAR_ARCHIVE, 0, qtrue  },
-  { &g_logFile, "g_logFile", "games.log", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_logFileSync, "g_logFileSync", "0", CVAR_ARCHIVE, 0, qfalse  },
-
-  { &g_password, "g_password", "", CVAR_USERINFO, 0, qfalse  },
-
-  { &g_banIPs, "g_banIPs", "", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_filterBan, "g_filterBan", "1", CVAR_ARCHIVE, 0, qfalse  },
-
-  { &g_needpass, "g_needpass", "0", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse },
-
-  { &g_dedicated, "dedicated", "0", 0, 0, qfalse  },
-
-  { &g_speed, "g_speed", "320", CVAR_SERVERINFO, 0, qtrue  },
-  { &g_gravity, "g_gravity", "800", CVAR_SERVERINFO, 0, qtrue  },
-  { &g_knockback, "g_knockback", "1000", CVAR_SERVERINFO, 0, qtrue  },
-  { &g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue  },
-  { &g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, qtrue  },
-  { &g_weaponTeamRespawn, "g_weaponTeamRespawn", "30", 0, 0, qtrue },
-  { &g_inactivity, "g_inactivity", "0", 0, 0, qtrue },
-  { &g_debugMove, "g_debugMove", "0", 0, 0, qfalse },
-  { &g_debugDamage, "g_debugDamage", "0", 0, 0, qfalse },
-  { &g_debugAlloc, "g_debugAlloc", "0", 0, 0, qfalse },
-  { &g_motd, "g_motd", "", 0, 0, qfalse },
-  { &g_blood, "com_blood", "1", 0, 0, qfalse },
-
-  { &g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse },
-  { &g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse },
-
-  { &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
-  { &g_requireVoteReasons, "g_requireVoteReasons", "0", CVAR_ARCHIVE, 0, qfalse },
-  { &g_voteLimit, "g_voteLimit", "5", CVAR_ARCHIVE, 0, qfalse },
-  { &g_voteMinTime, "g_voteMinTime", "120", CVAR_ARCHIVE, 0, qfalse },
-  { &g_mapvoteMaxTime, "g_mapvoteMaxTime", "240", CVAR_ARCHIVE, 0, qfalse },
-  { &g_votableMaps, "g_votableMaps", "", CVAR_ARCHIVE, 0, qtrue },
-  { &g_suddenDeathVotePercent, "g_suddenDeathVotePercent", "74", CVAR_ARCHIVE, 0, qfalse },
-  { &g_suddenDeathVoteDelay, "g_suddenDeathVoteDelay", "180", CVAR_ARCHIVE, 0, qfalse },
-  { &g_mapVotesPercent, "g_mapVotesPercent", "50", CVAR_ARCHIVE, 0, qfalse },
-  { &g_designateVotes, "g_designateVotes", "0", CVAR_ARCHIVE, 0, qfalse },
-  
-  { &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
-  { &g_minCommandPeriod, "g_minCommandPeriod", "500", 0, 0, qfalse},
-  { &g_minNameChangePeriod, "g_minNameChangePeriod", "5", 0, 0, qfalse},
-  { &g_maxNameChanges, "g_maxNameChanges", "5", 0, 0, qfalse},
-  { &g_newbieNumbering, "g_newbieNumbering", "0", CVAR_ARCHIVE, 0, qfalse},
-  { &g_newbieNamePrefix, "g_newbieNamePrefix", "Newbie#", CVAR_ARCHIVE, 0, qfalse},
-
-  { &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
-  { &g_clientUpgradeNotice, "g_clientUpgradeNotice", "1", 0, 0, qfalse},
-  { &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
-  { &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
-
-  { &g_humanBuildPoints, "g_humanBuildPoints", DEFAULT_HUMAN_BUILDPOINTS, CVAR_SERVERINFO, 0, qfalse  },
-  { &g_alienBuildPoints, "g_alienBuildPoints", DEFAULT_ALIEN_BUILDPOINTS, CVAR_SERVERINFO, 0, qfalse  },
-  { &g_humanStage, "g_humanStage", "0", 0, 0, qfalse  },
-  { &g_humanKills, "g_humanKills", "0", 0, 0, qfalse  },
-  { &g_humanMaxStage, "g_humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, 0, 0, qfalse  },
-  { &g_humanStage2Threshold, "g_humanStage2Threshold", DEFAULT_HUMAN_STAGE2_THRESH, 0, 0, qfalse  },
-  { &g_humanStage3Threshold, "g_humanStage3Threshold", DEFAULT_HUMAN_STAGE3_THRESH, 0, 0, qfalse  },
-  { &g_alienStage, "g_alienStage", "0", 0, 0, qfalse  },
-  { &g_alienKills, "g_alienKills", "0", 0, 0, qfalse  },
-  { &g_alienMaxStage, "g_alienMaxStage", DEFAULT_ALIEN_MAX_STAGE, 0, 0, qfalse  },
-  { &g_alienStage2Threshold, "g_alienStage2Threshold", DEFAULT_ALIEN_STAGE2_THRESH, 0, 0, qfalse  },
-  { &g_alienStage3Threshold, "g_alienStage3Threshold", DEFAULT_ALIEN_STAGE3_THRESH, 0, 0, qfalse  },
-  
-  { &g_teamImbalanceWarnings, "g_teamImbalanceWarnings", "30", CVAR_ARCHIVE, 0, qfalse  },
-  
-  { &g_unlagged, "g_unlagged", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse  },
-
-  { &g_disabledEquipment, "g_disabledEquipment", "", CVAR_ROM, 0, qfalse  },
-  { &g_disabledClasses, "g_disabledClasses", "", CVAR_ROM, 0, qfalse  },
-  { &g_disabledBuildables, "g_disabledBuildables", "", CVAR_ROM, 0, qfalse  },
-
-  { &g_chatTeamPrefix, "g_chatTeamPrefix", "1", CVAR_ARCHIVE  },
-  { &g_actionPrefix, "g_actionPrefix", "* ", CVAR_ARCHIVE, 0, qfalse },
-  { &g_floodMaxDemerits, "g_floodMaxDemerits", "5000", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_floodMinTime, "g_floodMinTime", "2000", CVAR_ARCHIVE, 0, qfalse  },
-
-  { &g_markDeconstruct, "g_markDeconstruct", "0", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_deconDead, "g_deconDead", "0", CVAR_ARCHIVE, 0, qtrue  },
-
-  { &g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse  },
-  { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING
-  { &g_currentMap, "g_currentMap", "0", 0, 0, qfalse  },
-  { &g_nextMap, "g_nextMap", "", 0 , 0, qtrue  },
-  { &g_initialMapRotation, "g_initialMapRotation", "", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_shove, "g_shove", "15", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_mapConfigs, "g_mapConfigs", "", CVAR_ARCHIVE, 0, qfalse  },
-  { NULL, "g_mapConfigsLoaded", "0", CVAR_ROM, 0, qfalse  },
-
-  { &g_layouts, "g_layouts", "", CVAR_LATCH, 0, qfalse  },
-  { &g_layoutAuto, "g_layoutAuto", "1", CVAR_ARCHIVE, 0, qfalse  },
-
-  { &g_admin, "g_admin", "admin.dat", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_adminLog, "g_adminLog", "admin.log", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_adminParseSay, "g_adminParseSay", "1", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_adminSayFilter, "g_adminSayFilter", "0", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_adminNameProtect, "g_adminNameProtect", "1", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_adminTempBan, "g_adminTempBan", "2m", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_adminMaxBan, "g_adminMaxBan", "2w", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_adminMapLog, "g_adminMapLog", "", CVAR_ROM, 0, qfalse  },
-  { &g_minLevelToJoinTeam, "g_minLevelToJoinTeam", "0", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_forceAutoSelect, "g_forceAutoSelect", "0", CVAR_ARCHIVE, 0, qtrue }, 
-  
-  { &g_privateMessages, "g_privateMessages", "1", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_decolourLogfiles, "g_decolourLogfiles", "0", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_buildLogMaxLength, "g_buildLogMaxLength", "50", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_myStats, "g_myStats", "1", CVAR_ARCHIVE, 0, qtrue  },
-  { &g_publicSayadmins, "g_publicSayadmins", "1", CVAR_ARCHIVE, 0, qfalse  },    
-  { &g_minLevelToSpecMM1, "g_minLevelToSpecMM1", "0", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_antiSpawnBlock, "g_antiSpawnBlock", "0", CVAR_ARCHIVE, 0, qfalse  },
-  
-  { &g_devmapKillerHP, "g_devmapKillerHP", "0", CVAR_ARCHIVE, 0, qtrue  },
-  
-  { &g_tag, "g_tag", "main", CVAR_INIT, 0, qfalse },
-  
-  { &g_dretchPunt, "g_dretchPunt", "1", CVAR_ARCHIVE, 0, qfalse  },
-  
-  { &g_msg, "g_msg", "", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_msgTime, "g_msgTime", "0", CVAR_ARCHIVE, 0, qfalse  },
-  
-  { &g_rankings, "g_rankings", "0", 0, 0, qfalse },
-  { &g_allowShare, "g_allowShare", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse},
-  { &g_banNotice, "g_banNotice", "", CVAR_ARCHIVE, 0, qfalse  },
+#define G_CVAR_LIST
+#include "g_cvar.h"
+#undef G_CVAR_LIST
 };
 
 static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[ 0 ] );
@@ -636,9 +342,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   level.snd_fry = G_SoundIndex( "sound/misc/fry.wav" ); // FIXME standing in lava / slime
 
-  trap_Cvar_Set( "qvm_version",
-                 QVM_NAME " " QVM_VERSIONNUM " (" __DATE__ ", " __TIME__ ")" );
-
   if( g_logFile.string[ 0 ] )
   {
     if( g_logFileSync.integer )
@@ -748,6 +451,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_Printf( "-----------------------------------\n" );
 
   G_RemapTeamShaders( );
+
+  // reset extendvote, just in case
+  trap_Cvar_Set( "g_extendVote", "0" );
 
   //TA: so the server counts the spawns without a client attached
   G_CountSpawns( );
@@ -1201,6 +907,19 @@ void G_CalculateBuildPoints( void )
   // g_suddenDeath sets what state we want it to be.  
   // level.suddenDeath says whether we've calculated BPs at the 'start' of SD or not
 
+        // Extend votes
+        if ( g_extendVote.integer ) {
+                if ( !g_suddenDeath.integer && g_suddenDeathTime.integer ) {
+                        g_suddenDeathTime.integer += g_extendVoteTime.integer;
+                        trap_SendServerCommand( -1, va( "print \"^7Sudden Death is now at %d\n\"", g_suddenDeathTime.integer ) );
+                }
+
+                g_timelimit.integer += g_extendVoteTime.integer;
+                trap_SendServerCommand( -1, va( "print \"^7The time limit is now at %d\n\"", g_timelimit.integer ) );
+
+                trap_Cvar_Set( "g_extendVote", "0" );
+        }
+
   // reset if SD was on, but now it's off
   if(!g_suddenDeath.integer && level.suddenDeath) 
   {
@@ -1211,6 +930,11 @@ void G_CalculateBuildPoints( void )
       level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
     else
       level.suddenDeathBeginTime = -1;
+  }
+
+  // Check if sudden death time has been changed by hand
+  if ( level.suddenDeathBeginTime != g_suddenDeathTime.integer * 60000 ) {
+          level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
   }
 
   if(!level.suddenDeath)
@@ -2594,7 +2318,8 @@ void G_RunFrame( int levelTime )
   int       i;
   gentity_t *ent;
   int       msec;
-  int       start, end;
+  static gentity_t *missiles[MAX_GENTITIES - MAX_CLIENTS];
+  int numMissiles;
 
   // if we are waiting for the level to restart, do nothing
   if( level.restarted )
@@ -2628,10 +2353,11 @@ void G_RunFrame( int levelTime )
   // get any cvar changes
   G_UpdateCvars( );
 
+  numMissiles = 0;
+
   //
   // go through all allocated objects
   //
-  start = trap_Milliseconds( );
   ent = &g_entities[ 0 ];
 
   for( i = 0; i < level.num_entities; i++, ent++ )
@@ -2678,9 +2404,11 @@ void G_RunFrame( int levelTime )
     if( !ent->r.linked && ent->neverFree )
       continue;
 
-    if( ent->s.eType == ET_MISSILE )
+    if (ent->s.eType == ET_MISSILE)
     {
-      G_RunMissile( ent );
+      //queue for unlagged pass
+      missiles[numMissiles] = ent;
+      numMissiles++;
       continue;
     }
 
@@ -2710,23 +2438,30 @@ void G_RunFrame( int levelTime )
 
     G_RunThink( ent );
   }
-  end = trap_Milliseconds();
 
-  start = trap_Milliseconds();
+  if (numMissiles)
+  {
+    //unlagged
+    G_TimeShiftAllClients(level.previousTime, NULL);
+
+    //run missiles
+    for(i = 0;i < numMissiles;i++)
+    {
+      G_RunMissile( missiles[ i ] );
+    }
+
+    //unlagged
+    G_UnTimeShiftAllClients(NULL);
+  }
 
   // perform final fixups on the players
-  ent = &g_entities[ 0 ];
+  ent = &g_entities[0];
 
   for( i = 0; i < level.maxclients; i++, ent++ )
   {
     if( ent->inuse )
       ClientEndFrame( ent );
   }
-
-  // save position information for all active clients 
-  G_UnlaggedStore( );
-
-  end = trap_Milliseconds();
 
   //TA:
   G_CountSpawns( );
@@ -2760,7 +2495,10 @@ void G_RunFrame( int levelTime )
 
     trap_Cvar_Set( "g_listEntity", "0" );
   }
-  
+
   level.pausedTime=0;
+
+  // unlagged
+  level.frameStartTime = trap_Milliseconds();
 }
 

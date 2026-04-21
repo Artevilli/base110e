@@ -48,7 +48,7 @@ void *G_Alloc( int size )
   char *endptr;
   int *ptr;
 
-  allocsize = ( size + sizeof(int) + ROUNDBITS ) & ~ROUNDBITS;    // Round to 32-byte boundary
+  allocsize = ( (unsigned long)size + (unsigned long)sizeof(int) + (unsigned long)ROUNDBITS ) & ~((unsigned long)ROUNDBITS);    // Round to 32-byte boundary
   ptr = NULL;
 
   smallest = NULL;

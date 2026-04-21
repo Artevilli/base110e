@@ -20,7 +20,7 @@ static char *outd(long n, FILE *f, char *bp) {
 	else
 		m = n;
 	do
-		*--s = m%10 + '0';
+		*--s = (char)(m%10 + '0');
 	while ((m /= 10) != 0);
 	if (n < 0)
 		*--s = '-';
@@ -95,7 +95,8 @@ void vfprint(FILE *f, char *bp, const char *fmt, va_list ap) {
 			case 'c': if (f) fputc(va_arg(ap, int), f); else *bp++ = va_arg(ap, int); break;
 			case 'S': { char *s = va_arg(ap, char *);
 				    int n = va_arg(ap, int);
-				    if (s) {
+				    if (s)
+				    {
 				    	for ( ; n-- > 0; s++)
 				    		if (f) (void)putc(*s, f); else *bp++ = *s;
 				    }

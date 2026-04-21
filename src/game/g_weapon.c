@@ -38,42 +38,56 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
 {
   int i;
 
-  if( ent )
+  if (!ent)
   {
-    ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
+    return;
+  }
 
-    if( weapon == WP_NONE 
-      || !BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ))
+  if (ent->client->ps.weaponstate == WEAPON_RELOADING)
+  {
+    ent->client->ps.torsoAnim = ((ent->client->ps.torsoAnim & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | TORSO_RAISE;
+    ent->client->ps.weaponTime = 250;
+    ent->client->ps.weaponstate = WEAPON_READY;
+  }
+
+  ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
+
+  if (weapon == WP_NONE || !BG_InventoryContainsWeapon(weapon, ent->client->ps.stats))
+  {
+    //switch to the first non blaster weapon
+    for(i = WP_NONE + 1;i < WP_NUM_WEAPONS;i++)
     {
-      //switch to the first non blaster weapon
-      for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+      if (i == WP_BLASTER)
       {
-        if( i == WP_BLASTER )
-          continue;
-
-        if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) )
-        {
-          ent->client->ps.persistant[ PERS_NEWWEAPON ] = i;
-          break;
-        }
+        continue;
       }
 
-      //only got the blaster to switch to
-      if( i == WP_NUM_WEAPONS )
-        ent->client->ps.persistant[ PERS_NEWWEAPON ] = WP_BLASTER;
+      if (BG_InventoryContainsWeapon(i, ent->client->ps.stats))
+      {
+        ent->client->ps.persistant[PERS_NEWWEAPON] = i;
+        break;
+      }
     }
-    else
-      ent->client->ps.persistant[ PERS_NEWWEAPON ] = weapon;
-   
-    // Lak: The following hack has been moved to PM_BeginWeaponChange, but I'm going to
-    // redundantly leave it here as well just in case there's a case I'm forgetting
-    // because I don't want to face the gameplay consequences such an error would have
 
-    // force this here to prevent flamer effect from continuing 
-    ent->client->ps.generic1 = WPM_NOTFIRING;
-
-    ent->client->ps.weapon = ent->client->ps.persistant[ PERS_NEWWEAPON ];
+    //only got the blaster to switch to
+    if (i == WP_NUM_WEAPONS)
+    {
+      ent->client->ps.persistant[PERS_NEWWEAPON] = WP_BLASTER;
+    }
   }
+  else
+  {
+    ent->client->ps.persistant[PERS_NEWWEAPON] = weapon;
+  }
+
+  // Lak: The following hack has been moved to PM_BeginWeaponChange, but I'm going to
+  // redundantly leave it here as well just in case there's a case I'm forgetting
+  // because I don't want to face the gameplay consequences such an error would have
+
+  // force this here to prevent flamer effect from continuing
+  ent->client->ps.generic1 = WPM_NOTFIRING;
+
+  ent->client->ps.weapon = ent->client->ps.persistant[PERS_NEWWEAPON];
 }
 
 /*
@@ -150,6 +164,9 @@ static void G_WideTrace( trace_t *tr, gentity_t *ent, float range, float width, 
 {
   vec3_t    mins, maxs;
   vec3_t    end;
+  int       passent;
+
+  passent = ent->s.number;
 
   VectorSet( mins, -width, -width, -width );
   VectorSet( maxs, width, width, width );
@@ -164,10 +181,11 @@ static void G_WideTrace( trace_t *tr, gentity_t *ent, float range, float width, 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
   VectorMA( muzzle, range, forward, end );
 
-  G_UnlaggedOn( ent, muzzle, range );
+  // unlagged
+  G_DoTimeShiftFor( ent );
 
   // Trace against entities
-  trap_Trace( tr, muzzle, mins, maxs, end, ent->s.number, CONTENTS_BODY );
+  trap_Trace( tr, muzzle, mins, maxs, end, passent, CONTENTS_BODY );
   if( tr->entityNum != ENTITYNUM_NONE )
   {
     *target = &g_entities[ tr->entityNum ];
@@ -183,7 +201,8 @@ static void G_WideTrace( trace_t *tr, gentity_t *ent, float range, float width, 
       *target = NULL;
   }
 
-  G_UnlaggedOff( );
+  // unlagged
+  G_UndoTimeShiftFor( ent );;
 }
 
 
@@ -222,6 +241,9 @@ void meleeAttack( gentity_t *ent, float range, float width, int damage, meansOfD
   gentity_t *tent;
   gentity_t *traceEnt;
   vec3_t    mins, maxs;
+  int       passent;
+
+  passent = ent->s.number;
 
   VectorSet( mins, -width, -width, -width );
   VectorSet( maxs, width, width, width );
@@ -233,9 +255,13 @@ void meleeAttack( gentity_t *ent, float range, float width, int damage, meansOfD
 
   VectorMA( muzzle, range, forward, end );
 
-  G_UnlaggedOn( ent, muzzle, range );
-  trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
-  G_UnlaggedOff( );
+  // unlagged
+  G_DoTimeShiftFor( ent );
+
+  trap_Trace( &tr, muzzle, mins, maxs, end, passent, MASK_SHOT );
+
+  // unlagged
+  G_UndoTimeShiftFor( ent );
 
   if( tr.surfaceFlags & SURF_NOIMPACT )
     return;
@@ -272,6 +298,7 @@ void bulletFire( gentity_t *ent, float spread, int damage, int mod )
   float   u;
   gentity_t *tent;
   gentity_t *traceEnt;
+  int     i, passent;
 
   r = random( ) * M_PI * 2.0f;
   u = sin( r ) * crandom( ) * spread * 16;
@@ -280,41 +307,51 @@ void bulletFire( gentity_t *ent, float spread, int damage, int mod )
   VectorMA( end, r, right, end );
   VectorMA( end, u, up, end );
 
-  // don't use unlagged if this is not a client (e.g. turret)
-  if( ent->client )
+  passent = ent->s.number;
+
+  for( i = 0 ; i < 10 ; i++ )
   {
-    G_UnlaggedOn( ent, muzzle, 8192 * 16 );
-    trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
-    G_UnlaggedOff( );
-  }
-  else
-    trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+    // don't use unlagged if this is not a client (e.g. turret)
+    if( ent->client )
+    {
+      // unlagged
+      G_DoTimeShiftFor( ent );
 
-  if( tr.surfaceFlags & SURF_NOIMPACT )
-    return;
+      trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
 
-  traceEnt = &g_entities[ tr.entityNum ];
+      // unlagged
+      G_UndoTimeShiftFor( ent );
+    }
+    else
+      trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
 
-  // snap the endpos to integers, but nudged towards the line
-  SnapVectorTowards( tr.endpos, muzzle );
+    if( tr.surfaceFlags & SURF_NOIMPACT )
+      return;
 
-  // send bullet impact
-  if( traceEnt->takedamage && traceEnt->client )
-  {
-    tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
-    tent->s.eventParm = traceEnt->s.number;
-  }
-  else
-  {
-    tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
-    tent->s.eventParm = DirToByte( tr.plane.normal );
-  }
-  tent->s.otherEntityNum = ent->s.number;
+    traceEnt = &g_entities[ tr.entityNum ];
 
-  if( traceEnt->takedamage )
-  {
-    G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-      damage, 0, mod );
+    // snap the endpos to integers, but nudged towards the line
+    SnapVectorTowards( tr.endpos, muzzle );
+
+    // send bullet impact
+    if( traceEnt->takedamage && traceEnt->client )
+    {
+      tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
+      tent->s.eventParm = traceEnt->s.number;
+    }
+    else
+    {
+      tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
+      tent->s.eventParm = DirToByte( tr.plane.normal );
+    }
+    tent->s.otherEntityNum = ent->s.number;
+
+    if( traceEnt->takedamage )
+    {
+      G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+        damage, 0, mod );
+    }
+    break;
   }
 }
 
@@ -367,16 +404,24 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent )
 void shotgunFire( gentity_t *ent )
 {
   gentity_t    *tent;
+  int          passent;
+
+  passent = ent->s.number;
 
   // send shotgun blast
   tent = G_TempEntity( muzzle, EV_SHOTGUN );
   VectorScale( forward, 4096, tent->s.origin2 );
   SnapVector( tent->s.origin2 );
   tent->s.eventParm = rand() & 255;    // seed for spread pattern
-  tent->s.otherEntityNum = ent->s.number;
-  G_UnlaggedOn( ent, muzzle, 8192 * 16 );
+  tent->s.otherEntityNum = passent;
+
+  // unlagged
+  G_DoTimeShiftFor( ent );
+
   ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent );
-  G_UnlaggedOff();
+
+  // unlagged
+  G_UndoTimeShiftFor( ent );
 }
 
 /*
@@ -393,12 +438,19 @@ void massDriverFire( gentity_t *ent )
   vec3_t    end;
   gentity_t *tent;
   gentity_t *traceEnt;
+  int       passent;
+
+  passent = ent->s.number;
 
   VectorMA( muzzle, 8192 * 16, forward, end );
 
-  G_UnlaggedOn( ent, muzzle, 8192 * 16 );
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
-  G_UnlaggedOff( );
+  // unlagged
+  G_DoTimeShiftFor( ent );
+
+  trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
+
+  // unlagged
+  G_UndoTimeShiftFor( ent );
 
   if( tr.surfaceFlags & SURF_NOIMPACT )
     return;
@@ -549,12 +601,18 @@ void lasGunFire( gentity_t *ent )
   vec3_t    end;
   gentity_t *tent;
   gentity_t *traceEnt;
+  int       passent;
+
+  passent = ent->s.number;
 
   VectorMA( muzzle, 8192 * 16, forward, end );
 
-  G_UnlaggedOn( ent, muzzle, 8192 * 16 );
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
-  G_UnlaggedOff( );
+  // unlagged
+  G_DoTimeShiftFor( ent );
+
+  trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
+
+  G_UndoTimeShiftFor( ent );
 
   if( tr.surfaceFlags & SURF_NOIMPACT )
     return;
@@ -599,6 +657,9 @@ void painSawFire( gentity_t *ent )
   vec3_t    end;
   gentity_t *tent;
   gentity_t *traceEnt;
+  int       passent;
+
+  passent = ent->s.number;
 
   // set aiming directions
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
@@ -607,9 +668,13 @@ void painSawFire( gentity_t *ent )
 
   VectorMA( muzzle, PAINSAW_RANGE, forward, end );
 
-  G_UnlaggedOn( ent, muzzle, PAINSAW_RANGE );
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
-  G_UnlaggedOff( );
+  // unlagged
+  G_DoTimeShiftFor( ent );
+
+  trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
+
+  // unlagged
+  G_UndoTimeShiftFor( ent );
 
   if( tr.surfaceFlags & SURF_NOIMPACT )
     return;
@@ -876,6 +941,9 @@ qboolean CheckVenomAttack( gentity_t *ent )
   gentity_t *traceEnt;
   vec3_t    mins, maxs;
   int       damage = LEVEL0_BITE_DMG;
+  int       passent;
+
+  passent = ent->s.number;
 
   VectorSet( mins, -LEVEL0_BITE_WIDTH, -LEVEL0_BITE_WIDTH, -LEVEL0_BITE_WIDTH );
   VectorSet( maxs, LEVEL0_BITE_WIDTH, LEVEL0_BITE_WIDTH, LEVEL0_BITE_WIDTH );
@@ -887,9 +955,13 @@ qboolean CheckVenomAttack( gentity_t *ent )
 
   VectorMA( muzzle, LEVEL0_BITE_RANGE, forward, end );
 
-  G_UnlaggedOn( ent, muzzle, LEVEL0_BITE_RANGE );
-  trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
-  G_UnlaggedOff( );
+  // unlagged
+  G_DoTimeShiftFor( ent );
+
+  trap_Trace( &tr, muzzle, mins, maxs, end, passent, MASK_SHOT );
+
+  // unlagged
+  G_UndoTimeShiftFor( ent );
 
   if( tr.surfaceFlags & SURF_NOIMPACT )
     return qfalse;
@@ -954,6 +1026,9 @@ void CheckGrabAttack( gentity_t *ent )
   trace_t   tr;
   vec3_t    end, dir;
   gentity_t *traceEnt;
+  int       passent;
+
+  passent = ent->s.number;
 
   // set aiming directions
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
@@ -962,7 +1037,14 @@ void CheckGrabAttack( gentity_t *ent )
 
   VectorMA( muzzle, LEVEL1_GRAB_RANGE, forward, end );
 
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  // unlagged
+  G_DoTimeShiftFor( ent );
+
+  trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
+
+  // unlagged
+  G_UndoTimeShiftFor( ent );
+
   if( tr.surfaceFlags & SURF_NOIMPACT )
     return;
 
@@ -1023,7 +1105,9 @@ void poisonCloud( gentity_t *ent )
   VectorAdd( ent->client->ps.origin, range, maxs );
   VectorSubtract( ent->client->ps.origin, range, mins );
 
-  G_UnlaggedOn( ent, ent->client->ps.origin, LEVEL1_PCLOUD_RANGE );
+  //unlagged
+  G_DoTimeShiftFor( ent );
+
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
   {
@@ -1052,7 +1136,9 @@ void poisonCloud( gentity_t *ent )
       }
     }
   }
-  G_UnlaggedOff( );
+
+  // unlagged
+  G_UndoTimeShiftFor( ent );
 }
 
 
@@ -1081,6 +1167,9 @@ static gentity_t *G_FindNewZapTarget( gentity_t *ent )
   int       i, j, k, num;
   gentity_t *enemy;
   trace_t   tr;
+  int       passent;
+
+  passent = ent->s.number;
 
   VectorScale( range, 1.0f / M_ROOT3, range );
   VectorAdd( ent->s.origin, range, maxs );
@@ -1098,7 +1187,7 @@ static gentity_t *G_FindNewZapTarget( gentity_t *ent )
     {
       qboolean foundOldTarget = qfalse;
 
-      trap_Trace( &tr, muzzle, NULL, NULL, enemy->s.origin, ent->s.number, MASK_SHOT );
+      trap_Trace( &tr, muzzle, NULL, NULL, enemy->s.origin, passent, MASK_SHOT );
 
       //can't see target from here
       if( tr.entityNum == ENTITYNUM_WORLD )
@@ -1306,6 +1395,9 @@ void areaZapFire( gentity_t *ent )
   vec3_t    end;
   gentity_t *traceEnt;
   vec3_t    mins, maxs;
+  int       passent;
+
+  passent = ent->s.number;
 
   VectorSet( mins, -LEVEL2_AREAZAP_WIDTH, -LEVEL2_AREAZAP_WIDTH, -LEVEL2_AREAZAP_WIDTH );
   VectorSet( maxs, LEVEL2_AREAZAP_WIDTH, LEVEL2_AREAZAP_WIDTH, LEVEL2_AREAZAP_WIDTH );
@@ -1317,9 +1409,13 @@ void areaZapFire( gentity_t *ent )
 
   VectorMA( muzzle, LEVEL2_AREAZAP_RANGE, forward, end );
 
-  G_UnlaggedOn( ent, muzzle, LEVEL2_AREAZAP_RANGE );
-  trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
-  G_UnlaggedOff( );
+  // unlagged
+  G_DoTimeShiftFor( ent );
+
+  trap_Trace( &tr, muzzle, mins, maxs, end, passent, MASK_SHOT );
+
+  // unlagged
+  G_UndoTimeShiftFor( ent );
 
   if( tr.surfaceFlags & SURF_NOIMPACT )
     return;

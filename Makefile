@@ -21,11 +21,11 @@ else
   COMPILE_ARCH=$(shell uname -m | sed -e s/i.86/x86/)
 endif
 
-BUILD_CLIENT     =
-BUILD_CLIENT_SMP =
-BUILD_SERVER     =
-BUILD_GAME_SO    =
-BUILD_GAME_QVM   =
+BUILD_CLIENT     =0
+BUILD_CLIENT_SMP =0
+BUILD_SERVER     =0
+BUILD_GAME_SO    =0
+BUILD_GAME_QVM   =1
 
 #############################################################################
 #
@@ -1214,6 +1214,7 @@ GOBJ_ = \
   $(B)/base/game/g_team.o \
   $(B)/base/game/g_trigger.o \
   $(B)/base/game/g_utils.o \
+  $(B)/base/game/g_unlagged.o \
   $(B)/base/game/g_maprotation.o \
   $(B)/base/game/g_ptr.o \
   $(B)/base/game/g_weapon.o \

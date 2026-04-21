@@ -631,6 +631,8 @@ typedef struct centity_s
   // exact interpolated position of entity on this frame
   vec3_t                lerpOrigin;
   vec3_t                lerpAngles;
+  vec3_t                eyesOrigin;
+  vec3_t                eyesAngles;
 
   lerpFrame_t           lerpFrame;
 
@@ -946,6 +948,7 @@ typedef struct
   qboolean      mapRestart;                         // set on a map restart to set back the weapon
 
   qboolean      renderingThirdPerson;               // during deaths, chasecams, etc
+  qboolean      renderingEyesPerson;                // during deaths, chasecams, etc
 
   // prediction state
   qboolean      hyperspace;                         // true if prediction has hit a trigger_teleport
@@ -1177,6 +1180,7 @@ typedef struct
   // buildable shaders
   qhandle_t   greenBuildShader;
   qhandle_t   redBuildShader;
+  qhandle_t   noPowerShader;
   qhandle_t   humanSpawningShader;
 
   // disconnect
@@ -1383,6 +1387,13 @@ typedef struct
 
   // media
   cgMedia_t           media;
+
+  qboolean      pmove_fixed;
+  int           pmove_msec;
+
+  // 1.1.0e only
+  qboolean      pm_fixedPmove;
+  int           pm_fixedPmoveFPS;
 } cgs_t;
 
 //==============================================================================
@@ -1402,136 +1413,9 @@ extern  buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
 
 extern  markPoly_t      cg_markPolys[ MAX_MARK_POLYS ];
 
-extern  vmCvar_t    cg_centertime;
-extern  vmCvar_t    cg_runpitch;
-extern  vmCvar_t    cg_runroll;
-extern  vmCvar_t    cg_bobup;
-extern  vmCvar_t    cg_bobpitch;
-extern  vmCvar_t    cg_bobroll;
-extern  vmCvar_t    cg_swingSpeed;
-extern  vmCvar_t    cg_shadows;
-extern  vmCvar_t    cg_gibs;
-extern  vmCvar_t    cg_drawTimer;
-extern  vmCvar_t    cg_drawClock;
-extern  vmCvar_t    cg_drawFPS;
-extern  vmCvar_t    cg_drawDemoState;
-extern  vmCvar_t    cg_drawSnapshot;
-extern  vmCvar_t    cg_draw3dIcons;
-extern  vmCvar_t    cg_drawIcons;
-extern  vmCvar_t    cg_drawAmmoWarning;
-extern  vmCvar_t    cg_drawCrosshair;
-extern  vmCvar_t    cg_drawCrosshairNames;
-extern  vmCvar_t    cg_drawRewards;
-extern  vmCvar_t    cg_drawTeamOverlay;
-extern  vmCvar_t    cg_teamOverlayUserinfo;
-extern  vmCvar_t    cg_crosshairX;
-extern  vmCvar_t    cg_crosshairY;
-extern  vmCvar_t    cg_drawStatus;
-extern  vmCvar_t    cg_draw2D;
-extern  vmCvar_t    cg_animSpeed;
-extern  vmCvar_t    cg_debugAnim;
-extern  vmCvar_t    cg_debugPosition;
-extern  vmCvar_t    cg_debugEvents;
-extern  vmCvar_t    cg_teslaTrailTime;
-extern  vmCvar_t    cg_railTrailTime;
-extern  vmCvar_t    cg_errorDecay;
-extern  vmCvar_t    cg_nopredict;
-extern  vmCvar_t    cg_debugMove;
-extern  vmCvar_t    cg_noPlayerAnims;
-extern  vmCvar_t    cg_showmiss;
-extern  vmCvar_t    cg_footsteps;
-extern  vmCvar_t    cg_addMarks;
-extern  vmCvar_t    cg_brassTime;
-extern  vmCvar_t    cg_gun_frame;
-extern  vmCvar_t    cg_gun_x;
-extern  vmCvar_t    cg_gun_y;
-extern  vmCvar_t    cg_gun_z;
-extern  vmCvar_t    cg_drawGun;
-extern  vmCvar_t    cg_viewsize;
-extern  vmCvar_t    cg_tracerChance;
-extern  vmCvar_t    cg_tracerWidth;
-extern  vmCvar_t    cg_tracerLength;
-extern  vmCvar_t    cg_autoswitch;
-extern  vmCvar_t    cg_ignore;
-extern  vmCvar_t    cg_simpleItems;
-extern  vmCvar_t    cg_fov;
-extern  vmCvar_t    cg_zoomFov;
-extern  vmCvar_t    cg_thirdPersonRange;
-extern  vmCvar_t    cg_thirdPersonAngle;
-extern  vmCvar_t    cg_thirdPerson;
-extern  vmCvar_t    cg_stereoSeparation;
-extern  vmCvar_t    cg_lagometer;
-extern  vmCvar_t    cg_drawAttacker;
-extern  vmCvar_t    cg_synchronousClients;
-extern  vmCvar_t    cg_stats;
-extern  vmCvar_t    cg_forceModel;
-extern  vmCvar_t    cg_buildScript;
-extern  vmCvar_t    cg_paused;
-extern  vmCvar_t    cg_blood;
-extern  vmCvar_t    cg_predictItems;
-extern  vmCvar_t    cg_deferPlayers;
-extern  vmCvar_t    cg_drawFriend;
-extern  vmCvar_t    cg_teamChatsOnly;
-extern  vmCvar_t    cg_noVoiceChats;
-extern  vmCvar_t    cg_noVoiceText;
-extern  vmCvar_t    cg_scorePlum;
-extern  vmCvar_t    cg_smoothClients;
-extern  vmCvar_t    pmove_fixed;
-extern  vmCvar_t    pmove_msec;
-//extern  vmCvar_t    cg_pmove_fixed;
-extern  vmCvar_t    cg_cameraOrbit;
-extern  vmCvar_t    cg_cameraOrbitDelay;
-extern  vmCvar_t    cg_timescaleFadeEnd;
-extern  vmCvar_t    cg_timescaleFadeSpeed;
-extern  vmCvar_t    cg_timescale;
-extern  vmCvar_t    cg_cameraMode;
-extern  vmCvar_t    cg_smallFont;
-extern  vmCvar_t    cg_bigFont;
-extern  vmCvar_t    cg_noTaunt;
-extern  vmCvar_t    cg_noProjectileTrail;
-extern  vmCvar_t    cg_oldRail;
-extern  vmCvar_t    cg_oldRocket;
-extern  vmCvar_t    cg_oldPlasma;
-extern  vmCvar_t    cg_trueLightning;
-extern  vmCvar_t    cg_creepRes;
-extern  vmCvar_t    cg_drawSurfNormal;
-extern  vmCvar_t    cg_drawBBOX;
-extern  vmCvar_t    cg_debugAlloc;
-extern  vmCvar_t    cg_wwSmoothTime;
-extern  vmCvar_t    cg_wwFollow;
-extern  vmCvar_t    cg_wwToggle;
-extern  vmCvar_t    cg_depthSortParticles;
-extern  vmCvar_t    cg_bounceParticles;
-extern  vmCvar_t    cg_consoleLatency;
-extern  vmCvar_t    cg_lightFlare;
-extern  vmCvar_t    cg_debugParticles;
-extern  vmCvar_t    cg_debugTrails;
-extern  vmCvar_t    cg_debugPVS;
-extern  vmCvar_t    cg_disableWarningDialogs;
-extern  vmCvar_t    cg_disableScannerPlane;
-extern  vmCvar_t    cg_tutorial;
-
-extern  vmCvar_t    cg_painBlendUpRate;
-extern  vmCvar_t    cg_painBlendDownRate;
-extern  vmCvar_t    cg_painBlendMax;
-extern  vmCvar_t    cg_painBlendScale;
-extern  vmCvar_t    cg_painBlendZoom;
-
-//TA: hack to get class an carriage through to UI module
-extern  vmCvar_t    ui_currentClass;
-extern  vmCvar_t    ui_carriage;
-extern  vmCvar_t    ui_stages;
-extern  vmCvar_t    ui_dialog;
-extern  vmCvar_t    ui_loading;
-extern  vmCvar_t    ui_voteActive;
-extern  vmCvar_t    ui_alienTeamVoteActive;
-extern  vmCvar_t    ui_humanTeamVoteActive;
-
-extern  vmCvar_t    cg_debugRandom;
-
-extern  vmCvar_t    cg_optimizePrediction;
-extern  vmCvar_t    cg_projectileNudge;
-extern  vmCvar_t    cg_unlagged;
+#define EXTERN_CG_CVAR
+#include "cg_cvar.h"
+#undef EXTERN_CG_CVAR
 
 //
 // cg_main.c
@@ -1646,7 +1530,6 @@ qboolean    CG_AtHighestClass( void );
 //
 void        CG_GhostBuildable( buildable_t buildable );
 void        CG_Buildable( centity_t *cent );
-void        CG_BuildableStatusParse( const char *filename, buildStat_t *bs );
 void        CG_DrawBuildableStatus( void );
 void        CG_InitBuildables( void );
 void        CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir );
@@ -1766,6 +1649,7 @@ qboolean      CG_RequestScores( void );
 //
 void          CG_ExecuteNewServerCommands( int latestSequence );
 void          CG_ParseServerinfo( void );
+void          CG_ParseSysteminfo( void );
 void          CG_SetConfigValues( void );
 void          CG_ShaderStateChanged(void);
 

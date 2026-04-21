@@ -378,7 +378,6 @@ typedef struct
   qboolean            localClient;        // true if "ip" info key is "localhost"
   qboolean            initialSpawn;       // the first spawn should be at a cool location
   qboolean            predictItemPickup;  // based on cg_predictItems userinfo
-  qboolean            pmoveFixed;         //
   char                netname[ MAX_NETNAME ];
   int                 maxHealth;          // for handicapping
   int                 enterTime;          // level.time the client entered the game
@@ -419,13 +418,14 @@ typedef struct
   statsCounters_t     statscounters;
 } clientPersistant_t;
 
-#define MAX_UNLAGGED_MARKERS 10
-typedef struct unlagged_s {
-  vec3_t      origin;
-  vec3_t      mins;
-  vec3_t      maxs;
-  qboolean    used;
-} unlagged_t;
+// unlagged
+#define NUM_CLIENT_HISTORY 18
+
+typedef struct {
+	vec3_t		mins, maxs;
+	vec3_t		currentOrigin;
+	int		leveltime;
+} clientHistory_t;
 
 // this structure is cleared on each ClientSpawn(),
 // except for 'client->pers' and 'client->sess'
@@ -492,6 +492,14 @@ struct gclient_s
 
   char                *areabits;
 
+  // unlagged
+  clientHistory_t     history[ NUM_CLIENT_HISTORY ];
+  clientHistory_t     saved;
+
+  int                 historyHead;
+  int                 frameOffset;
+  int                 lastUpdateFrame;
+
   gentity_t           *hovel;
 
   int                 lastPoisonTime;
@@ -518,11 +526,6 @@ struct gclient_s
 
 #define RAM_FRAMES  1                       // number of frames to wait before retriggering
   int                 retriggerArmouryMenu; // frame number to retrigger the armoury menu
-
-  unlagged_t          unlaggedHist[ MAX_UNLAGGED_MARKERS ];
-  unlagged_t          unlaggedBackup;
-  unlagged_t          unlaggedCalc;
-  int                 unlaggedTime;
   
   int               tkcredits[ MAX_CLIENTS ];
 
@@ -749,9 +752,6 @@ typedef struct
   qboolean paused;
   int pausedTime;
 
-  int unlaggedIndex;
-  int unlaggedTimes[ MAX_UNLAGGED_MARKERS ];
-
   char              layout[ MAX_QPATH ];
 
   pTeam_t           surrenderTeam;
@@ -763,6 +763,10 @@ typedef struct
   
   statsCounters_level alienStatsCounters;
   statsCounters_level humanStatsCounters;
+
+  // unlagged
+  int               frameStartTime;
+
 } level_locals_t;
 
 #define CMD_CHEAT         0x01
@@ -1098,11 +1102,6 @@ void ClientCommand( int clientNum );
 //
 // g_active.c
 //
-void G_UnlaggedStore( void );
-void G_UnlaggedClear( gentity_t *ent );
-void G_UnlaggedCalc( int time, gentity_t *skipEnt );
-void G_UnlaggedOn( gentity_t *attacker, vec3_t muzzle, float range );
-void G_UnlaggedOff( void );
 void ClientThink( int clientNum );
 void ClientEndFrame( gentity_t *ent );
 void G_RunClient( gentity_t *ent );
@@ -1131,6 +1130,18 @@ void Svcmd_GameMem_f( void );
 void G_ReadSessionData( gclient_t *client );
 void G_InitSessionData( gclient_t *client, char *userinfo );
 void G_WriteSessionData( void );
+
+//
+// g_unlagged.c
+//
+void G_ResetHistory( gentity_t *ent );
+void G_StoreHistory( gentity_t *ent );
+void G_TimeShiftAllClients( int time, gentity_t *skip );
+void G_UnTimeShiftAllClients( gentity_t *skip );
+void G_DoTimeShiftFor( gentity_t *ent );
+void G_UndoTimeShiftFor( gentity_t *ent );
+void G_UnTimeShiftClient( gentity_t *client );
+void G_PredictPlayerMove( gentity_t *ent, float frametime );
 
 //
 // g_maprotation.c
@@ -1230,141 +1241,9 @@ extern  gentity_t       g_entities[ MAX_GENTITIES ];
 
 #define FOFS(x) ((int)&(((gentity_t *)0)->x))
 
-extern  vmCvar_t  g_dedicated;
-extern  vmCvar_t  g_cheats;
-extern  vmCvar_t  g_maxclients;     // allow this many total, including spectators
-extern  vmCvar_t  g_maxGameClients;   // allow this many active
-extern  vmCvar_t  g_restarted;
-extern  vmCvar_t  g_lockTeamsAtStart;
-extern  vmCvar_t  g_minCommandPeriod;
-extern  vmCvar_t  g_minNameChangePeriod;
-extern  vmCvar_t  g_maxNameChanges;
-extern  vmCvar_t  g_newbieNumbering;
-extern  vmCvar_t  g_newbieNamePrefix;
-
-extern  vmCvar_t  g_timelimit;
-extern  vmCvar_t  g_suddenDeathTime;
-extern  vmCvar_t  g_suddenDeath;
-extern  vmCvar_t  g_suddenDeathMode;
-extern  vmCvar_t  g_friendlyFire;
-extern  vmCvar_t  g_friendlyFireHumans;
-extern  vmCvar_t  g_friendlyFireAliens;
-extern  vmCvar_t  g_retribution;
-extern  vmCvar_t  g_friendlyFireMovementAttacks;
-extern  vmCvar_t  g_friendlyBuildableFire;
-extern  vmCvar_t  g_password;
-extern  vmCvar_t  g_needpass;
-extern  vmCvar_t  g_gravity;
-extern  vmCvar_t  g_speed;
-extern  vmCvar_t  g_knockback;
-extern  vmCvar_t  g_quadfactor;
-extern  vmCvar_t  g_inactivity;
-extern  vmCvar_t  g_debugMove;
-extern  vmCvar_t  g_debugAlloc;
-extern  vmCvar_t  g_debugDamage;
-extern  vmCvar_t  g_weaponRespawn;
-extern  vmCvar_t  g_weaponTeamRespawn;
-extern  vmCvar_t  g_synchronousClients;
-extern  vmCvar_t  g_motd;
-extern  vmCvar_t  g_warmup;
-extern  vmCvar_t  g_warmupMode;
-extern  vmCvar_t  g_doWarmup;
-extern  vmCvar_t  g_blood;
-extern  vmCvar_t  g_allowVote;
-extern  vmCvar_t  g_requireVoteReasons;
-extern  vmCvar_t  g_voteLimit;
-extern  vmCvar_t  g_suddenDeathVotePercent;
-extern  vmCvar_t  g_suddenDeathVoteDelay;
-extern  vmCvar_t  g_mapVotesPercent;
-extern  vmCvar_t  g_designateVotes;
-extern  vmCvar_t  g_teamAutoJoin;
-extern  vmCvar_t  g_teamForceBalance;
-extern  vmCvar_t  g_banIPs;
-extern  vmCvar_t  g_filterBan;
-extern  vmCvar_t  g_smoothClients;
-extern  vmCvar_t  g_clientUpgradeNotice;
-extern  vmCvar_t  pmove_fixed;
-extern  vmCvar_t  pmove_msec;
-extern  vmCvar_t  g_rankings;
-extern  vmCvar_t  g_allowShare;
-extern  vmCvar_t  g_enableDust;
-extern  vmCvar_t  g_enableBreath;
-extern  vmCvar_t  g_singlePlayer;
-
-extern  vmCvar_t  g_humanBuildPoints;
-extern  vmCvar_t  g_alienBuildPoints;
-extern  vmCvar_t  g_humanStage;
-extern  vmCvar_t  g_humanKills;
-extern  vmCvar_t  g_humanMaxStage;
-extern  vmCvar_t  g_humanStage2Threshold;
-extern  vmCvar_t  g_humanStage3Threshold;
-extern  vmCvar_t  g_alienStage;
-extern  vmCvar_t  g_alienKills;
-extern  vmCvar_t  g_alienMaxStage;
-extern  vmCvar_t  g_alienStage2Threshold;
-extern  vmCvar_t  g_alienStage3Threshold;
-extern  vmCvar_t  g_teamImbalanceWarnings;
-
-extern  vmCvar_t  g_unlagged;
-
-extern  vmCvar_t  g_disabledEquipment;
-extern  vmCvar_t  g_disabledClasses;
-extern  vmCvar_t  g_disabledBuildables;
-
-extern  vmCvar_t  g_markDeconstruct;
-extern  vmCvar_t  g_deconDead;
-
-extern  vmCvar_t  g_debugMapRotation;
-extern  vmCvar_t  g_currentMapRotation;
-extern  vmCvar_t  g_currentMap;
-extern  vmCvar_t  g_nextMap;
-extern  vmCvar_t  g_initialMapRotation;
-extern  vmCvar_t  g_chatTeamPrefix;
-extern  vmCvar_t  g_actionPrefix;
-extern  vmCvar_t  g_floodMaxDemerits;
-extern  vmCvar_t  g_floodMinTime;
-
-extern  vmCvar_t  g_shove;
-
-extern  vmCvar_t  g_mapConfigs;
-
-extern  vmCvar_t  g_layouts;
-extern  vmCvar_t  g_layoutAuto;
-
-extern  vmCvar_t  g_admin;
-extern  vmCvar_t  g_adminLog;
-extern  vmCvar_t  g_adminParseSay;
-extern  vmCvar_t  g_adminSayFilter;
-extern  vmCvar_t  g_adminNameProtect;
-extern  vmCvar_t  g_adminTempBan;
-extern  vmCvar_t  g_adminMaxBan;
-extern  vmCvar_t  g_adminMapLog;
-extern  vmCvar_t  g_minLevelToJoinTeam;
-extern  vmCvar_t  g_forceAutoSelect;
-extern  vmCvar_t  g_minLevelToSpecMM1;
-extern  vmCvar_t  g_banNotice;
-
-extern  vmCvar_t  g_devmapKillerHP;
-
-extern  vmCvar_t  g_privateMessages;
-extern  vmCvar_t  g_decolourLogfiles;
-extern  vmCvar_t  g_publicSayadmins;
-extern  vmCvar_t  g_myStats;
-extern  vmCvar_t  g_antiSpawnBlock;
-
-extern  vmCvar_t  g_dretchPunt;
-
-extern  vmCvar_t  g_devmapNoGod;
-extern  vmCvar_t  g_devmapNoStructDmg;
-
-extern  vmCvar_t  g_voteMinTime;
-extern  vmCvar_t  g_mapvoteMaxTime;
-extern  vmCvar_t  g_votableMaps;
-
-extern  vmCvar_t  g_msg;
-extern  vmCvar_t  g_msgTime;
-
-extern  vmCvar_t  g_buildLogMaxLength;
+#define EXTERN_G_CVAR
+#include "g_cvar.h"
+#undef EXTERN_G_CVAR
 
 void      trap_Printf( const char *fmt );
 void      trap_Error( const char *fmt );
