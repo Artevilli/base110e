@@ -2611,11 +2611,14 @@ static void PM_BeginWeaponChange( int weapon )
     pm->ps->stats[ STAT_MISC ] = 0;
 
   //cancel reload
-  pm->ps->pm_flags &= ~PMF_WEAPON_RELOAD;
-
-  if (pm->ps->weaponstate == WEAPON_RELOADING)
+  if (pm->reloadFix)
   {
-    pm->ps->weaponTime = 0;
+    pm->ps->pm_flags &= ~PMF_WEAPON_RELOAD;
+
+    if (pm->ps->weaponstate == WEAPON_RELOADING)
+    {
+      pm->ps->weaponTime = 0;
+    }
   }
 
   // force this here to prevent flamer effect from continuing, among other issues

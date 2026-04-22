@@ -1320,13 +1320,19 @@ void ClientThink_real( gentity_t *ent )
   pm.debugLevel = g_debugMove.integer;
   pm.noFootsteps = 0;
 
-  if ( pm_fixedPmoveFPS.integer < 60 ) {
-          trap_Cvar_Set( "pm_fixedPmoveFPS", "60" );
-  } else if ( pm_fixedPmoveFPS.integer > 333 ) {
-          trap_Cvar_Set( "pm_fixedPmoveFPS", "333" );
+  if (pm_fixedPmoveFPS.integer < 60)
+  {
+    trap_Cvar_Set("pm_fixedPmoveFPS", "60");
   }
+  else if (pm_fixedPmoveFPS.integer > 333)
+  {
+    trap_Cvar_Set("pm_fixedPmoveFPS", "333");
+  }
+
   pm.fixedPmove = pm_fixedPmove.integer;
   pm.fixedPmoveFPS = pm_fixedPmoveFPS.integer;
+
+  pm.reloadFix = pm_reloadFix.integer;
 
   VectorCopy( client->ps.origin, client->oldOrigin );
 

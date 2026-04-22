@@ -153,6 +153,7 @@ CG_ParseSysteminfo(void)
   }
 
   cgs.synchronousClients = (atoi(Info_ValueForKey(info, "g_synchronousClients"))) ? qtrue:qfalse;
+  cgs.pm_reloadFix = (atoi(Info_ValueForKey(info, "pm_reloadFix"))) ? qtrue:qfalse;
 }
 
 /*

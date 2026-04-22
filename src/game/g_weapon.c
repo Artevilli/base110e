@@ -43,11 +43,14 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
     return;
   }
 
-  if (ent->client->ps.weaponstate == WEAPON_RELOADING)
+  if (pm_reloadFix.integer)
   {
-    ent->client->ps.torsoAnim = ((ent->client->ps.torsoAnim & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | TORSO_RAISE;
-    ent->client->ps.weaponTime = 250;
-    ent->client->ps.weaponstate = WEAPON_READY;
+    if (ent->client->ps.weaponstate == WEAPON_RELOADING)
+    {
+      ent->client->ps.torsoAnim = ((ent->client->ps.torsoAnim & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | TORSO_RAISE;
+      ent->client->ps.weaponTime = 250;
+      ent->client->ps.weaponstate = WEAPON_READY;
+    }
   }
 
   ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;

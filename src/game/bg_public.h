@@ -183,12 +183,14 @@ typedef struct
   float         xyspeed;
 
   // for fixed msec Pmove
-  int           pmove_fixed;
-  int           pmove_msec;
+  int pmove_fixed;
+  int pmove_msec;
 
   // 1.1.0e only
-  int           fixedPmove;
-  int           fixedPmoveFPS;
+  int fixedPmove;
+  int fixedPmoveFPS;
+
+  int reloadFix;
 
   // callbacks to test the world
   // these will be different functions during game and cgame
