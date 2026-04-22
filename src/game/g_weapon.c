@@ -205,7 +205,7 @@ static void G_WideTrace( trace_t *tr, gentity_t *ent, float range, float width, 
   }
 
   // unlagged
-  G_UndoTimeShiftFor( ent );;
+  G_UndoTimeShiftFor( ent );
 }
 
 
@@ -375,12 +375,18 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent )
   vec3_t    forward, right, up;
   trace_t    tr;
   gentity_t  *traceEnt;
+  int passent;
+
+  passent = ent->s.number;
 
   // derive the right and up vectors from the forward vector, because
   // the client won't have any other information
   VectorNormalize2( origin2, forward );
   PerpendicularVector( right, forward );
   CrossProduct( forward, right, up );
+
+  //unlagged
+  G_DoTimeShiftFor(ent);
 
   // generate the "random" spread pattern
   for( i = 0; i < SHOTGUN_PELLETS; i++ )
@@ -391,7 +397,7 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent )
     VectorMA( end, r, right, end );
     VectorMA( end, u, up, end );
 
-    trap_Trace( &tr, origin, NULL, NULL, end, ent->s.number, MASK_SHOT );
+    trap_Trace( &tr, origin, NULL, NULL, end, passent, MASK_SHOT );
     traceEnt = &g_entities[ tr.entityNum ];
 
     // send bullet impact
@@ -401,6 +407,9 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent )
         G_Damage( traceEnt, ent, ent, forward, tr.endpos,  SHOTGUN_DMG, 0, MOD_SHOTGUN );
     }
   }
+
+  //unlagged
+  G_UndoTimeShiftFor(ent);
 }
 
 
@@ -418,13 +427,7 @@ void shotgunFire( gentity_t *ent )
   tent->s.eventParm = rand() & 255;    // seed for spread pattern
   tent->s.otherEntityNum = passent;
 
-  // unlagged
-  G_DoTimeShiftFor( ent );
-
   ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent );
-
-  // unlagged
-  G_UndoTimeShiftFor( ent );
 }
 
 /*
@@ -615,6 +618,7 @@ void lasGunFire( gentity_t *ent )
 
   trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
 
+  //unlagged
   G_UndoTimeShiftFor( ent );
 
   if( tr.surfaceFlags & SURF_NOIMPACT )

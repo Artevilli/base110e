@@ -1408,6 +1408,7 @@ void ClientThink_real( gentity_t *ent )
         //prevent lerping
         client->ps.eFlags ^= EF_TELEPORT_BIT;
         client->ps.eFlags &= ~EF_NODRAW;
+        G_ResetHistory(ent);
 
         //client leaves hovel
         client->ps.stats[ STAT_STATE ] &= ~SS_HOVELING;
