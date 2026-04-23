@@ -3530,8 +3530,11 @@ void PmoveSingle( pmove_t *pmove )
   }
   else
   {
-    //snap some parts of playerstate to save network bandwidth
-    trap_SnapVector(pm->ps->velocity);
+    //alternatively, snap some parts of playerstate to save network bandwidth if pm_exactPmove isn't enabled, this is an alternative to fixedPmove for lazy people at the cost of more bandwidth usage
+    if (!pm->exactPmove)
+    {
+      trap_SnapVector(pm->ps->velocity);
+    }
   }
 }
 

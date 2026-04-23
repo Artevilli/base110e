@@ -142,6 +142,8 @@ CG_ParseSysteminfo(void)
 
   cgs.pm_fixedPmove = (atoi(Info_ValueForKey(info, "pm_fixedPmove"))) ? qtrue:qfalse;
   cgs.pm_fixedPmoveFPS = atoi(Info_ValueForKey(info, "pm_fixedPmoveFPS"));
+  cgs.pm_exactPmove = (atoi(Info_ValueForKey(info, "pm_exactPmove"))) ? qtrue:qfalse;
+  cgs.pm_reloadFix = (atoi(Info_ValueForKey(info, "pm_reloadFix"))) ? qtrue:qfalse;
 
   if (cgs.pm_fixedPmoveFPS < 60)
   {
@@ -153,7 +155,6 @@ CG_ParseSysteminfo(void)
   }
 
   cgs.synchronousClients = (atoi(Info_ValueForKey(info, "g_synchronousClients"))) ? qtrue:qfalse;
-  cgs.pm_reloadFix = (atoi(Info_ValueForKey(info, "pm_reloadFix"))) ? qtrue:qfalse;
 }
 
 /*

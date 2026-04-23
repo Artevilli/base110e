@@ -1331,7 +1331,7 @@ void ClientThink_real( gentity_t *ent )
 
   pm.fixedPmove = pm_fixedPmove.integer;
   pm.fixedPmoveFPS = pm_fixedPmoveFPS.integer;
-
+  pm.exactPmove = pm_exactPmove.integer;
   pm.reloadFix = pm_reloadFix.integer;
 
   VectorCopy( client->ps.origin, client->oldOrigin );

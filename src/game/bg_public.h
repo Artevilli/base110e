@@ -189,6 +189,7 @@ typedef struct
   // 1.1.0e only
   int fixedPmove;
   int fixedPmoveFPS;
+  int exactPmove;
 
   int reloadFix;
 
