@@ -2184,27 +2184,111 @@ void CheckMsgTimer( void )
   }
 }
 
+
 /*
 ==================
 CheckCountdown
 ==================
 */
-void CheckCountdown( void )
+void
+CheckCountdown(void)
 {
   static int lastmsg = 0;
-  int timeleft = g_warmup.integer - ( level.time - level.startTime ) / 1000;
+  static qboolean altcolor = qfalse;
+  int timeleft = g_warmup.integer - (level.time - level.startTime) / 1000;
+  char *leftarrows, *rightarrows;
 
-  if( !g_doWarmup.integer || timeleft < 0 )
+  if (!g_doWarmup.integer || timeleft < 0)
+  {
     return;
+  }
 
-  if( level.time - lastmsg < 1000 )
+  if (level.time - lastmsg < 500)
+  {
     return;
+  }
 
   lastmsg = level.time;
-  if( timeleft > 0 )
-    trap_SendServerCommand( -1, va( "cp \"^1Warmup Time:^7\n^%i----- ^7%i ^%i-----\"", timeleft % 7, timeleft, timeleft % 7 ) );
-  else if( timeleft == 0 ) 
-    trap_SendServerCommand( -1, "cp \"^2----- GO! -----^7\"" );
+
+  if (timeleft > 0 && timeleft < 11)
+  {
+    switch(timeleft)
+    {
+      case
+      10:
+        leftarrows = ">>>>>>>>>";
+        rightarrows = "<<<<<<<<<";
+        break;
+
+      case
+      9:
+        leftarrows = ">>>>>>>>";
+        rightarrows = "<<<<<<<<";
+        break;
+
+      case
+      8:
+        leftarrows = ">>>>>>>";
+        rightarrows = "<<<<<<<";
+        break;
+
+      case
+      7:
+        leftarrows = ">>>>>>";
+        rightarrows = "<<<<<<";
+        break;
+
+      case
+      6:
+        leftarrows = ">>>>>";
+        rightarrows = "<<<<<";
+        break;
+
+      case
+      5:
+        leftarrows = ">>>>";
+        rightarrows = "<<<<";
+        break;
+
+      case
+      4:
+        leftarrows = ">>>";
+        rightarrows = "<<<";
+        break;
+
+      case
+      3:
+        leftarrows = ">>";
+        rightarrows = "<<";
+        break;
+
+      case
+      2:
+        leftarrows = ">";
+        rightarrows = "<";
+        break;
+
+      default:
+        leftarrows = "";
+        rightarrows = "";
+        break;
+    }
+
+    if (!altcolor)
+    {
+      trap_SendServerCommand(-1, va("cp \"^1Get Ready^7\n^2>%s ^7%i ^2%s<\"", leftarrows, timeleft, rightarrows));
+      altcolor = qtrue;
+    }
+    else
+    {
+      trap_SendServerCommand(-1, va("cp \"^1Get Ready^7\n^0>^2%s ^7%i ^2%s^0<\"", leftarrows, timeleft, rightarrows));
+      altcolor = qfalse;
+    }
+  }
+  else if (timeleft == 0)
+  {
+    trap_SendServerCommand(-1, "cp \"^2<<<<< GO >>>>>^7\"");
+  }
 }
 
 
