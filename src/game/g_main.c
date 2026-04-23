@@ -2210,40 +2210,15 @@ CheckCountdown(void)
 
   lastmsg = level.time;
 
-  if (timeleft > 0 && timeleft < 11)
+  if (timeleft >= 6)
+  {
+    trap_SendServerCommand(-1, va("cp \"^1Get Ready^7\n^2>>>>> ^7%i ^2<<<<<\"", timeleft));
+  }
+
+  if (timeleft > 0 && timeleft < 6)
   {
     switch(timeleft)
     {
-      case
-      10:
-        leftarrows = ">>>>>>>>>";
-        rightarrows = "<<<<<<<<<";
-        break;
-
-      case
-      9:
-        leftarrows = ">>>>>>>>";
-        rightarrows = "<<<<<<<<";
-        break;
-
-      case
-      8:
-        leftarrows = ">>>>>>>";
-        rightarrows = "<<<<<<<";
-        break;
-
-      case
-      7:
-        leftarrows = ">>>>>>";
-        rightarrows = "<<<<<<";
-        break;
-
-      case
-      6:
-        leftarrows = ">>>>>";
-        rightarrows = "<<<<<";
-        break;
-
       case
       5:
         leftarrows = ">>>>";
