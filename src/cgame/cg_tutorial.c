@@ -84,6 +84,7 @@ static void CG_GetBindings( void )
   }
 }
 
+
 /*
 ===============
 CG_KeyNameForCommand
@@ -134,6 +135,7 @@ static const char *CG_KeyNameForCommand( const char *command )
   return "";
 }
 
+
 #define MAX_TUTORIAL_TEXT 4096
 
 /*
@@ -167,6 +169,7 @@ static entityState_t *CG_BuildableInRange( playerState_t *ps, float *healthFract
   else
     return NULL;
 }
+
 
 /*
 ===============
@@ -241,6 +244,7 @@ static void CG_AlienBuilderText( char *text, playerState_t *ps )
   }
 }
 
+
 /*
 ===============
 CG_AlienLevel0Text
@@ -255,6 +259,7 @@ static void CG_AlienLevel0Text( char *text, playerState_t *ps )
       va( "Press %s to walk on walls\n",
         CG_KeyNameForCommand( "+movedown" ) ) );
 }
+
 
 /*
 ===============
@@ -282,6 +287,7 @@ static void CG_AlienLevel1Text( char *text, playerState_t *ps )
         CG_KeyNameForCommand( "+movedown" ) ) );
 }
 
+
 /*
 ===============
 CG_AlienLevel2Text
@@ -304,6 +310,7 @@ static void CG_AlienLevel2Text( char *text, playerState_t *ps )
       va( "Hold down %s then touch a wall to wall jump\n",
         CG_KeyNameForCommand( "+moveup" ) ) );
 }
+
 
 /*
 ===============
@@ -328,6 +335,7 @@ static void CG_AlienLevel3Text( char *text, playerState_t *ps )
         CG_KeyNameForCommand( "+button5" ) ) );
 }
 
+
 /*
 ===============
 CG_AlienLevel4Text
@@ -343,6 +351,7 @@ static void CG_AlienLevel4Text( char *text, playerState_t *ps )
       va( "Hold down and release %s to charge\n",
         CG_KeyNameForCommand( "+button5" ) ) );
 }
+
 
 /*
 ===============
@@ -387,6 +396,7 @@ static void CG_HumanCkitText( char *text, playerState_t *ps )
     }
   }
 }
+
 
 /*
 ===============
@@ -526,6 +536,7 @@ static void CG_HumanText( char *text, playerState_t *ps )
         CG_KeyNameForCommand( "boost" ) ) );
 }
 
+
 /*
 ===============
 CG_SpectatorText
@@ -564,6 +575,7 @@ static void CG_SpectatorText( char *text, playerState_t *ps )
   }
 }
 
+
 /*
 ===============
 CG_TutorialText
@@ -575,8 +587,14 @@ const char *CG_TutorialText( void )
 {
   playerState_t *ps;
   static char   text[ MAX_TUTORIAL_TEXT ];
+  static int delay = 0;
 
-  CG_GetBindings( );
+  if (delay == 0)
+  {
+    CG_GetBindings();
+  }
+
+  delay = (delay + 1) % 256;
 
   text[ 0 ] = '\0';
   ps = &cg.snap->ps;
