@@ -584,6 +584,7 @@ typedef struct armourRegion_s
 typedef enum
 {
   TW_NOT = 0,
+  TW_CLOSE,
   TW_IMMINENT,
   TW_PASSED
 } timeWarning_t;

@@ -924,7 +924,7 @@ void G_CalculateBuildPoints( void )
   if(!g_suddenDeath.integer && level.suddenDeath) 
   {
     level.suddenDeath=qfalse;
-    level.suddenDeathWarning=0;
+    level.suddenDeathWarning = TW_NOT;
     level.suddenDeathBeginTime = -1;
     if((level.time - level.startTime) < (g_suddenDeathTime.integer * 60000 ) )
       level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
@@ -978,14 +978,25 @@ void G_CalculateBuildPoints( void )
     }  
     else 
     {
-       //warn about sudden death
-       if( ( G_TimeTilSuddenDeath( ) <= 60000 ) &&
-           (  level.suddenDeathWarning < TW_IMMINENT ) )
-       {
-         trap_SendServerCommand( -1, va("cp \"Sudden Death in %d seconds!\"", 
-               (int)(G_TimeTilSuddenDeath() / 1000 ) ) );
-         level.suddenDeathWarning = TW_IMMINENT;
-       }
+      //warn about sudden death when 5 minutes are left
+      if (G_TimeTilSuddenDeath() <= 300000 && level.suddenDeathWarning < TW_CLOSE)
+      {
+        trap_SendServerCommand(-1, va("cp \"Sudden Death in 5 minutes!\""));
+        level.suddenDeathWarning = TW_CLOSE;
+      }
+
+      //warn about sudden death
+      if ((G_TimeTilSuddenDeath() <= 60000) && (level.suddenDeathWarning < TW_IMMINENT))
+      {
+        trap_SendServerCommand( -1, va("cp \"Sudden Death in 1 minute!\""));
+        level.suddenDeathWarning = TW_IMMINENT;
+      }
+
+      //reset warning if changed
+      if ((G_TimeTilSuddenDeath() > 300000) && level.suddenDeathWarning != TW_NOT)
+      {
+        level.suddenDeathWarning = TW_NOT;
+      }
     }
   }
   
@@ -2019,6 +2030,15 @@ void CheckVote( void )
       level.suddenDeathBeginTime = level.time + ( 1000 * g_suddenDeathVoteDelay.integer ) - level.startTime;
 
       level.voteString[0] = '\0';
+
+      if (G_TimeTilSuddenDeath() < 60000)
+      {
+        level.suddenDeathWarning = TW_IMMINENT;
+      }
+      else if (G_TimeTilSuddenDeath() < 300000)
+      {
+        level.suddenDeathWarning = TW_CLOSE;
+      }
 
       if( g_suddenDeathVoteDelay.integer )
         trap_SendServerCommand( -1, va("cp \"Sudden Death will begin in %d seconds\n\"", g_suddenDeathVoteDelay.integer  ) );
