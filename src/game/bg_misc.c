@@ -5333,7 +5333,7 @@ void BG_ParseCSVClassList( const char *string, pClass_t *classes, int classesSiz
 
   p = q = buffer;
 
-  while( *p != '\0' )
+  while( *p != '\0' && i < classesSize - 1 )
   {
     //skip to first , or EOS
     while( *p != ',' && *p != '\0' )
@@ -5386,7 +5386,7 @@ void BG_ParseCSVBuildableList( const char *string, buildable_t *buildables, int 
   while( *p != '\0' )
   {
     //skip to first , or EOS
-    while( *p != ',' && *p != '\0' )
+    while( *p != ',' && *p != '\0' && i < buildablesSize - 1 )
       p++;
 
     if( *p == '\0' )

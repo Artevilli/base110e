@@ -1437,6 +1437,11 @@ void ClientBegin( int clientNum )
 
   client = level.clients + clientNum;
 
+  if (client->pers.connected == CON_CONNECTED)
+  {
+    return;
+  }
+
   if( ent->r.linked )
     trap_UnlinkEntity( ent );
 
@@ -1836,7 +1841,7 @@ void ClientDisconnect( int clientNum )
 
   ent = g_entities + clientNum;
 
-  if( !ent->client )
+  if( !ent->client || ent->client->pers.connected == CON_DISCONNECTED )
     return;
 
   // look through the bhist and readjust it if the referenced ent has left
