@@ -12,7 +12,6 @@ Unofficial Tremulous 1.1.0 gamecode patch
  * field of view automatically adjusts to your screen resolution rather than stretching or adding black borders (`cg_fovAdjust`)
  * field of view is optionally customizable to a fixed value (`cg_fovCustom`)
  * option for better pmove (`pm_fixedPmove`/`pm_fixedPmoveFPS`) while maintaining low bandwidth usage
- * option for exact pmove prediction (`pm_exactPmove`) at the cost of higher bandwidth usage
  * fancy warmup countdown, similar to KoRx
  * better handling for systeminfo, can properly be changed on the client now (bypasses "server is not allowed to set ...")
  * cgame.qvm/ui.qvm compatible with other 1.1.0 mods, excluding the more heavily changed ones

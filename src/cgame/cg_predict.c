@@ -95,7 +95,6 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins,
   trace_t       trace;
   entityState_t *ent;
   clipHandle_t  cmodel;
-  vec3_t        tmins, tmaxs;
   vec3_t        bmins, bmaxs;
   vec3_t        origin, angles;
   centity_t     *cent;
@@ -106,24 +105,6 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins,
     j = cg_numSolidEntities + 1;
   else
     j = cg_numSolidEntities;
-
-  if (cg_fpsFix.integer)
-  {
-    // calculate bounding box of the trace
-    ClearBounds(tmins, tmaxs);
-    AddPointToBounds(start, tmins, tmaxs);
-    AddPointToBounds(end, tmins, tmaxs);
-
-    if (mins)
-    {
-      VectorAdd(mins, tmins, tmins);
-    }
-
-    if (maxs)
-    {
-      VectorAdd(maxs, tmaxs, tmaxs);
-    }
-  }
 
   for( i = 0; i < j; i++ )
   {
@@ -159,28 +140,9 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins,
       if( i == cg_numSolidEntities )
         BG_FindBBoxForClass( ( ent->powerups >> 8 ) & 0xFF, bmins, bmaxs, NULL, NULL, NULL );
 
-      if (cg_fpsFix.integer)
-      {
-        VectorAdd(cent->lerpOrigin, bmins, bmins);
-        VectorAdd(cent->lerpOrigin, bmaxs, bmaxs);
-
-        if (!BoundsIntersect(bmins, bmaxs, tmins, tmaxs))
-        {
-          continue;
-        }
-      }
-
       cmodel = trap_CM_TempBoxModel( bmins, bmaxs );
       VectorCopy( vec3_origin, angles );
-
-      if (cg_fpsFix.integer)
-      {
-        VectorCopy(vec3_origin, origin);
-      }
-      else
-      {
-        VectorCopy( cent->lerpOrigin, origin );
-      }
+      VectorCopy( cent->lerpOrigin, origin );
     }
 
 
@@ -860,7 +822,6 @@ void CG_PredictPlayerState( void )
 
     cg_pmove.fixedPmove = cgs.pm_fixedPmove;
     cg_pmove.fixedPmoveFPS = cgs.pm_fixedPmoveFPS;
-    cg_pmove.exactPmove = cgs.pm_exactPmove;
     cg_pmove.reloadFix = cgs.pm_reloadFix;
 
     if( cg_pmove.pmove_fixed && !cg_pmove.fixedPmove )

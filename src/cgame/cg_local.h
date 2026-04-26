@@ -1396,7 +1396,6 @@ typedef struct
   // 1.1.0e only
   qboolean pm_fixedPmove;
   int pm_fixedPmoveFPS;
-  qboolean pm_exactPmove;
   qboolean pm_reloadFix;
 
 } cgs_t;
