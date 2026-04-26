@@ -1427,6 +1427,11 @@ void CG_AddTrails( void )
   //remove expired trail systems
   CG_GarbageCollectTrailSystems( );
 
+  if (!cg_trails.integer)
+  {
+    return;
+  }
+
   for( i = 0; i < MAX_TRAIL_BEAMS; i++ )
   {
     tb = &trailBeams[ i ];

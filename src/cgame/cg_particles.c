@@ -2437,6 +2437,11 @@ void CG_AddParticles( void )
   //remove expired particle systems
   CG_GarbageCollectParticleSystems( );
 
+  if (!cg_particles.integer)
+  {
+    return;
+  }
+
   //check each ejector and introduce any new particles
   CG_SpawnNewParticles( );
 
