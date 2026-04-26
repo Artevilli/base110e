@@ -302,11 +302,11 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
         }
       }
 
-      break;
+      return p;
     }
   }
 
-  return p;
+  return NULL;
 }
 
 
@@ -424,11 +424,11 @@ static particleEjector_t *CG_SpawnNewParticleEjector( baseParticleEjector_t *bpe
       if( cg_debugParticles.integer >= 1 )
         CG_Printf( "PE %s created\n", ps->class->name );
 
-      break;
+      return pe;
     }
   }
 
-  return pe;
+  return NULL;
 }
 
 
@@ -471,11 +471,11 @@ particleSystem_t *CG_SpawnNewParticleSystem( qhandle_t psHandle )
       if( cg_debugParticles.integer >= 1 )
         CG_Printf( "PS %s created\n", bps->name );
 
-      break;
+      return ps;
     }
   }
 
-  return ps;
+  return NULL;
 }
 
 /*
