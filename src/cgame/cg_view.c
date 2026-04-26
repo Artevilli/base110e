@@ -710,18 +710,6 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 
 #define FOVWARPTIME     400.0
 
-/*
-====================
-CG_CalcFov
-
-Fixed fov at intermissions, otherwise account for fov variable and zooms.
-====================
-*/
-#define WAVE_AMPLITUDE  1
-#define WAVE_FREQUENCY  0.4
-
-#define FOVWARPTIME     400.0
-
 static int
 CG_CalcFov(void)
 {
@@ -863,12 +851,12 @@ CG_CalcFov(void)
   fov_y = fov_y * 360 / M_PI;
 
   //warp if underwater
-  contents = CG_PointContents( cg.refdef.vieworg, -1 );
+  contents = CG_PointContents(cg.refdef.vieworg, -1);
 
   if (contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
   {
     phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
-    v = WAVE_AMPLITUDE * sin( phase );
+    v = WAVE_AMPLITUDE * sin(phase);
     fov_x += v;
     fov_y -= v;
     inwater = qtrue;
@@ -879,7 +867,7 @@ CG_CalcFov(void)
   if (cg.predictedPlayerState.stats[STAT_STATE] & SS_POISONCLOUDED && cg.predictedPlayerState.stats[STAT_HEALTH] > 0 && !(cg.snap->ps.pm_flags & PMF_FOLLOW))
   {
     phase = cg.time / 1000.0 * PCLOUD_ZOOM_FREQUENCY * M_PI * 2;
-    v = PCLOUD_ZOOM_AMPLITUDE * sin( phase );
+    v = PCLOUD_ZOOM_AMPLITUDE * sin(phase);
     v *= 1.0f - ((cg.time - cg.poisonedTime) / (float)LEVEL1_PCLOUD_TIME);
     fov_x += v;
     fov_y += v;
