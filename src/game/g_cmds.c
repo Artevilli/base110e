@@ -1791,10 +1791,65 @@ void Cmd_CallVote_f( gentity_t *ent )
       level.votePassThreshold = g_extendVotePercent.integer;
     }
   }
+  else if (!Q_stricmp(arg1, "random_map") || !Q_stricmp(arg1, "random_nextmap"))
+  {
+    if (g_randomMapPercent.integer <= 0)
+    {
+      trap_SendServerCommand(ent - g_entities, "print \"Random map votes are disabled\n\"");
+    }
+    else
+    {
+      //load maps into a nice big array, like listmaps
+      char fileList[20 * 1024] = {""};
+      char *fileSort[1024];
+      int numFiles;
+      int i;
+      int fileLen = 0;
+      int count = 0;
+      char *filePtr;
+
+      numFiles = trap_FS_GetFileList("maps/", ".bsp", fileList, sizeof(fileList));
+      filePtr = fileList;
+
+      for(i = 0;i < numFiles && count < 1024;i++, filePtr += fileLen + 1)
+      {
+        fileLen = strlen(filePtr);
+
+        if (fileLen < 5)
+        {
+          continue;
+        }
+
+        filePtr[fileLen - 4] = '\0';
+
+        fileSort[count] = filePtr;
+        count++;
+      }
+
+      if (!Q_stricmp(arg1, "random_map"))
+      {
+        Com_sprintf(level.voteString, sizeof(level.voteString), "map %s", fileSort[rand() % count]);
+        Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Change to a random map");
+      }
+      else
+      {
+        if (G_MapExists(g_nextMap.string))
+        {
+          trap_SendServerCommand(ent - g_entities, va("print \"callvote: the next map is already set to '%s^7'\n\"", g_nextMap.string));
+          return;
+        }
+
+        Com_sprintf(level.voteString, sizeof(level.voteString), "set g_nextMap %s", fileSort[rand() % count]);
+        Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Set the next map to a random map");
+      }
+
+      level.votePassThreshold = g_randomMapPercent.integer;
+    }
+  }
   else
   {
     trap_SendServerCommand(ent - g_entities, "print \"Invalid vote string\n\"");
-    trap_SendServerCommand(ent - g_entities, "print \"Valid vote commands are:\nmap, map_restart, draw, nextmap, kick, mute, unmute, poll, sudden_death, and extend\n");
+    trap_SendServerCommand(ent - g_entities, "print \"Valid vote commands are:\nmap, map_restart, draw, nextmap, kick, mute, unmute, poll, sudden_death, extend, random_map, and random_nextmap\n");
     return;
   }
   
