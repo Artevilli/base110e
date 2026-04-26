@@ -1788,6 +1788,7 @@ void Cmd_CallVote_f( gentity_t *ent )
       //the calculations go in g_main.c
       Com_sprintf(level.voteString, sizeof( level.voteString ), "set g_extendVote 1", clientNum);
       Com_sprintf(level.voteDisplayString, sizeof( level.voteDisplayString ), "Extend game time by %i minutes", g_extendVoteTime.integer);
+      level.votePassThreshold = g_extendVotePercent.integer;
     }
   }
   else
@@ -1797,10 +1798,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     return;
   }
   
-  if( level.votePassThreshold!=50 )
-  {
-    Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " (Needs > %d percent)", level.votePassThreshold ) );
-  }
+  Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " (Needs > %d percent)", level.votePassThreshold ) );
   
   if ( reason[0]!='\0' )
     Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " Reason: '%s^7'", reason ) );
@@ -1815,22 +1813,13 @@ void Cmd_CallVote_f( gentity_t *ent )
 
   ent->client->pers.voteCount++;
 
-  // start the voting, the caller autoamtically votes yes
+  // start the voting
   level.voteTime = level.time;
+  level.voteYes = 0;
   level.voteNo = 0;
 
   for( i = 0 ; i < level.maxclients ; i++ )
     level.clients[i].ps.eFlags &= ~EF_VOTED;
-
-  if( !Q_stricmp( arg1, "poll" ) )
-  {
-    level.voteYes = 0;
-  }
-  else
-  {
-   level.voteYes = 1;
-   ent->client->ps.eFlags |= EF_VOTED;
-  }
 
   trap_SetConfigstring( CS_VOTE_TIME, va( "%i", level.voteTime ) );
   trap_SetConfigstring( CS_VOTE_STRING, level.voteDisplayString );
@@ -2253,24 +2242,15 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   
   Q_strcat( level.teamVoteDisplayString[ cs_offset ], sizeof( level.teamVoteDisplayString[ cs_offset ] ), va( " Called by: '%s^7'", ent->client->pers.netname ) );
 
-  // start the voting, the caller autoamtically votes yes
-  level.teamVoteTime[ cs_offset ] = level.time;
-  level.teamVoteNo[ cs_offset ] = 0;
+  // start the voting
+  level.teamVoteTime[cs_offset] = level.time;
+  level.teamVoteYes[cs_offset] = 0;
+  level.teamVoteNo[cs_offset] = 0;
 
   for( i = 0 ; i < level.maxclients ; i++ )
   {
     if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == team )
       level.clients[ i ].ps.eFlags &= ~EF_TEAMVOTED;
-  }
-
-  if( !Q_stricmp( arg1, "poll" ) )
-  {
-    level.teamVoteYes[ cs_offset ] = 0;
-  }
-  else
-  {
-   level.teamVoteYes[ cs_offset ] = 1;
-   ent->client->ps.eFlags |= EF_TEAMVOTED;
   }
 
   trap_SetConfigstring( CS_TEAMVOTE_TIME + cs_offset, va( "%i", level.teamVoteTime[ cs_offset ] ) );
