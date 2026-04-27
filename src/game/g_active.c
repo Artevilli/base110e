@@ -1615,6 +1615,7 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 */
 void ClientEndFrame( gentity_t *ent )
 {
+  static gentity_t sent;
   clientPersistant_t  *pers;
   gclient_t *client;
   // unlagged
@@ -1622,6 +1623,8 @@ void ClientEndFrame( gentity_t *ent )
 
   if( !ent->client )
     return;
+
+  ent->r.svFlags &= ~svf_self_portal2;
 
   if( ent->client->sess.sessionTeam == TEAM_SPECTATOR )
   {
@@ -1676,23 +1679,45 @@ void ClientEndFrame( gentity_t *ent )
 
   frames = level.framenum - client->lastUpdateFrame - 1;
 
-  if( frames > 2 )
+  //PVS prediction
+  if (g_predictPVS.integer && svf_self_portal2)
   {
-    // limit lagged player prediction to 2 server frames
+    int lag;
+    sent.s = ent->s;
+    sent.r = ent->r;
+    sent.clipmask = ent->clipmask;
+    //VectorCopy(client->ps.origin, sent.s.pos.trBase);
+    //VectorCopy(client->ps.velocity, sent.s.pos.trDelta);
+    lag = level.time - client->ps.commandTime + 50;
+
+    if (lag > 500)
+    {
+      lag = 500;
+    }
+
+    G_PredictPlayerMove(&sent, (float)lag * 0.001f);
+    VectorCopy(sent.s.pos.trBase, ent->r.unused.origin2);
+    ent->r.unused.origin2[2] += client->ps.viewheight;
+    ent->r.svFlags |= svf_self_portal2;
+  }
+
+  if (frames > 2)
+  {
+    //limit lagged player prediction to 2 server frames
     frames = 2;
-    // and add the EF_CONNECTION flag if we haven't gotten commands recently
+    //and add the EF_CONNECTION flag if we haven't gotten commands recently
     client->ps.eFlags |= EF_CONNECTION;
     ent->s.eFlags |= EF_CONNECTION;
   }
 
-  if( frames > 0 && g_smoothClients.integer )
+  if (frames > 0 && g_smoothClients.integer)
   {
-    G_PredictPlayerMove( ent, (float)frames / sv_fps.value );
-    SnapVector( ent->s.pos.trBase );
+    G_PredictPlayerMove(ent, (float)frames / sv_fps.value);
+    SnapVector(ent->s.pos.trBase);
   }
 
-  // unlagged
-  G_StoreHistory( ent );
+  //unlagged
+  G_StoreHistory(ent);
 }
 
 

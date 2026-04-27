@@ -1294,3 +1294,16 @@ qboolean  trap_GetEntityToken( char *buffer, int bufferSize );
 
 void      trap_SnapVector( float *v );
 void      trap_SendGameStat( const char *data );
+
+//extension interface
+
+#if defined(Q3_VM)
+//
+#else
+qboolean
+trap_GetValue(char *value, int valueSize, const char *key);
+
+extern int dll_com_trapGetValue;
+#endif
+
+extern int svf_self_portal2;

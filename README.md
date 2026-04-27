@@ -21,5 +21,4 @@ Unofficial Tremulous 1.1.0 gamecode patch
 
 # TODO:
 
- * extension system for Tremulous 1.1.0e
  * bugfixes

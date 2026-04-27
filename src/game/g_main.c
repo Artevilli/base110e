@@ -69,6 +69,15 @@ void CheckExitRules( void );
 void G_CountSpawns( void );
 void G_CalculateBuildPoints( void );
 
+//extension interface
+#if defined(Q3_VM)
+qboolean (*trap_GetValue)(char *value, int valueSize, const char *key);
+#else
+int dll_com_trapGetValue;
+#endif
+
+int svf_self_portal2;
+
 /*
 ================
 vmMain
@@ -319,7 +328,28 @@ G_InitGame
 */
 void G_InitGame( int levelTime, int randomSeed, int restart )
 {
+  char value[MAX_CVAR_VALUE_STRING];
   int i;
+
+  //extension interface
+  trap_Cvar_VariableStringBuffer("//trap_GetValue", value, sizeof(value));
+
+  if (value[0])
+  {
+#if defined(Q3_VM)
+    trap_GetValue = (void *)~atoi(value);
+#else
+    dll_com_trapGetValue = atoi(value);
+#endif
+    if (trap_GetValue(value, sizeof(value), "SVF_SELF_PORTAL2_T110E"))
+    {
+      svf_self_portal2 = atoi(value);
+    }
+    else
+    {
+      svf_self_portal2 = 0;
+    }
+  }
 
   srand( randomSeed );
 

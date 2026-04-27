@@ -35,6 +35,20 @@ int forceModelModificationCount = -1;
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
 void CG_Shutdown( void );
 
+//extension interface
+qboolean intShaderTime = qfalse;
+qboolean linearLight = qfalse;
+
+#if defined(Q3_VM)
+qboolean (*trap_GetValue)(char *value, int valueSize, const char *key);
+void (*trap_R_AddRefEntityToScene2)(const refEntity_t *re);
+void (*trap_R_AddLinearLightToScene)(const vec3_t start, const vec3_t end, float intensity, float r, float g, float b);
+#else
+int dll_com_trapGetValue;
+int dll_trap_R_AddRefEntityToScene2;
+int dll_trap_R_AddLinearLightToScene;
+#endif
+
 /*
 ================
 vmMain
@@ -1457,6 +1471,7 @@ Will perform callbacks to make the loading info screen update.
 */
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 {
+  char value[MAX_CVAR_VALUE_STRING];
   const char  *s;
 
   // clear everything
@@ -1469,6 +1484,41 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 
   cgs.processedSnapshotNum = serverMessageNum;
   cgs.serverCommandSequence = serverCommandSequence;
+
+  trap_Cvar_VariableStringBuffer("//trap_GetValue", value, sizeof(value));
+
+  if (value[0])
+  {
+#if defined(Q3_VM)
+    trap_GetValue = (void *)~atoi(value);
+
+    if (trap_GetValue(value, sizeof(value), "trap_R_AddRefEntityToScene2"))
+    {
+      trap_R_AddRefEntityToScene2 = (void *)~atoi(value);
+      intShaderTime = qtrue;
+    }
+
+    if (trap_GetValue(value, sizeof(value), "trap_R_AddLinearLightToScene_T110E"))
+    {
+      trap_R_AddLinearLightToScene = (void *)~atoi(value);
+      linearLight = qtrue;
+    }
+#else
+    dll_com_trapGetValue = atoi(value);
+
+    if (trap_GetValue(value, sizeof(value), "trap_R_AddRefEntityToScene2"))
+    {
+      dll_trap_R_AddRefEntityToScene2 = atoi(value);
+      intShaderTime = qtrue;
+    }
+
+    if (trap_GetValue(value, sizeof(value), "trap_R_AddLinearLightToScene_T110E"))
+    {
+      dll_trap_R_AddLinearLightToScene = atoi(value);
+      linearLight = qtrue;
+    }
+#endif
+  }
 
   // load a few needed things before we do any screen updates
   cgs.media.whiteShader     = trap_R_RegisterShader( "white" );

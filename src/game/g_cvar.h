@@ -118,6 +118,7 @@ G_CVAR(g_alienStage3Threshold, "g_alienStage3Threshold", DEFAULT_ALIEN_STAGE3_TH
 G_CVAR(g_teamImbalanceWarnings, "g_teamImbalanceWarnings", "30", CVAR_ARCHIVE, 0, qfalse)
 
 G_CVAR(g_unlagged, "g_unlagged", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse)
+G_CVAR(g_predictPVS, "g_predictPVS", "0", CVAR_ARCHIVE, 0, qfalse)
 
 G_CVAR(g_disabledEquipment, "g_disabledEquipment", "", CVAR_ROM, 0, qfalse)
 G_CVAR(g_disabledClasses, "g_disabledClasses", "", CVAR_ROM, 0, qfalse)

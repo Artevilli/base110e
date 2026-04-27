@@ -282,3 +282,10 @@ int trap_Parse_SourceFileAndLine( int handle, char *filename, int *line )
   return syscall( G_PARSE_SOURCE_FILE_AND_LINE, handle, filename, line );
 }
 
+//extension interface
+
+qboolean
+trap_GetValue(char *value, int valueSize, const char *key)
+{
+  return syscall(dll_com_trapGetValue, value, valueSize, key);
+}
