@@ -1939,6 +1939,7 @@ qboolean ScoreIsTied( void )
   return a == b;
 }
 
+
 /*
 =================
 CheckExitRules
@@ -1948,56 +1949,56 @@ and the time everyone is moved to the intermission spot, so you
 can see the last frag.
 =================
 */
-void CheckExitRules( void )
+void
+CheckExitRules(void)
 {
-  // if at the intermission, wait for all non-bots to
-  // signal ready, then go to next level
-  if( level.intermissiontime )
+  //if at the intermission, wait for all non-bots to
+  //signal ready, then go to next level
+  if (level.intermissiontime)
   {
-    CheckIntermissionExit( );
+    CheckIntermissionExit();
     return;
   }
 
-  if( level.intermissionQueued )
+  if (level.intermissionQueued)
   {
-    if( level.time - level.intermissionQueued >= INTERMISSION_DELAY_TIME )
+    if (level.time - level.intermissionQueued >= INTERMISSION_DELAY_TIME)
     {
       level.intermissionQueued = 0;
-      BeginIntermission( );
+      BeginIntermission();
     }
 
     return;
   }
 
-  if( g_timelimit.integer )
+  if (g_timelimit.integer)
   {
-    if( level.time - level.startTime >= g_timelimit.integer * 60000 )
+    if (level.time - level.startTime >= g_timelimit.integer * 60000)
     {
       level.lastWin = PTE_NONE;
-      trap_SendServerCommand( -1, "print \"Timelimit hit\n\"" );
-      trap_SetConfigstring( CS_WINNER, "Stalemate" );
-      LogExit( "Timelimit hit." );
-      G_admin_maplog_result( "t" );
+      trap_SendServerCommand(-1, "print \"Timelimit hit\n\"");
+      trap_SetConfigstring(CS_WINNER, "Stalemate");
+      LogExit("Timelimit hit.");
+      G_admin_maplog_result("t");
       return;
     }
-    else if( level.time - level.startTime >= ( g_timelimit.integer - 5 ) * 60000 &&
-          level.timelimitWarning < TW_IMMINENT )
+    else if (level.time - level.startTime >= (g_timelimit.integer - 5) * 60000 && level.timelimitWarning < TW_CLOSE)
     {
-      trap_SendServerCommand( -1, "cp \"5 minutes remaining!\"" );
-      level.timelimitWarning = TW_IMMINENT;
+      trap_SendServerCommand(-1, "cp \"5 minutes remaining!\"");
+      level.timelimitWarning = TW_CLOSE;
     }
-    else if( level.time - level.startTime >= ( g_timelimit.integer - 1 ) * 60000 &&
-          level.timelimitWarning < TW_PASSED )
+    else if (level.time - level.startTime >= (g_timelimit.integer - 1) * 60000 && level.timelimitWarning < TW_PASSED)
     {
-      trap_SendServerCommand( -1, "cp \"1 minute remaining!\"" );
+      trap_SendServerCommand(-1, "cp \"1 minute remaining!\"");
       level.timelimitWarning = TW_PASSED;
+    }
+    else if (level.time - level.startTime < (g_timelimit.integer - 5) * 60000 && level.timelimitWarning != TW_NOT)
+    {
+      level.timelimitWarning = TW_NOT;
     }
   }
 
-  if( level.uncondHumanWin ||
-      ( ( level.time > level.startTime + 1000 ) &&
-        ( level.numAlienSpawns == 0 ) &&
-        ( level.numLiveAlienClients == 0 ) ) )
+  if (level.uncondHumanWin || ((level.time > level.startTime + 1000) && (level.numAlienSpawns == 0) && (level.numLiveAlienClients == 0)))
   {
     //humans win
     level.lastWin = PTE_HUMANS;
@@ -2006,17 +2007,14 @@ void CheckExitRules( void )
     LogExit( "Humans win." );
     G_admin_maplog_result( "h" );
   }
-  else if( level.uncondAlienWin ||
-           ( ( level.time > level.startTime + 1000 ) &&
-             ( level.numHumanSpawns == 0 ) &&
-             ( level.numLiveHumanClients == 0 ) ) )
+  else if (level.uncondAlienWin || ((level.time > level.startTime + 1000) && (level.numHumanSpawns == 0) && (level.numLiveHumanClients == 0)))
   {
     //aliens win
     level.lastWin = PTE_ALIENS;
-    trap_SendServerCommand( -1, "print \"Aliens win\n\"");
-    trap_SetConfigstring( CS_WINNER, "Aliens Win" );
-    LogExit( "Aliens win." );
-    G_admin_maplog_result( "a" );
+    trap_SendServerCommand(-1, "print \"Aliens win\n\"");
+    trap_SetConfigstring(CS_WINNER, "Aliens Win");
+    LogExit("Aliens win.");
+    G_admin_maplog_result("a");
   }
 }
 
