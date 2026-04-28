@@ -2036,110 +2036,129 @@ FUNCTIONS CALLED EVERY FRAME
 CheckVote
 ==================
 */
-void CheckVote( void )
+void
+CheckVote(void)
 {
   int votePassThreshold=level.votePassThreshold;
   int voteYesPercent;
 
-  if( level.voteExecuteTime && level.voteExecuteTime < level.time )
+  if (level.voteExecuteTime && level.voteExecuteTime < level.time)
   {
     level.voteExecuteTime = 0;
 
-    if( !Q_stricmp( level.voteString, "map_restart" ) )
+    if (!Q_stricmp(level.voteString, "map_restart"))
     {
-      G_admin_maplog_result( "r" );
+      G_admin_maplog_result("r");
     }
-    else if( !Q_stricmpn( level.voteString, "map", 3 ) )
+    else if (!Q_stricmpn(level.voteString, "map", 3))
     {
-      G_admin_maplog_result( "m" );
+      G_admin_maplog_result("m");
     }
 
 
-    if( !Q_stricmp( level.voteString, "suddendeath" ) )
+    if (!Q_stricmp(level.voteString, "suddendeath"))
     {
-      level.suddenDeathBeginTime = level.time + ( 1000 * g_suddenDeathVoteDelay.integer ) - level.startTime;
+      level.suddenDeathBeginTime = level.time + (1000 * g_suddenDeathVoteDelay.integer) - level.startTime;
 
       level.voteString[0] = '\0';
 
-      if (G_TimeTilSuddenDeath() < 60000)
+      if (G_TimeTilSuddenDeath() <= 60000)
       {
         level.suddenDeathWarning = TW_IMMINENT;
       }
-      else if (G_TimeTilSuddenDeath() < 300000)
+      else if (G_TimeTilSuddenDeath() <= 300000)
       {
         level.suddenDeathWarning = TW_CLOSE;
       }
+      //reset warning if changed
+      else if (G_TimeTilSuddenDeath() > 300000)
+      {
+        level.suddenDeathWarning = TW_NOT;
+      }
 
-      if( g_suddenDeathVoteDelay.integer )
-        trap_SendServerCommand( -1, va("cp \"Sudden Death will begin in %d seconds\n\"", g_suddenDeathVoteDelay.integer  ) );
+      if (g_suddenDeathVoteDelay.integer)
+      {
+        trap_SendServerCommand(-1, va("cp \"Sudden Death will begin in %d seconds\n\"", g_suddenDeathVoteDelay.integer));
+      }
     }
 
-    if( level.voteString[0] )
-      trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
+    if (level.voteString[0])
+    {
+      trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
+    }
 
-    if( !Q_stricmp( level.voteString, "map_restart" ) ||
-        !Q_stricmpn( level.voteString, "map", 3 ) )
+    if (!Q_stricmp(level.voteString, "map_restart") || !Q_stricmpn(level.voteString, "map", 3))
     {
       level.restarted = qtrue;
     }
   }
 
-  if( !level.voteTime )
-    return;
-
-  if( level.voteYes + level.voteNo > 0 )
-    voteYesPercent = (int)( 100 * ( level.voteYes ) / ( level.voteYes + level.voteNo ) );
-  else
-    voteYesPercent = 0; 
-  
-  if( ( level.time - level.voteTime >= VOTE_TIME ) || 
-      ( level.voteYes + level.voteNo == level.numConnectedClients ) )
+  if (!level.voteTime)
   {
-    if( voteYesPercent> votePassThreshold || level.voteNo == 0 )
-    {
-      // execute the command, then remove the vote
-      trap_SendServerCommand( -1, va("print \"Vote passed (%d - %d)\n\"", 
-            level.voteYes, level.voteNo ) );
-      G_LogPrintf( "Vote: Vote passed (%d-%d)\n", level.voteYes, level.voteNo );
-      level.voteExecuteTime = level.time + 3000;
-    }
-    else
-    {
-      // same behavior as a timeout
-      trap_SendServerCommand( -1, va("print \"Vote failed (%d - %d)\n\"",
-            level.voteYes, level.voteNo ) );
-      G_LogPrintf( "Vote: Vote failed (%d - %d)\n", level.voteYes, level.voteNo );
-    }
+    return;
+  }
+
+  if (level.voteYes + level.voteNo > 0)
+  {
+    voteYesPercent = (int)(100 * (level.voteYes) / (level.voteYes + level.voteNo));
   }
   else
   {
-    if( level.voteYes > (int)( (double) level.numConnectedClients * 
-                                 ( (double) votePassThreshold/100.0 ) ) )
+    voteYesPercent = 0; 
+  }
+  
+  if ((level.time - level.voteTime >= VOTE_TIME) || (level.voteYes + level.voteNo >= level.numVotingClients))
+  {
+    if (voteYesPercent > votePassThreshold || level.voteNo == 0)
     {
-      // execute the command, then remove the vote
-      trap_SendServerCommand( -1, va("print \"Vote passed (%d - %d)\n\"",
-            level.voteYes, level.voteNo ) );
-      G_LogPrintf( "Vote: Vote passed (%d - %d)\n", level.voteYes, level.voteNo );
+      //execute the command, then remove the vote
+      trap_SendServerCommand(-1, va("print \"^2Vote Passed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
       level.voteExecuteTime = level.time + 3000;
+      G_LogPrintf("global pass %i %i %i", level.voteYes, level.voteNo, level.numVotingClients);
     }
-    else if( level.voteNo > (int)( (double) level.numConnectedClients * 
-                                     ( (double) ( 100.0-votePassThreshold )/ 100.0 ) ) )
+    else if (voteYesPercent <= votePassThreshold)
     {
-      // same behavior as a timeout
-      trap_SendServerCommand( -1, va("print \"Vote failed (%d - %d)\n\"",
-            level.voteYes, level.voteNo ) );
-      G_LogPrintf("Vote failed\n");
+      //same behavior as a timeout
+      trap_SendServerCommand(-1, va("print \"^1Vote Failed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
+      G_LogPrintf( "Vote: Vote failed (%d - %d)\n", level.voteYes, level.voteNo );
     }
     else
     {
-      // still waiting for a majority
+      //no one voted or idencisive
+      trap_SendServerCommand(-1, va("print \"^1Vote Failed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
+      G_LogPrintf("global fail %i %i %i", level.voteYes, level.voteNo, level.numVotingClients);
+    }
+  }
+  else if (Q_stricmpn(level.voteDisplayString, "[Poll]", 6))
+  {
+    if (level.voteYes > (level.numVotingClients * votePassThreshold / 100) && voteYesPercent > votePassThreshold)
+    {
+      //execute the command, then remove the vote
+      trap_SendServerCommand(-1, va("print \"^2Vote Passed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
+      level.voteExecuteTime = level.time + 3000;
+      G_LogPrintf("global pass %i %i %i", level.voteYes, level.voteNo, level.numVotingClients);
+    }
+    else if (level.voteNo >= ceil((float)level.numVotingClients * votePassThreshold / 100) && voteYesPercent <= votePassThreshold)
+    {
+      //same behavior as a timeout
+      trap_SendServerCommand(-1, va("print \"^1Vote Failed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
+      G_LogPrintf("global fail %i %i %i", level.voteYes, level.voteNo, level.numVotingClients);
+    }
+    else
+    {
+      //waiting for a majority
       return;
     }
   }
+  else
+  {
+    //still waiting for a majority
+    return;
+  }
 
   level.voteTime = 0;
-  trap_SetConfigstring( CS_VOTE_TIME, "" );
-  trap_SetConfigstring( CS_VOTE_STRING, "" );
+  trap_SetConfigstring(CS_VOTE_TIME, "");
+  trap_SetConfigstring(CS_VOTE_STRING, "");
 }
 
 
@@ -2148,60 +2167,90 @@ void CheckVote( void )
 CheckTeamVote
 ==================
 */
-void CheckTeamVote( int team )
+void
+CheckTeamVote(int team)
 {
-  int cs_offset;
+  int cs_offset, voteYesPercent, nays, yays;
+  int votePassThreshold = 50, tp = 0; //for now
+  char teamt[10];
 
-  if ( team == PTE_HUMANS )
-    cs_offset = 0;
-  else if ( team == PTE_ALIENS )
-    cs_offset = 1;
-  else
-    return;
-
-  if( !level.teamVoteTime[ cs_offset ] )
-    return;
-
-  if( level.time - level.teamVoteTime[ cs_offset ] >= VOTE_TIME )
+  if (team == PTE_HUMANS)
   {
-    if( level.teamVoteYes[ cs_offset ] > level.teamVoteNo[ cs_offset ] && level.teamVoteYes[ cs_offset ] >= 2 )
-    {
-      // execute the command, then remove the vote
-      trap_SendServerCommand( -1, va("print \"Team vote passed  (%d - %d)\n\"", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] ) );
-      trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.teamVoteString[ cs_offset ] ) );
-    }
-    else
-    {
-      trap_SendServerCommand( -1, va("print \"Team vote failed  (%d - %d)\n\"", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] ) );
-      G_LogPrintf( "Teamvote: Team vote failed (%d - %d)\n", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] );
-    }
+    cs_offset = 0;
+    Q_strncpyz(teamt, "human", sizeof(teamt));
+    tp = level.numHumanClients;
+  }
+  else if (team == PTE_ALIENS)
+  {
+    cs_offset = 1;
+    Q_strncpyz(teamt, "alien", sizeof(teamt));
+    tp = level.numAlienClients;
   }
   else
   {
-    if( level.teamVoteYes[ cs_offset ] > level.numteamVotingClients[ cs_offset ] / 2 )
+    return;
+  }
+
+  if (!level.teamVoteTime[cs_offset])
+  {
+    return;
+  }
+
+  yays = level.teamVoteYes[cs_offset];
+  nays = level.teamVoteNo[cs_offset];
+
+  if (yays + nays > 0)
+  {
+    voteYesPercent = (int)(100 * yays / (yays + nays));
+  }
+  else
+  {
+    voteYesPercent = 0;
+  }
+
+  if (level.time - level.teamVoteTime[cs_offset] >= VOTE_TIME)
+  {
+    if (voteYesPercent > votePassThreshold)
     {
-      // execute the command, then remove the vote
-      trap_SendServerCommand( -1, va("print \"Team vote passed  (%d - %d)\n\"", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] ) );
-      G_LogPrintf( "Teamvote: Team vote passed (%d - %d)\n", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] );
-      //
-      trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.teamVoteString[ cs_offset ] ) );
-    }
-    else if( level.teamVoteNo[ cs_offset ] >= level.numteamVotingClients[ cs_offset ] / 2 )
-    {
-      // same behavior as a timeout
-      trap_SendServerCommand( -1, va("print \"Team vote failed  (%d - %d)\n\"", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] ) );
-      G_LogPrintf( "Teamvote: Team vote failed (%d - %d)\n", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] );
+      G_TeamCommand(team, va("print \"^2Team Vote Passed^7 (^2Y:^7%i, ^1N:^7%i, %i percent)\n\"", yays, nays, voteYesPercent));
+      trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset]));
+      G_LogPrintf("%s pass %i %i %i", teamt, yays, nays, tp);
     }
     else
     {
-      // still waiting for a majority
+      G_TeamCommand(team, va("print \"^1Team Vote Failed^7 (^2Y^7:%i, ^1N^7:%i, %i percent)\n\"", yays, nays, voteYesPercent));
+      G_LogPrintf("%s fail %i %i %i", teamt, yays, nays, tp);
+    }
+  }
+  else if (yays + nays > 0)
+  {
+    if (yays > level.numteamVotingClients[cs_offset] / 2)
+    {
+      //execute the command, then remove the vote
+      G_TeamCommand(team, va("print \"^2Team Vote Passed^7 (^2Y^7:%i, ^1N^7:%i, %i percent)\n\"", yays, nays, voteYesPercent));
+      trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset]));
+      G_LogPrintf("%s pass %i %i %i", teamt, yays, nays, tp);
+    }
+    else if (nays >= level.numteamVotingClients[cs_offset] / 2)
+    {
+      G_TeamCommand(team, va("print \"^1Team Vote Failed^7 (^2Y^7:%i, ^1N^7:%i, %i percent)\n\"", yays, nays, voteYesPercent));
+      G_LogPrintf("%s fail %i %i %i", teamt, yays, nays, tp);
+    }
+    else
+    {
+      //still waiting for a majority
       return;
     }
   }
+  else
+  {
+    //still waiting for a vote
+    return;
+  }
 
-  level.teamVoteTime[ cs_offset ] = 0;
-  trap_SetConfigstring( CS_TEAMVOTE_TIME + cs_offset, "" );
-  trap_SetConfigstring( CS_TEAMVOTE_STRING + cs_offset, "" );
+  level.teamVoteTime[cs_offset] = 0;
+  trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, "");
+  trap_SetConfigstring(CS_TEAMVOTE_STRING + cs_offset, "");
 }
 
 /*
