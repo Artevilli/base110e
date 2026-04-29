@@ -36,7 +36,7 @@ int			cvar_numIndexes;
 #define FILE_HASH_SIZE		256
 static	cvar_t*		hashTable[FILE_HASH_SIZE];
 
-cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force);
+cvar_t *Cvar_Set2( const char *var_name, const char *value, qbool force);
 
 /*
 ================
@@ -64,7 +64,7 @@ static long generateHashValue( const char *fname ) {
 Cvar_ValidateString
 ============
 */
-static qboolean Cvar_ValidateString( const char *s ) {
+static qbool Cvar_ValidateString( const char *s ) {
 	if ( !s ) {
 		return qfalse;
 	}
@@ -298,7 +298,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 Cvar_Set2
 ============
 */
-cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
+cvar_t *Cvar_Set2( const char *var_name, const char *value, qbool force ) {
 	cvar_t	*var;
 
 //	Com_DPrintf( "Cvar_Set2: %s %s\n", var_name, value );
@@ -496,7 +496,7 @@ Cvar_Command
 Handles variable inspection and changing from the console
 ============
 */
-qboolean Cvar_Command( void ) {
+qbool Cvar_Command( void ) {
 	cvar_t	*v;
 	char		string[ TRUNCATE_LENGTH ];
 	char		resetString[ TRUNCATE_LENGTH ];

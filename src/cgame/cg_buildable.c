@@ -153,7 +153,7 @@ Read a configuration file containing animation counts and rates
 models/buildables/hivemind/animation.cfg, etc
 ======================
 */
-static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_t buildable )
+static qbool CG_ParseBuildableAnimationFile( const char *filename, buildable_t buildable )
 {
   char          *text_p;
   int           len;
@@ -244,7 +244,7 @@ Read a configuration file containing sound properties
 sound/buildables/hivemind/sound.cfg, etc
 ======================
 */
-static qboolean CG_ParseBuildableSoundFile( const char *filename, buildable_t buildable )
+static qbool CG_ParseBuildableSoundFile( const char *filename, buildable_t buildable )
 {
   char          *text_p;
   int           len;

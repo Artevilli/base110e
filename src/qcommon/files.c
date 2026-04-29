@@ -281,17 +281,17 @@ typedef union qfile_gus {
 
 typedef struct qfile_us {
 	qfile_gut	file;
-	qboolean	unique;
+	qbool	unique;
 } qfile_ut;
 
 typedef struct {
 	qfile_ut	handleFiles;
-	qboolean	handleSync;
+	qbool	handleSync;
 	int			baseOffset;
 	int			fileSize;
 	int			zipFilePos;
-	qboolean	zipFile;
-	qboolean	streamed;
+	qbool	zipFile;
+	qbool	streamed;
 	char		name[MAX_ZPATH];
 } fileHandleData_t;
 
@@ -299,7 +299,7 @@ static fileHandleData_t	fsh[MAX_FILE_HANDLES];
 
 // TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=540
 // wether we did a reorder on the current search path when joining the server
-static qboolean fs_reordered;
+static qbool fs_reordered;
 
 // never load anything from pk3 files that are not present at the server when pure
 static int		fs_numServerPaks;
@@ -326,7 +326,7 @@ FS_Initialized
 ==============
 */
 
-qboolean FS_Initialized( void ) {
+qbool FS_Initialized( void ) {
 	return (fs_searchpaths != NULL);
 }
 
@@ -335,7 +335,7 @@ qboolean FS_Initialized( void ) {
 FS_PakIsPure
 =================
 */
-qboolean FS_PakIsPure( pack_t *pack ) {
+qbool FS_PakIsPure( pack_t *pack ) {
 	int i;
 
 	if ( fs_numServerPaks ) {
@@ -495,7 +495,7 @@ FS_CreatePath
 Creates any directories needed to store the given filename
 ============
 */
-static qboolean FS_CreatePath (char *OSPath) {
+static qbool FS_CreatePath (char *OSPath) {
 	char	*ofs;
 	
 	// make absolutely sure that it can't back up the path
@@ -595,7 +595,7 @@ search the paths.  This is to determine if opening a file to write
 NOTE TTimo: this goes with FS_FOpenFileWrite for opening the file afterwards
 ================
 */
-qboolean FS_FileExists( const char *file )
+qbool FS_FileExists( const char *file )
 {
 	FILE *f;
 	char *testpath;
@@ -617,7 +617,7 @@ FS_SV_FileExists
 Tests if the file exists 
 ================
 */
-qboolean FS_SV_FileExists( const char *file )
+qbool FS_SV_FileExists( const char *file )
 {
 	FILE *f;
 	char *testpath;
@@ -944,7 +944,7 @@ FS_FilenameCompare
 Ignore case and seprator char distinctions
 ===========
 */
-qboolean FS_FilenameCompare( const char *s1, const char *s2 ) {
+qbool FS_FilenameCompare( const char *s1, const char *s2 ) {
 	int		c1, c2;
 	
 	do {
@@ -999,9 +999,9 @@ Used for streaming data out of either a
 separate file or a ZIP file.
 ===========
 */
-extern qboolean		com_fullyInitialized;
+extern qbool		com_fullyInitialized;
 
-int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueFILE ) {
+int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qbool uniqueFILE ) {
 	searchpath_t	*search;
 	char			*netpath;
 	pack_t			*pak;
@@ -1527,7 +1527,7 @@ a null buffer will just return the file length without loading
 int FS_ReadFile( const char *qpath, void **buffer ) {
 	fileHandle_t	h;
 	byte*			buf;
-	qboolean		isConfig;
+	qbool		isConfig;
 	int				len;
 
 	if ( !fs_searchpaths ) {
@@ -2152,7 +2152,7 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
   char **pFiles0 = NULL;
   char **pFiles1 = NULL;
   char **pFiles2 = NULL;
-  qboolean bDrop = qfalse;
+  qbool bDrop = qfalse;
 
   *listbuf = 0;
   nMods = nPotential = nTotal = 0;
@@ -2545,7 +2545,7 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 FS_idPak
 ================
 */
-qboolean FS_idPak( char *pak, char *base ) {
+qbool FS_idPak( char *pak, char *base ) {
 	int i;
 
 	for (i = 0; i < NUM_ID_PAKS; i++) {
@@ -2568,7 +2568,7 @@ and return qtrue if it does.
 ================
 */
 
-qboolean FS_CheckDirTraversal(const char *checkdir)
+qbool FS_CheckDirTraversal(const char *checkdir)
 {
 	if(strstr(checkdir, "../") || strstr(checkdir, "..\\"))
 		return qtrue;
@@ -2602,9 +2602,9 @@ we are not interested in a download string format, we want something human-reada
 
 ================
 */
-qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
+qbool FS_ComparePaks( char *neededpaks, int len, qbool dlstring ) {
 	searchpath_t	*sp;
-	qboolean havepak, badchecksum;
+	qbool havepak, badchecksum;
 	char *origpos = neededpaks;
 	int i;
 
@@ -2706,7 +2706,7 @@ FS_Shutdown
 Frees all resources.
 ================
 */
-void FS_Shutdown( qboolean closemfp ) {
+void FS_Shutdown( qbool closemfp ) {
 	searchpath_t	*p, *next;
 	int	i;
 
@@ -3319,7 +3319,7 @@ FS_ConditionalRestart
 restart if necessary
 =================
 */
-qboolean FS_ConditionalRestart( int checksumFeed ) {
+qbool FS_ConditionalRestart( int checksumFeed ) {
 	if( fs_gamedirvar->modified || checksumFeed != fs_checksumFeed ) {
 		FS_Restart( checksumFeed );
 		return qtrue;
@@ -3337,7 +3337,7 @@ Handle based file calls for virtual machines
 
 int		FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
 	int		r;
-	qboolean	sync;
+	qbool	sync;
 
 	sync = qfalse;
 
@@ -3404,7 +3404,7 @@ void	FS_Flush( fileHandle_t f ) {
 }
 
 void	FS_FilenameCompletion( const char *dir, const char *ext,
-		qboolean stripExt, void(*callback)(const char *s) ) {
+		qbool stripExt, void(*callback)(const char *s) ) {
 	char	**filenames;
 	int		nfiles;
 	int		i;

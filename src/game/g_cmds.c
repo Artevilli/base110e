@@ -32,7 +32,7 @@ Remove case and control characters from a player name
 */
 void G_SanitiseString( char *in, char *out, int len )
 {
-  qboolean skip = qtrue;
+  qbool skip = qtrue;
   int spaces = 0;
 
   while( *in && len > 0 )
@@ -131,7 +131,7 @@ returns qtrue if the int array plist only has one client id, false otherwise
 In the case of false, err will be populated with an error message.
 ==================
 */
-qboolean G_MatchOnePlayer( int *plist, char *err, int len )
+qbool G_MatchOnePlayer( int *plist, char *err, int len )
 {
   gclient_t *cl;
   int *p;
@@ -352,7 +352,7 @@ Determine whether a user is flood limited, and adjust their flood demerits
 ==================
 */
 
-qboolean G_Flood_Limited( gentity_t *ent )
+qbool G_Flood_Limited( gentity_t *ent )
 {
   int millisSinceLastCommand;
   int maximumDemerits;
@@ -403,7 +403,7 @@ Give items to a client
 void Cmd_Give_f( gentity_t *ent )
 {
   char      *name;
-  qboolean  give_all = qfalse;
+  qbool  give_all = qfalse;
 
   name = ConcatArgs( 1 );
   if( Q_stricmp( name, "all" ) == 0 )
@@ -657,7 +657,7 @@ G_ChangeTeam
 void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
 {
   pTeam_t oldTeam = ent->client->pers.teamSelection;
-  qboolean isFixingImbalance=qfalse;
+  qbool isFixingImbalance=qfalse;
  
   if( oldTeam == newTeam )
     return;
@@ -756,7 +756,7 @@ void Cmd_Team_f( gentity_t *ent )
   pTeam_t oldteam = ent->client->pers.teamSelection;
   char    s[ MAX_TOKEN_CHARS ];
   char buf[ MAX_STRING_CHARS ];
-  qboolean force = G_admin_permission(ent, ADMF_FORCETEAMCHANGE);
+  qbool force = G_admin_permission(ent, ADMF_FORCETEAMCHANGE);
   int     aliens = level.numAlienClients;
   int     humans = level.numHumanClients;
 
@@ -953,8 +953,8 @@ G_Say
 */
 static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message, const char *prefix )
 {
-  qboolean ignore = qfalse;
-  qboolean specAllChat = qfalse;
+  qbool ignore = qfalse;
+  qbool specAllChat = qfalse;
 
   if( !other )
     return;
@@ -1378,7 +1378,7 @@ void Cmd_Where_f( gentity_t *ent )
 }
 
 
-static qboolean map_is_votable( const char *map )
+static qbool map_is_votable( const char *map )
 {
   char maps[ MAX_CVAR_VALUE_STRING ];
   char *token, *token_p;
@@ -2395,7 +2395,7 @@ void Cmd_SetViewpos_f( gentity_t *ent )
 
 #define AS_OVER_RT3         ((ALIENSENSE_RANGE*0.5f)/M_ROOT3)
 
-static qboolean G_RoomForClassChange( gentity_t *ent, pClass_t class,
+static qbool G_RoomForClassChange( gentity_t *ent, pClass_t class,
   vec3_t newOrigin )
 {
   vec3_t    fromMins, fromMaxs;
@@ -2729,7 +2729,7 @@ void Cmd_Destroy_f( gentity_t *ent )
   trace_t     tr;
   gentity_t   *traceEnt;
   char        cmd[ 12 ];
-  qboolean    deconstruct = qtrue;
+  qbool    deconstruct = qtrue;
 
   if( ent->client->pers.denyBuild )
   {
@@ -2997,8 +2997,8 @@ void Cmd_Buy_f( gentity_t *ent )
   int       i;
   int       weapon, upgrade, numItems = 0;
   int       maxAmmo, maxClips;
-  qboolean  buyingEnergyAmmo = qfalse;
-  qboolean  hasEnergyWeapon = qfalse;
+  qbool  buyingEnergyAmmo = qfalse;
+  qbool  hasEnergyWeapon = qfalse;
 
   for( i = UP_NONE; i < UP_NUM_UPGRADES; i++ )
   {
@@ -3752,11 +3752,11 @@ G_FollowNewClient
 This was a really nice, elegant function. Then I fucked it up.
 =================
 */
-qboolean G_FollowNewClient( gentity_t *ent, int dir )
+qbool G_FollowNewClient( gentity_t *ent, int dir )
 {
   int       clientnum = ent->client->sess.spectatorClient;
   int       original = clientnum;
-  qboolean  selectAny = qfalse;
+  qbool  selectAny = qfalse;
 
   if( dir > 1 )
     dir = 1;
@@ -4025,7 +4025,7 @@ static void Cmd_Ignore_f( gentity_t *ent )
   char cmd[ 9 ];
   int matches = 0;
   int i;
-  qboolean ignore = qfalse;
+  qbool ignore = qfalse;
 
   trap_Argv( 0, cmd, sizeof( cmd ) );
   if( Q_stricmp( cmd, "ignore" ) == 0 )
@@ -4308,7 +4308,7 @@ static void Cmd_Ignore_f( gentity_t *ent )
    char s[ MAX_TOKEN_CHARS ] = "", *type = "evo(s)";
    int i, value, divisor, portion, new_credits, total=0,
      max = ALIEN_MAX_KILLS, *amounts, *totals;
-   qboolean donated = qtrue;
+   qbool donated = qtrue;
  
    if( !ent->client ) return;
  
@@ -4585,7 +4585,7 @@ int G_SayArgc( void )
   return c;
 }
 
-qboolean G_SayArgv( int n, char *buffer, int bufferLength )
+qbool G_SayArgv( int n, char *buffer, int bufferLength )
 {
   int bc = 0;
   int c = 0;
@@ -4725,7 +4725,7 @@ void G_WordWrap( char *buffer, int maxwidth )
        //If we're at a space and getting close to a line break, look ahead and make sure that there isn't already a \n or a closer space coming. If not, break here.
       if( out[ i ] == ' ' && linecount >= (maxwidth - 10 ) ) 
       {
-        qboolean foundbreak = qfalse;
+        qbool foundbreak = qfalse;
         for( k = i+1; k < maxwidth; k++ )
         {
           if( !buffer[ k ] )
@@ -4768,7 +4768,7 @@ void G_PrivateMessage( gentity_t *ent )
   int pcount, matches, ignored = 0;
   int i;
   int skipargs = 0;
-  qboolean teamonly = qfalse;
+  qbool teamonly = qfalse;
   gentity_t *tmpent;
 
   if( !g_privateMessages.integer && ent )
@@ -4958,9 +4958,9 @@ void G_CP( gentity_t *ent )
    char wrappedtext[ MAX_STRING_CHARS ] = "";
    char *ptr;
    char *text;
-   qboolean sendAliens = qtrue;
-   qboolean sendHumans = qtrue;
-   qboolean sendSpecs = qtrue;
+   qbool sendAliens = qtrue;
+   qbool sendHumans = qtrue;
+   qbool sendSpecs = qtrue;
    Q_strncpyz( buffer, ConcatArgs( 1 ), sizeof( buffer ) );
    G_ParseEscapedString( buffer );
 

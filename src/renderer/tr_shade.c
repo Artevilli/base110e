@@ -63,7 +63,7 @@ static int		c_begins;
 static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void ( APIENTRY *element )(GLint) ) {
 	int i;
 	int last[3] = { -1, -1, -1 };
-	qboolean even;
+	qbool even;
 
 	c_begins++;
 
@@ -210,7 +210,7 @@ SURFACE SHADERS
 */
 
 shaderCommands_t	tess;
-static qboolean	setArraysOnce;
+static qbool	setArraysOnce;
 
 /*
 =================

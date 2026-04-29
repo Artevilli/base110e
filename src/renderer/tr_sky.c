@@ -152,7 +152,7 @@ static void ClipSkyPolygon (int nump, vec3_t vecs, int stage)
 {
 	float	*norm;
 	float	*v;
-	qboolean	front, back;
+	qbool	front, back;
 	float	d, e;
 	float	dists[MAX_CLIP_VERTS];
 	int		sides[MAX_CLIP_VERTS];
@@ -455,7 +455,7 @@ static void DrawSkyBox( shader_t *shader )
 
 }
 
-static void FillCloudySkySide( const int mins[2], const int maxs[2], qboolean addIndexes )
+static void FillCloudySkySide( const int mins[2], const int maxs[2], qbool addIndexes )
 {
 	int s, t;
 	int vertexStart = tess.numVertexes;

@@ -383,7 +383,7 @@ CM_AdjustAreaPortalState
 
 ====================
 */
-void	CM_AdjustAreaPortalState( int area1, int area2, qboolean open ) {
+void	CM_AdjustAreaPortalState( int area1, int area2, qbool open ) {
 	if ( area1 < 0 || area2 < 0 ) {
 		return;
 	}
@@ -412,7 +412,7 @@ CM_AreasConnected
 
 ====================
 */
-qboolean	CM_AreasConnected( int area1, int area2 ) {
+qbool	CM_AreasConnected( int area1, int area2 ) {
 #ifndef BSPC
 	if ( cm_noAreas->integer ) {
 		return qtrue;

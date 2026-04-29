@@ -302,11 +302,11 @@ final fragment of a multi-part message, the entire thing will be
 copied out.
 =================
 */
-qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
+qbool Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	int			sequence;
 	int			qport;
 	int			fragmentStart, fragmentLength;
-	qboolean	fragmented;
+	qbool	fragmented;
 
 	// XOR unscramble all data in the packet after the header
 //	Netchan_UnScramblePacket( msg );
@@ -468,7 +468,7 @@ NET_CompareBaseAdr
 Compares without the port
 ===================
 */
-qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b)
+qbool	NET_CompareBaseAdr (netadr_t a, netadr_t b)
 {
 	if (a.type != b.type)
 		return qfalse;
@@ -514,7 +514,7 @@ const char	*NET_AdrToString (netadr_t a)
 }
 
 
-qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
+qbool	NET_CompareAdr (netadr_t a, netadr_t b)
 {
 	if (a.type != b.type)
 		return qfalse;
@@ -541,7 +541,7 @@ qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
 }
 
 
-qboolean	NET_IsLocalAddress( netadr_t adr ) {
+qbool	NET_IsLocalAddress( netadr_t adr ) {
 	return adr.type == NA_LOOPBACK;
 }
 
@@ -572,7 +572,7 @@ typedef struct {
 loopback_t	loopbacks[2];
 
 
-qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message)
+qbool	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message)
 {
 	int		i;
 	loopback_t	*loop;
@@ -758,8 +758,8 @@ NET_StringToAdr
 Traps "localhost" for loopback, passes everything else to system
 =============
 */
-qboolean	NET_StringToAdr( const char *s, netadr_t *a ) {
-	qboolean	r;
+qbool	NET_StringToAdr( const char *s, netadr_t *a ) {
+	qbool	r;
 	char	base[MAX_STRING_CHARS];
 	char	*port;
 

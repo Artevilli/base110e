@@ -28,7 +28,7 @@ G_ResetHistory(gentity_t *ent)
     VectorCopy(ent->r.mins, client->history[i].mins);
     VectorCopy(ent->r.maxs, client->history[i].maxs);
     VectorCopy(ent->r.currentOrigin, client->history[i].currentOrigin);
-    client->history[ i ].leveltime = t;
+    client->history[i].leveltime = t;
   }
 }
 
@@ -90,7 +90,7 @@ Move a client back to where he was at the specified "time"
 =================
 */
 void
-G_TimeShiftClient(gentity_t *ent, int time, qboolean debug, gentity_t *debugger)
+G_TimeShiftClient(gentity_t *ent, int time, qbool debug, gentity_t *debugger)
 {
   int j, k;
   gclient_t *client;
@@ -145,7 +145,7 @@ G_TimeShiftClient(gentity_t *ent, int time, qboolean debug, gentity_t *debugger)
       TimeShiftLerp(frac, client->history[j].maxs, client->history[k].maxs,ent->r.maxs);
 
       //this will recalculate absmin and absmax
-      trap_LinkEntity( ent );
+      trap_LinkEntity(ent);
     }
     else
     {
@@ -270,7 +270,7 @@ G_UnTimeShiftAllClients(gentity_t *skip)
 {
   int i;
   gentity_t *ent;
-  qboolean linked;
+  qbool linked;
 
   ent = &g_entities[0];
 
@@ -357,7 +357,7 @@ Advance the given entity frametime seconds, sliding as appropriate
 */
 #define	MAX_CLIP_PLANES	5
 
-qboolean
+qbool
 G_PredictPlayerSlideMove(gentity_t *ent, float frametime)
 {
   int bumpcount, numbumps;
@@ -562,7 +562,7 @@ G_PredictPlayerStepSlideMove(gentity_t *ent, float frametime)
   //VectorCopy(ent->s.pos.trBase, down_o);
   //VectorCopy(ent->s.pos.trDelta, down_v);
 
-  VectorCopy( start_o, up );
+  VectorCopy(start_o, up);
 
   up[2] += PM_STEP_HEIGHT;
 
@@ -583,7 +583,7 @@ G_PredictPlayerStepSlideMove(gentity_t *ent, float frametime)
   G_PredictPlayerSlideMove(ent, frametime);
 
   //push down the final amount
-  VectorCopy( ent->s.pos.trBase, down );
+  VectorCopy(ent->s.pos.trBase, down);
   down[2] -= stepSize;
   trap_Trace(&trace, ent->s.pos.trBase, ent->r.mins, ent->r.maxs, down, ent->s.number, ent->clipmask);
 

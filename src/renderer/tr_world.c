@@ -32,7 +32,7 @@ Returns true if the grid is completely culled away.
 Also sets the clipped hint bit in tess
 =================
 */
-static qboolean	R_CullTriSurf( srfTriangles_t *cv ) {
+static qbool	R_CullTriSurf( srfTriangles_t *cv ) {
 	int 	boxCull;
 
 	boxCull = R_CullLocalBox( cv->bounds );
@@ -51,7 +51,7 @@ Returns true if the grid is completely culled away.
 Also sets the clipped hint bit in tess
 =================
 */
-static qboolean	R_CullGrid( srfGridMesh_t *cv ) {
+static qbool	R_CullGrid( srfGridMesh_t *cv ) {
 	int 	boxCull;
 	int 	sphereCull;
 
@@ -112,7 +112,7 @@ added to the sorting list.
 This will also allow mirrors on both sides of a model without recursion.
 ================
 */
-static qboolean	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
+static qbool	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 	srfSurfaceFace_t *sface;
 	float			d;
 
@@ -543,7 +543,7 @@ static const byte *R_ClusterPVS (int cluster) {
 R_inPVS
 =================
 */
-qboolean R_inPVS( const vec3_t p1, const vec3_t p2 ) {
+qbool R_inPVS( const vec3_t p1, const vec3_t p2 ) {
 	mnode_t *leaf;
 	byte	*vis;
 

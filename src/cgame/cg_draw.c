@@ -522,7 +522,7 @@ static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color, float scale,
 
 #define NO_CREDITS_TIME 2000
 
-static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color, qboolean padding )
+static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color, qbool padding )
 {
   int           value;
   playerState_t *ps;
@@ -560,7 +560,7 @@ static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color, qboolean p
   }
 }
 
-static void CG_DrawPlayerBankValue( rectDef_t *rect, vec4_t color, qboolean padding )
+static void CG_DrawPlayerBankValue( rectDef_t *rect, vec4_t color, qbool padding )
 {
   int           value;
   playerState_t *ps;
@@ -799,7 +799,7 @@ CG_DrawPlayerBoosted
 static void CG_DrawPlayerBoosted( rectDef_t *rect, vec4_t color, qhandle_t shader )
 {
   playerState_t *ps = &cg.snap->ps;
-  qboolean      boosted = ps->stats[ STAT_STATE ] & SS_BOOSTED;
+  qbool      boosted = ps->stats[ STAT_STATE ] & SS_BOOSTED;
 
   if( boosted )
     color[ 3 ] = AH_MAX_ALPHA;
@@ -819,7 +819,7 @@ CG_DrawPlayerBoosterBolt
 static void CG_DrawPlayerBoosterBolt( rectDef_t *rect, vec4_t color, qhandle_t shader )
 {
   playerState_t *ps = &cg.snap->ps;
-  qboolean      boosted = ps->stats[ STAT_STATE ] & SS_BOOSTED;
+  qbool      boosted = ps->stats[ STAT_STATE ] & SS_BOOSTED;
   vec4_t        localColor;
 
   Vector4Copy( color, localColor );
@@ -828,7 +828,7 @@ static void CG_DrawPlayerBoosterBolt( rectDef_t *rect, vec4_t color, qhandle_t s
   {
     if( ps->stats[ STAT_BOOSTTIME ] > BOOST_TIME - 3000 )
     {
-      qboolean flash = ( ps->stats[ STAT_BOOSTTIME ] / 500 ) % 2;
+      qbool flash = ( ps->stats[ STAT_BOOSTTIME ] / 500 ) % 2;
 
       if( flash )
         localColor[ 3 ] = 1.0f;
@@ -852,7 +852,7 @@ static void CG_DrawPlayerPoisonBarbs( rectDef_t *rect, vec4_t color, qhandle_t s
   int           y = rect->y;
   int           width = rect->w;
   int           height = rect->h;
-  qboolean      vertical;
+  qbool      vertical;
   int           iconsize, numBarbs, i;
 
   BG_UnpackAmmoArray( ps->weapon, ps->ammo, ps->powerups, &numBarbs, NULL );
@@ -892,7 +892,7 @@ CG_DrawPlayerWallclimbing
 static void CG_DrawPlayerWallclimbing( rectDef_t *rect, vec4_t color, qhandle_t shader )
 {
   playerState_t *ps = &cg.snap->ps;
-  qboolean      ww = ps->stats[ STAT_STATE ] & SS_WALLCLIMBING;
+  qbool      ww = ps->stats[ STAT_STATE ] & SS_WALLCLIMBING;
 
   if( ww )
     color[ 3 ] = AH_MAX_ALPHA;
@@ -1714,7 +1714,7 @@ CG_DrawFPS
 #define FPS_STRING  "fps"
 static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
                         float scale, vec4_t color, int align, int textStyle,
-                        qboolean scalableText )
+                        qbool scalableText )
 {
   char        *s;
   int         tx, w, totalWidth, strLength;
@@ -2858,7 +2858,7 @@ void CG_EventHandling( int type )
 
 
 
-void CG_KeyEvent( int key, qboolean down )
+void CG_KeyEvent( int key, qbool down )
 {
   if( !down )
     return;
@@ -3119,9 +3119,9 @@ static void CG_DrawTeamVote( void )
 }
 
 
-static qboolean CG_DrawScoreboard( void )
+static qbool CG_DrawScoreboard( void )
 {
-  static qboolean firstTime = qtrue;
+  static qbool firstTime = qtrue;
   float fade, *fadeColor;
 
   if( menuScoreboard )
@@ -3187,7 +3187,7 @@ static void CG_DrawIntermission( void )
 CG_DrawFollow
 =================
 */
-static qboolean CG_DrawFollow( void )
+static qbool CG_DrawFollow( void )
 {
   float       w;
   vec4_t      color;
@@ -3215,7 +3215,7 @@ static qboolean CG_DrawFollow( void )
 CG_DrawQueue
 =================
 */
-static qboolean CG_DrawQueue( void )
+static qbool CG_DrawQueue( void )
 {
   float       w;
   vec4_t      color;

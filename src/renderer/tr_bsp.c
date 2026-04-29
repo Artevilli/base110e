@@ -1770,7 +1770,7 @@ void R_LoadEntities( lump_t *l ) {
 R_GetEntityToken
 =================
 */
-qboolean R_GetEntityToken( char *buffer, int size ) {
+qbool R_GetEntityToken( char *buffer, int size ) {
 	const char	*s;
 
 	s = COM_Parse( &s_worldData.entityParsePoint );

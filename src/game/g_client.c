@@ -84,7 +84,7 @@ void SP_info_human_intermission( gentity_t *ent )
 G_AddCreditToClient
 ===============
 */
-void G_AddCreditToClient( gclient_t *client, short credit, qboolean cap )
+void G_AddCreditToClient( gclient_t *client, short credit, qbool cap )
 {
   if( !client )
     return;
@@ -145,7 +145,7 @@ SpotWouldTelefrag
 
 ================
 */
-qboolean SpotWouldTelefrag( gentity_t *spot )
+qbool SpotWouldTelefrag( gentity_t *spot )
 {
   int       i, num;
   int       touch[ MAX_GENTITIES ];
@@ -813,7 +813,7 @@ static void ClientCleanName( const char *in, char *out, int outSize )
   char  ch;
   char  *p;
   int   spaces;
-  qboolean invalid = qfalse;
+  qbool invalid = qfalse;
 
   //save room for trailing null byte
   outSize--;
@@ -940,7 +940,7 @@ G_NonSegModel
 Reads an animation.cfg to check for nonsegmentation
 ======================
 */
-static qboolean G_NonSegModel( const char *filename )
+static qbool G_NonSegModel( const char *filename )
 {
   char          *text_p;
   int           len;
@@ -1000,7 +1000,7 @@ The game can override any of the settings and call trap_SetUserinfo
 if desired.
 ============
 */
-void ClientUserinfoChanged( int clientNum, qboolean forceName )
+void ClientUserinfoChanged( int clientNum, qbool forceName )
 {
   gentity_t *ent;
   int       teamTask, teamLeader, health;
@@ -1011,8 +1011,8 @@ void ClientUserinfoChanged( int clientNum, qboolean forceName )
   char      oldname[ MAX_NAME_LENGTH ];
   char      newname[ MAX_NAME_LENGTH ];
   char      err[ MAX_STRING_CHARS ];
-  qboolean  revertName = qfalse;
-  qboolean  showRenameMsg = qtrue;
+  qbool  revertName = qfalse;
+  qbool  showRenameMsg = qtrue;
   gclient_t *client;
   char      c1[ MAX_INFO_STRING ];
   char      c2[ MAX_INFO_STRING ];
@@ -1286,7 +1286,7 @@ to the server machine, but qfalse on map changes and tournement
 restarts.
 ============
 */
-char *ClientConnect( int clientNum, qboolean firstTime )
+char *ClientConnect( int clientNum, qbool firstTime )
 {
   char      *value;
   gclient_t *client;

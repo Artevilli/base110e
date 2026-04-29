@@ -522,7 +522,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int				fogNum, oldFogNum;
 	int				entityNum, oldEntityNum;
 	int				dlighted, oldDlighted;
-	qboolean		depthRange, oldDepthRange;
+	qbool		depthRange, oldDepthRange;
 	int				i;
 	drawSurf_t		*drawSurf;
 	int				oldSort;
@@ -698,7 +698,7 @@ Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
 Used for cinematics.
 =============
 */
-void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty) {
+void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qbool dirty) {
 	int			i, j;
 	int			start, end;
 
@@ -764,7 +764,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	qglEnd ();
 }
 
-void RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty) {
+void RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qbool dirty) {
 
 	GL_Bind( tr.scratchImage[client] );
 

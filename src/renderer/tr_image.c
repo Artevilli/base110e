@@ -294,7 +294,7 @@ Scale up the pixel values in a texture to increase the
 lighting range
 ================
 */
-void R_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only_gamma )
+void R_LightScaleTexture (unsigned *in, int inwidth, int inheight, qbool only_gamma )
 {
 	if ( only_gamma )
 	{
@@ -499,12 +499,12 @@ Upload32
 
 ===============
 */
-extern qboolean charSet;
+extern qbool charSet;
 static void Upload32( unsigned *data, 
 						  int width, int height, 
-						  qboolean mipmap, 
-						  qboolean picmip, 
-							qboolean lightMap,
+						  qbool mipmap, 
+						  qbool picmip, 
+							qbool lightMap,
 						  int *format, 
 						  int *pUploadWidth, int *pUploadHeight )
 {
@@ -733,9 +733,9 @@ This is the only way any image_t are created
 ================
 */
 image_t *R_CreateImage( const char *name, const byte *pic, int width, int height, 
-					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
+					   qbool mipmap, qbool allowPicmip, int glWrapClampMode ) {
 	image_t		*image;
-	qboolean	isLightmap = qfalse;
+	qbool	isLightmap = qfalse;
 	long		hash;
 
 	if (strlen(name) >= MAX_QPATH ) {
@@ -1979,7 +1979,7 @@ Finds or loads the given image.
 Returns NULL if it fails, not a default image.
 ==============
 */
-image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
+image_t	*R_FindImageFile( const char *name, qbool mipmap, qbool allowPicmip, int glWrapClampMode ) {
 	image_t	*image;
 	int		width, height;
 	byte	*pic;

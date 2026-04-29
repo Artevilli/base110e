@@ -357,7 +357,7 @@ VM_LoadQVM
 Load a .qvm file
 =================
 */
-vmHeader_t *VM_LoadQVM( vm_t *vm, qboolean alloc ) {
+vmHeader_t *VM_LoadQVM( vm_t *vm, qbool alloc ) {
 	int					length;
 	int					dataLength;
 	int					i;

@@ -34,7 +34,7 @@ typedef struct {
 	// called before the library is unloaded
 	// if the system is just reconfiguring, pass destroyWindow = qfalse,
 	// which will keep the screen from flashing to the desktop.
-	void	(*Shutdown)( qboolean destroyWindow );
+	void	(*Shutdown)( qbool destroyWindow );
 
 	// All data that will be used in a level should be
 	// registered before rendering any frames to prevent disk hits,
@@ -75,8 +75,8 @@ typedef struct {
 		float s1, float t1, float s2, float t2, qhandle_t hShader );	// 0 = white
 
 	// Draw images for cinematic rendering, pass as 32 bit rgba
-	void	(*DrawStretchRaw) (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
-	void	(*UploadCinematic) (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
+	void	(*DrawStretchRaw) (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qbool dirty);
+	void	(*UploadCinematic) (int w, int h, int cols, int rows, const byte *data, int client, qbool dirty);
 
 	void	(*BeginFrame)( stereoFrame_t stereoFrame );
 
@@ -96,10 +96,10 @@ typedef struct {
 #endif
 	void	(*RegisterFont)(const char *fontName, int pointSize, fontInfo_t *font);
 	void	(*RemapShader)(const char *oldShader, const char *newShader, const char *offsetTime);
-	qboolean (*GetEntityToken)( char *buffer, int size );
-	qboolean (*inPVS)( const vec3_t p1, const vec3_t p2 );
+	qbool (*GetEntityToken)( char *buffer, int size );
+	qbool (*inPVS)( const vec3_t p1, const vec3_t p2 );
 
-	void (*TakeVideoFrame)( int h, int w, byte* captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
+	void (*TakeVideoFrame)( int h, int w, byte* captureBuffer, byte *encodeBuffer, qbool motionJpeg );
 } refexport_t;
 
 //
@@ -152,7 +152,7 @@ typedef struct {
 	char **	(*FS_ListFiles)( const char *name, const char *extension, int *numfilesfound );
 	void	(*FS_FreeFileList)( char **filelist );
 	void	(*FS_WriteFile)( const char *qpath, const void *buffer, int size );
-	qboolean (*FS_FileExists)( const char *file );
+	qbool (*FS_FileExists)( const char *file );
 
 	// cinematic stuff
 	void	(*CIN_UploadCinematic)(int handle);

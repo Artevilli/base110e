@@ -504,7 +504,7 @@ static void PM_CheckCharge( void )
 PM_CheckPounce
 =============
 */
-static qboolean PM_CheckPounce( void )
+static qbool PM_CheckPounce( void )
 {
   if( pm->ps->weapon != WP_ALEVEL3 &&
       pm->ps->weapon != WP_ALEVEL3_UPG )
@@ -570,7 +570,7 @@ static qboolean PM_CheckPounce( void )
 PM_CheckWallJump
 =============
 */
-static qboolean PM_CheckWallJump( void )
+static qbool PM_CheckWallJump( void )
 {
   vec3_t  dir, forward, right;
   vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
@@ -663,7 +663,7 @@ static qboolean PM_CheckWallJump( void )
 PM_CheckJump
 =============
 */
-static qboolean PM_CheckJump( void )
+static qbool PM_CheckJump( void )
 {
   if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ) == 0.0f )
     return qfalse;
@@ -761,7 +761,7 @@ static qboolean PM_CheckJump( void )
 PM_CheckWaterJump
 =============
 */
-static qboolean PM_CheckWaterJump( void )
+static qbool PM_CheckWaterJump( void )
 {
   vec3_t  spot;
   int     cont;
@@ -2079,7 +2079,7 @@ static void PM_GroundTrace( void )
   // if the trace didn't hit anything, we are in free fall
   if( trace.fraction == 1.0f )
   {
-    qboolean  steppedDown = qfalse;
+    qbool  steppedDown = qfalse;
 
     // try to step down
     if( pml.groundPlane != qfalse && PM_PredictStepMove( ) )
@@ -2353,7 +2353,7 @@ static void PM_Footsteps( void )
 {
   float     bobmove;
   int       old;
-  qboolean  footstep;
+  qbool  footstep;
 
   //
   // calculate speed and cycle to be used for
@@ -2694,9 +2694,9 @@ static void PM_Weapon( void )
 {
   int           addTime = 200; //default addTime - should never be used
   int           ammo, clips, maxClips;
-  qboolean      attack1 = qfalse;
-  qboolean      attack2 = qfalse;
-  qboolean      attack3 = qfalse;
+  qbool      attack1 = qfalse;
+  qbool      attack2 = qfalse;
+  qbool      attack3 = qfalse;
 
   // don't allow attack until all buttons are up
   if( pm->ps->pm_flags & PMF_RESPAWNED )

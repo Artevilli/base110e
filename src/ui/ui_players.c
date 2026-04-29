@@ -458,7 +458,7 @@ UI_SwingAngles
 ==================
 */
 static void UI_SwingAngles( float destination, float swingTolerance, float clampTolerance,
-          float speed, float *angle, qboolean *swinging ) {
+          float speed, float *angle, qbool *swinging ) {
   float  swing;
   float  move;
   float  scale;
@@ -894,7 +894,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 UI_FileExists
 ==========================
 */
-static qboolean  UI_FileExists(const char *filename) {
+static qbool  UI_FileExists(const char *filename) {
   int len;
 
   len = trap_FS_FOpenFile( filename, NULL, FS_READ );
@@ -909,7 +909,7 @@ static qboolean  UI_FileExists(const char *filename) {
 UI_FindClientHeadFile
 ==========================
 */
-static qboolean  UI_FindClientHeadFile( char *filename, int length, const char *teamName, const char *headModelName, const char *headSkinName, const char *base, const char *ext ) {
+static qbool  UI_FindClientHeadFile( char *filename, int length, const char *teamName, const char *headModelName, const char *headSkinName, const char *base, const char *ext ) {
   char *team, *headsFolder;
   int i;
 
@@ -961,7 +961,7 @@ static qboolean  UI_FindClientHeadFile( char *filename, int length, const char *
 UI_RegisterClientSkin
 ==========================
 */
-static qboolean  UI_RegisterClientSkin( playerInfo_t *pi, const char *modelName, const char *skinName, const char *headModelName, const char *headSkinName , const char *teamName) {
+static qbool  UI_RegisterClientSkin( playerInfo_t *pi, const char *modelName, const char *skinName, const char *headModelName, const char *headSkinName , const char *teamName) {
   char    filename[MAX_QPATH*2];
 
   if (teamName && *teamName) {
@@ -1011,7 +1011,7 @@ static qboolean  UI_RegisterClientSkin( playerInfo_t *pi, const char *modelName,
 UI_ParseAnimationFile
 ======================
 */
-static qboolean UI_ParseAnimationFile( const char *filename, animation_t *animations ) {
+static qbool UI_ParseAnimationFile( const char *filename, animation_t *animations ) {
   char    *text_p, *prev;
   int      len;
   int      i;
@@ -1134,7 +1134,7 @@ static qboolean UI_ParseAnimationFile( const char *filename, animation_t *animat
 UI_RegisterClientModelname
 ==========================
 */
-qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName, const char *headModelSkinName, const char *teamName ) {
+qbool UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName, const char *headModelSkinName, const char *teamName ) {
   char    modelName[MAX_QPATH];
   char    skinName[MAX_QPATH];
   char    headModelName[MAX_QPATH];
@@ -1257,7 +1257,7 @@ void UI_PlayerInfo_SetModel( playerInfo_t *pi, const char *model, const char *he
 UI_PlayerInfo_SetInfo
 ===============
 */
-void UI_PlayerInfo_SetInfo( playerInfo_t *pi, int legsAnim, int torsoAnim, vec3_t viewAngles, vec3_t moveAngles, weapon_t weaponNumber, qboolean chat ) {
+void UI_PlayerInfo_SetInfo( playerInfo_t *pi, int legsAnim, int torsoAnim, vec3_t viewAngles, vec3_t moveAngles, weapon_t weaponNumber, qbool chat ) {
   int      currentAnim;
   weapon_t  weaponNum;
 

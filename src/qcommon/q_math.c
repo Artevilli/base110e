@@ -268,7 +268,7 @@ Returns false if the triangle is degenrate.
 The normal will point out of the clock for clockwise ordered points
 =====================
 */
-qboolean PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c ) {
+qbool PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c ) {
 	vec3_t	d1, d2;
 
 	VectorSubtract( b, a, d1 );
@@ -1086,7 +1086,7 @@ void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs ) {
 	}
 }
 
-qboolean BoundsIntersect(const vec3_t mins, const vec3_t maxs,
+qbool BoundsIntersect(const vec3_t mins, const vec3_t maxs,
 		const vec3_t mins2, const vec3_t maxs2)
 {
 	if ( maxs[0] < mins2[0] ||
@@ -1102,7 +1102,7 @@ qboolean BoundsIntersect(const vec3_t mins, const vec3_t maxs,
 	return qtrue;
 }
 
-qboolean BoundsIntersectSphere(const vec3_t mins, const vec3_t maxs,
+qbool BoundsIntersectSphere(const vec3_t mins, const vec3_t maxs,
 		const vec3_t origin, vec_t radius)
 {
 	if ( origin[0] - radius > maxs[0] ||
@@ -1118,7 +1118,7 @@ qboolean BoundsIntersectSphere(const vec3_t mins, const vec3_t maxs,
 	return qtrue;
 }
 
-qboolean BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs,
+qbool BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs,
 		const vec3_t origin)
 {
 	if ( origin[0] > maxs[0] ||

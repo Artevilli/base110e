@@ -178,7 +178,7 @@ void WriteTGA (char *filename, byte *data, int width, int height) {
 	Z_Free (buffer);
 }
 
-static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, int *yOut, int *maxHeight, FT_Face face, const unsigned char c, qboolean calcHeight) {
+static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, int *yOut, int *maxHeight, FT_Face face, const unsigned char c, qbool calcHeight) {
   int i;
   static glyphInfo_t glyph;
   unsigned char *src, *dst;

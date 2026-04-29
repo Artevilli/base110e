@@ -304,7 +304,7 @@ string will be returned if the next token is
 a newline.
 ==============
 */
-static char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
+static char *SkipWhitespace( char *data, qbool *hasNewLines ) {
 	int c;
 
 	while( (c = *data) <= ' ') {
@@ -324,7 +324,7 @@ static char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
 int COM_Compress( char *data_p ) {
 	char *in, *out;
 	int c;
-	qboolean newline = qfalse, whitespace = qfalse;
+	qbool newline = qfalse, whitespace = qfalse;
 
 	in = out = data_p;
 	if (in) {
@@ -389,10 +389,10 @@ int COM_Compress( char *data_p ) {
 	return out - data_p;
 }
 
-char *COM_ParseExt( char **data_p, qboolean allowLineBreaks )
+char *COM_ParseExt( char **data_p, qbool allowLineBreaks )
 {
 	int c = 0, len;
-	qboolean hasNewLines = qfalse;
+	qbool hasNewLines = qfalse;
 	char *data;
 
 	data = *data_p;
@@ -1176,7 +1176,7 @@ Some characters are illegal in info strings because they
 can mess up the server's parsing
 ==================
 */
-qboolean Info_Validate( const char *s ) {
+qbool Info_Validate( const char *s ) {
 	const char* ch = s;
 
 	while ( *ch != '\0' )
@@ -1285,7 +1285,7 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 Com_CharIsOneOfCharset
 ==================
 */
-static qboolean Com_CharIsOneOfCharset( char c, char *set )
+static qbool Com_CharIsOneOfCharset( char c, char *set )
 {
 	int i;
 

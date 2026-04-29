@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **********************************************************************/
 #include "ui_local.h"
 
-qboolean    m_entersound;    // after a frame, so caching won't disrupt the sound
+qbool    m_entersound;    // after a frame, so caching won't disrupt the sound
 
 void QDECL Com_Error( int level, const char *error, ... ) {
   va_list    argptr;
@@ -52,7 +52,7 @@ void QDECL Com_Printf( const char *msg, ... ) {
   trap_Print( va("%s", text) );
 }
 
-qboolean newUI = qfalse;
+qbool newUI = qfalse;
 
 
 /*
@@ -95,7 +95,7 @@ char *UI_Cvar_VariableString( const char *var_name ) {
 
 
 
-void UI_SetBestScores(postGameInfo_t *newInfo, qboolean postGame) {
+void UI_SetBestScores(postGameInfo_t *newInfo, qbool postGame) {
   trap_Cvar_Set("ui_scoreAccuracy",     va("%i%%", newInfo->accuracy));
   trap_Cvar_Set("ui_scoreImpressives",  va("%i", newInfo->impressives));
   trap_Cvar_Set("ui_scoreExcellents",   va("%i", newInfo->excellents));
@@ -207,7 +207,7 @@ static void UI_CalcPostGameStats( void ) {
   int size, game, time, adjustedTime;
   postGameInfo_t oldInfo;
   postGameInfo_t newInfo;
-  qboolean newHigh = qfalse;
+  qbool newHigh = qfalse;
 
   trap_GetConfigString( CS_SERVERINFO, info, sizeof(info) );
   Q_strncpyz( map, Info_ValueForKey( info, "mapname" ), sizeof(map) );
@@ -300,7 +300,7 @@ static void UI_CalcPostGameStats( void ) {
 UI_ConsoleCommand
 =================
 */
-qboolean UI_ConsoleCommand( int realTime )
+qbool UI_ConsoleCommand( int realTime )
 {
   char  *cmd;
   char  *arg1;
@@ -507,7 +507,7 @@ void UI_DrawTextBox (int x, int y, int width, int lines)
   UI_DrawRect( x + BIGCHAR_WIDTH/2, y + BIGCHAR_HEIGHT/2, ( width + 1 ) * BIGCHAR_WIDTH, ( lines + 1 ) * BIGCHAR_HEIGHT, colorWhite );
 }
 
-qboolean UI_CursorInRect (int x, int y, int width, int height)
+qbool UI_CursorInRect (int x, int y, int width, int height)
 {
   if (uiInfo.uiDC.cursorx < x ||
     uiInfo.uiDC.cursory < y ||

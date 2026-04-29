@@ -32,8 +32,8 @@ typedef struct
   char    *defaultString;
   int     cvarFlags;
   int     modificationCount;  // for tracking changes
-  qboolean  trackChange;  // track this variable, and announce if changed
-  qboolean teamShader;        // track and if changed, update shader state
+  qbool  trackChange;  // track this variable, and announce if changed
+  qbool teamShader;        // track and if changed, update shader state
 } cvarTable_t;
 
 gentity_t   g_entities[ MAX_GENTITIES ];
@@ -71,7 +71,7 @@ void G_CalculateBuildPoints( void );
 
 //extension interface
 #if defined(Q3_VM)
-qboolean (*trap_GetValue)(char *value, int valueSize, const char *key);
+qbool (*trap_GetValue)(char *value, int valueSize, const char *key);
 #else
 int dll_com_trapGetValue;
 #endif
@@ -240,7 +240,7 @@ void G_RegisterCvars( void )
 {
   int         i;
   cvarTable_t *cv;
-  qboolean    remapped = qfalse;
+  qbool    remapped = qfalse;
 
   for( i = 0, cv = gameCvarTable; i < gameCvarTableSize; i++, cv++ )
   {
@@ -267,7 +267,7 @@ void G_UpdateCvars( void )
 {
   int         i;
   cvarTable_t *cv;
-  qboolean    remapped = qfalse;
+  qbool    remapped = qfalse;
 
   for( i = 0, cv = gameCvarTable; i < gameCvarTableSize; i++, cv++ )
   {
@@ -688,7 +688,7 @@ G_SearchSpawnQueue
 Look to see if clientNum is already in the spawnQueue
 ============
 */
-qboolean G_SearchSpawnQueue( spawnQueue_t *sq, int clientNum )
+qbool G_SearchSpawnQueue( spawnQueue_t *sq, int clientNum )
 {
   int i;
 
@@ -705,7 +705,7 @@ G_PushSpawnQueue
 Add an element to the back of the spawn queue
 ============
 */
-qboolean G_PushSpawnQueue( spawnQueue_t *sq, int clientNum )
+qbool G_PushSpawnQueue( spawnQueue_t *sq, int clientNum )
 {
   // don't add the same client more than once
   if( G_SearchSpawnQueue( sq, clientNum ) )
@@ -725,7 +725,7 @@ G_RemoveFromSpawnQueue
 remove a specific client from a spawn queue
 ============
 */
-qboolean G_RemoveFromSpawnQueue( spawnQueue_t *sq, int clientNum )
+qbool G_RemoveFromSpawnQueue( spawnQueue_t *sq, int clientNum )
 {
   int i = sq->front;
 
@@ -1926,7 +1926,7 @@ void CheckIntermissionExit( void )
 ScoreIsTied
 =============
 */
-qboolean ScoreIsTied( void )
+qbool ScoreIsTied( void )
 {
   int   a, b;
 
@@ -2291,7 +2291,7 @@ void
 CheckCountdown(void)
 {
   static int lastmsg = 0;
-  static qboolean altcolor = qfalse;
+  static qbool altcolor = qfalse;
   int timeleft = g_warmup.integer - (level.time - level.startTime) / 1000;
   char *leftarrows, *rightarrows;
 

@@ -31,7 +31,7 @@ static char *s_shaderText;
 static	shaderStage_t	stages[MAX_SHADER_STAGES];		
 static	shader_t		shader;
 static	texModInfo_t	texMods[MAX_SHADER_STAGES][TR_MAX_TEXMODS];
-static	qboolean		deferLoad;
+static	qbool		deferLoad;
 
 #define FILE_HASH_SIZE		1024
 static	shader_t*		hashTable[FILE_HASH_SIZE];
@@ -117,7 +117,7 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 ParseVector
 ===============
 */
-static qboolean ParseVector( char **text, int count, float *v ) {
+static qbool ParseVector( char **text, int count, float *v ) {
 	char	*token;
 	int		i;
 
@@ -588,11 +588,11 @@ static void ParseTexMod( char *_text, shaderStage_t *stage )
 ParseStage
 ===================
 */
-static qboolean ParseStage( shaderStage_t *stage, char **text )
+static qbool ParseStage( shaderStage_t *stage, char **text )
 {
 	char *token;
 	int depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
-	qboolean depthMaskExplicit = qfalse;
+	qbool depthMaskExplicit = qfalse;
 
 	stage->active = qtrue;
 
@@ -1402,7 +1402,7 @@ shader.  Parse it into the global shader variable.  Later functions
 will optimize it.
 =================
 */
-static qboolean ParseShader( char **text )
+static qbool ParseShader( char **text )
 {
 	char *token;
 	int s;
@@ -1757,7 +1757,7 @@ Attempt to combine two stages into a single multitexture stage
 FIXME: I think modulated add + modulated add collapses incorrectly
 =================
 */
-static qboolean CollapseMultitexture( void ) {
+static qbool CollapseMultitexture( void ) {
 	int abits, bbits;
 	int i;
 	textureBundle_t tmpBundle;
@@ -2130,8 +2130,8 @@ from the current global working shader
 */
 static shader_t *FinishShader( void ) {
 	int stage;
-	qboolean		hasLightmapStage;
-	qboolean		vertexLightmap;
+	qbool		hasLightmapStage;
+	qbool		vertexLightmap;
 
 	hasLightmapStage = qfalse;
 	vertexLightmap = qfalse;
@@ -2415,7 +2415,7 @@ most world construction surfaces.
 
 ===============
 */
-shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImage ) {
+shader_t *R_FindShader( const char *name, int lightmapIndex, qbool mipRawImage ) {
 	char		strippedName[MAX_QPATH];
 	char		fileName[MAX_QPATH];
 	int			i, hash;
@@ -2561,7 +2561,7 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 }
 
 
-qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_t *image, qboolean mipRawImage) {
+qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_t *image, qbool mipRawImage) {
 	int			i, hash;
 	shader_t	*sh;
 

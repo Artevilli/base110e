@@ -124,15 +124,15 @@ static char* netnames[] = {
 static int gamecodetoui[] = {4,2,3,0,5,1,6};
 
 
-static void UI_StartServerRefresh(qboolean full);
+static void UI_StartServerRefresh(qbool full);
 static void UI_StopServerRefresh( void );
 static void UI_DoServerRefresh( void );
 static void UI_FeederSelection(float feederID, int index);
-static void UI_BuildServerDisplayList(qboolean force);
-static void UI_BuildServerStatus(qboolean force);
-static void UI_BuildFindPlayerList(qboolean force);
+static void UI_BuildServerDisplayList(qbool force);
+static void UI_BuildServerStatus(qbool force);
+static void UI_BuildFindPlayerList(qbool force);
 static int QDECL UI_ServersQsortCompare( const void *arg1, const void *arg2 );
-static int UI_MapCountByGameType(qboolean singlePlayer);
+static int UI_MapCountByGameType(qbool singlePlayer);
 static int UI_HeadCountByTeam( void );
 static const char *UI_SelectedMap(int index, int *actual);
 static const char *UI_SelectedHead(int index, int *actual);
@@ -148,12 +148,12 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .qvm file
 ================
 */
-void _UI_Init( qboolean );
+void _UI_Init( qbool );
 void _UI_Shutdown( void );
-void _UI_KeyEvent( int key, qboolean down );
+void _UI_KeyEvent( int key, qbool down );
 void _UI_MouseEvent( int dx, int dy );
 void _UI_Refresh( int realtime );
-qboolean _UI_IsFullscreen( void );
+qbool _UI_IsFullscreen( void );
 intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3,
                               int arg4, int arg5, int arg6, int arg7,
                               int arg8, int arg9, int arg10, int arg11  ) {
@@ -662,7 +662,7 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
 }
 
 
-void UI_ShowPostGame(qboolean newHigh) {
+void UI_ShowPostGame(qbool newHigh) {
   trap_Cvar_Set ("cg_cameraOrbit", "0");
   trap_Cvar_Set("cg_thirdPerson", "0");
   trap_Cvar_Set( "sv_killserver", "1" );
@@ -781,7 +781,7 @@ char *GetMenuBuffer(const char *filename) {
 
 }
 
-qboolean Asset_Parse(int handle) {
+qbool Asset_Parse(int handle) {
   pc_token_t token;
   const char *tempStr;
 
@@ -1024,10 +1024,10 @@ tremInfoPane_t *UI_FindInfoPaneByName( const char *name )
 UI_LoadInfoPane
 ===============
 */
-qboolean UI_LoadInfoPane( int handle )
+qbool UI_LoadInfoPane( int handle )
 {
   pc_token_t  token;
-  qboolean    valid = qfalse;
+  qbool    valid = qfalse;
 
   while( 1 )
   {
@@ -1191,7 +1191,7 @@ void UI_LoadInfoPanes( const char *file )
   trap_Parse_FreeSource( handle );
 }
 
-qboolean Load_Menu(int handle) {
+qbool Load_Menu(int handle) {
   pc_token_t token;
 
   if (!trap_Parse_ReadToken(handle, &token))
@@ -1218,7 +1218,7 @@ qboolean Load_Menu(int handle) {
   return qfalse;
 }
 
-void UI_LoadMenus(const char *menuFile, qboolean reset) {
+void UI_LoadMenus(const char *menuFile, qbool reset) {
   pc_token_t token;
   int handle;
   int start;
@@ -1303,7 +1303,7 @@ static void UI_DrawClanName(rectDef_t *rect, float scale, vec4_t color, int text
 }
 
 
-static void UI_SetCapFragLimits(qboolean uiVars) {
+static void UI_SetCapFragLimits(qbool uiVars) {
   int cap = 5;
   int frag = 10;
   if (uiVars) {
@@ -1550,7 +1550,7 @@ static void UI_DrawSkill(rectDef_t *rect, float scale, vec4_t color, int textSty
 }
 
 
-static void UI_DrawTeamName(rectDef_t *rect, float scale, vec4_t color, qboolean blue, int textStyle) {
+static void UI_DrawTeamName(rectDef_t *rect, float scale, vec4_t color, qbool blue, int textStyle) {
   int i;
   i = UI_TeamIndexFromName(UI_Cvar_VariableString((blue) ? "ui_blueTeam" : "ui_redTeam"));
   if (i >= 0 && i < uiInfo.teamCount) {
@@ -1558,7 +1558,7 @@ static void UI_DrawTeamName(rectDef_t *rect, float scale, vec4_t color, qboolean
   }
 }
 
-static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, qboolean blue, int num, int textStyle) {
+static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, qbool blue, int num, int textStyle) {
   // 0 - None
   // 1 - Human
   // 2..NumCharacters - Bot
@@ -1579,7 +1579,7 @@ static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, qboole
   Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
 }
 
-static void UI_DrawMapPreview(rectDef_t *rect, float scale, vec4_t color, qboolean net) {
+static void UI_DrawMapPreview(rectDef_t *rect, float scale, vec4_t color, qbool net) {
   int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
   if (map < 0 || map > uiInfo.mapCount) {
     if (net) {
@@ -1621,7 +1621,7 @@ static void UI_DrawMapTimeToBeat(rectDef_t *rect, float scale, vec4_t color, int
 
 
 
-static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color, qboolean net) {
+static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color, qbool net) {
 
   int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
   if (map < 0 || map > uiInfo.mapCount) {
@@ -1653,8 +1653,8 @@ static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color, qboo
 
 
 
-static qboolean updateModel = qtrue;
-static qboolean q3Model = qfalse;
+static qbool updateModel = qtrue;
+static qbool q3Model = qfalse;
 
 static void UI_DrawPlayerModel(rectDef_t *rect) {
   static playerInfo_t info;
@@ -1811,7 +1811,7 @@ static const char *UI_AIFromName(const char *name) {
   return "James";
 }
 
-static qboolean updateOpponentModel = qtrue;
+static qbool updateOpponentModel = qtrue;
 static void UI_DrawOpponent(rectDef_t *rect) {
   static playerInfo_t info2;
   char model[MAX_QPATH];
@@ -1952,7 +1952,7 @@ static void UI_DrawOpponentLogoName(rectDef_t *rect, vec3_t color) {
   trap_R_SetColor( NULL );
 }
 
-static void UI_DrawAllMapsSelection(rectDef_t *rect, float scale, vec4_t color, int textStyle, qboolean net) {
+static void UI_DrawAllMapsSelection(rectDef_t *rect, float scale, vec4_t color, int textStyle, qbool net) {
   int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
   if (map >= 0 && map < uiInfo.mapCount) {
     Text_Paint(rect->x, rect->y, scale, color, uiInfo.mapList[map].mapName, 0, 0, textStyle);
@@ -2557,8 +2557,8 @@ static void UI_OwnerDraw( float x, float y, float w, float h,
 
 }
 
-static qboolean UI_OwnerDrawVisible(int flags) {
-  qboolean vis = qtrue;
+static qbool UI_OwnerDrawVisible(int flags) {
+  qbool vis = qtrue;
   uiClientState_t cs;
   pTeam_t         team;
   char            info[ MAX_INFO_STRING ];
@@ -2695,7 +2695,7 @@ static qboolean UI_OwnerDrawVisible(int flags) {
   return vis;
 }
 
-static qboolean UI_Handicap_HandleKey(int flags, float *special, int key) {
+static qbool UI_Handicap_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     int h;
     h = Com_Clamp( 5, 100, trap_Cvar_VariableValue("handicap") );
@@ -2715,7 +2715,7 @@ static qboolean UI_Handicap_HandleKey(int flags, float *special, int key) {
   return qfalse;
 }
 
-static qboolean UI_ClanName_HandleKey(int flags, float *special, int key) {
+static qbool UI_ClanName_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     int i;
     i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
@@ -2742,7 +2742,7 @@ static qboolean UI_ClanName_HandleKey(int flags, float *special, int key) {
   return qfalse;
 }
 
-static qboolean UI_GameType_HandleKey(int flags, float *special, int key, qboolean resetMap) {
+static qbool UI_GameType_HandleKey(int flags, float *special, int key, qbool resetMap) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     int oldCount = UI_MapCountByGameType(qtrue);
 
@@ -2777,7 +2777,7 @@ static qboolean UI_GameType_HandleKey(int flags, float *special, int key, qboole
   return qfalse;
 }
 
-static qboolean UI_NetGameType_HandleKey(int flags, float *special, int key) {
+static qbool UI_NetGameType_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
 
     if (key == K_MOUSE2) {
@@ -2802,7 +2802,7 @@ static qboolean UI_NetGameType_HandleKey(int flags, float *special, int key) {
   return qfalse;
 }
 
-static qboolean UI_JoinGameType_HandleKey(int flags, float *special, int key) {
+static qbool UI_JoinGameType_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
 
     if (key == K_MOUSE2) {
@@ -2826,7 +2826,7 @@ static qboolean UI_JoinGameType_HandleKey(int flags, float *special, int key) {
 
 
 
-static qboolean UI_Skill_HandleKey(int flags, float *special, int key) {
+static qbool UI_Skill_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     int i = trap_Cvar_VariableValue( "g_spSkill" );
 
@@ -2848,7 +2848,7 @@ static qboolean UI_Skill_HandleKey(int flags, float *special, int key) {
   return qfalse;
 }
 
-static qboolean UI_TeamName_HandleKey(int flags, float *special, int key, qboolean blue) {
+static qbool UI_TeamName_HandleKey(int flags, float *special, int key, qbool blue) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     int i;
     i = UI_TeamIndexFromName(UI_Cvar_VariableString((blue) ? "ui_blueTeam" : "ui_redTeam"));
@@ -2872,7 +2872,7 @@ static qboolean UI_TeamName_HandleKey(int flags, float *special, int key, qboole
   return qfalse;
 }
 
-static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboolean blue, int num) {
+static qbool UI_TeamMember_HandleKey(int flags, float *special, int key, qbool blue, int num) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     // 0 - None
     // 1 - Human
@@ -2897,7 +2897,7 @@ static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboo
   return qfalse;
 }
 
-static qboolean UI_NetSource_HandleKey(int flags, float *special, int key) {
+static qbool UI_NetSource_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
 
     if (key == K_MOUSE2) {
@@ -2926,7 +2926,7 @@ static qboolean UI_NetSource_HandleKey(int flags, float *special, int key) {
   return qfalse;
 }
 
-static qboolean UI_NetFilter_HandleKey(int flags, float *special, int key) {
+static qbool UI_NetFilter_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
 
     if (key == K_MOUSE2) {
@@ -2946,7 +2946,7 @@ static qboolean UI_NetFilter_HandleKey(int flags, float *special, int key) {
   return qfalse;
 }
 
-static qboolean UI_OpponentName_HandleKey(int flags, float *special, int key) {
+static qbool UI_OpponentName_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     if (key == K_MOUSE2) {
       UI_PriorOpponent();
@@ -2958,7 +2958,7 @@ static qboolean UI_OpponentName_HandleKey(int flags, float *special, int key) {
   return qfalse;
 }
 
-static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
+static qbool UI_BotName_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     int value = uiInfo.botIndex;
 
@@ -2980,7 +2980,7 @@ static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
   return qfalse;
 }
 
-static qboolean UI_BotSkill_HandleKey(int flags, float *special, int key) {
+static qbool UI_BotSkill_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     if (key == K_MOUSE2) {
       uiInfo.skillIndex--;
@@ -2997,7 +2997,7 @@ static qboolean UI_BotSkill_HandleKey(int flags, float *special, int key) {
   return qfalse;
 }
 
-static qboolean UI_RedBlue_HandleKey(int flags, float *special, int key) {
+static qbool UI_RedBlue_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     uiInfo.redBlue ^= 1;
     return qtrue;
@@ -3007,7 +3007,7 @@ static qboolean UI_RedBlue_HandleKey(int flags, float *special, int key) {
 
 
 
-static qboolean UI_SelectedPlayer_HandleKey(int flags, float *special, int key) {
+static qbool UI_SelectedPlayer_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     int selected;
 
@@ -3040,7 +3040,7 @@ static qboolean UI_SelectedPlayer_HandleKey(int flags, float *special, int key) 
 }
 
 
-static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key) {
+static qbool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key) {
   switch (ownerDraw) {
     case UI_HANDICAP:
       return UI_Handicap_HandleKey(flags, special, key);
@@ -3128,7 +3128,7 @@ static int QDECL UI_ServersQsortCompare( const void *arg1, const void *arg2 ) {
 UI_ServersSort
 =================
 */
-void UI_ServersSort(int column, qboolean force) {
+void UI_ServersSort(int column, qbool force) {
 
   if ( !force ) {
     if ( uiInfo.serverStatus.sortKey == column ) {
@@ -3659,7 +3659,7 @@ static void UI_LoadDemos( void ) {
 }
 
 
-static qboolean UI_SetNextMap(int actual, int index) {
+static qbool UI_SetNextMap(int actual, int index) {
   int i;
   for (i = actual + 1; i < uiInfo.mapCount; i++) {
     if (uiInfo.mapList[i].active) {
@@ -3671,7 +3671,7 @@ static qboolean UI_SetNextMap(int actual, int index) {
 }
 
 
-static void UI_StartSkirmish(qboolean next) {
+static void UI_StartSkirmish(qbool next) {
   int i, k, g, delay, temp;
   float skill;
   char buff[MAX_STRING_CHARS];
@@ -4415,7 +4415,7 @@ static void UI_GetTeamColor(vec4_t *color) {
 UI_MapCountByGameType
 ==================
 */
-static int UI_MapCountByGameType(qboolean singlePlayer) {
+static int UI_MapCountByGameType(qbool singlePlayer) {
   int i, c, game;
   c = 0;
   game = singlePlayer ? uiInfo.gameTypes[ui_gameType.integer].gtEnum : uiInfo.gameTypes[ui_netGameType.integer].gtEnum;
@@ -4435,7 +4435,7 @@ static int UI_MapCountByGameType(qboolean singlePlayer) {
   return c;
 }
 
-qboolean UI_hasSkinForBase(const char *base, const char *team) {
+qbool UI_hasSkinForBase(const char *base, const char *team) {
   char  test[1024];
 
   Com_sprintf( test, sizeof( test ), "models/players/%s/%s/lower_default.skin", base, team );
@@ -4592,10 +4592,10 @@ static void UI_BinaryServerInsertion(int num) {
 UI_BuildServerDisplayList
 ==================
 */
-static void UI_BuildServerDisplayList(qboolean force) {
+static void UI_BuildServerDisplayList(qbool force) {
   int i, count, clients, maxClients, ping, game, len, visible;
   char info[MAX_STRING_CHARS];
-//  qboolean startRefresh = qtrue; TTimo: unused
+//  qbool startRefresh = qtrue; TTimo: unused
   static int numinvisible;
 
   if (!(force || uiInfo.uiDC.realTime > uiInfo.serverStatus.nextDisplayRefresh)) {
@@ -4872,7 +4872,7 @@ static char *stristr(char *str, char *charset) {
 UI_BuildFindPlayerList
 ==================
 */
-static void UI_BuildFindPlayerList(qboolean force) {
+static void UI_BuildFindPlayerList(qbool force) {
   static int numFound, numTimeOuts;
   int i, j, resend;
   serverStatusInfo_t info;
@@ -5008,7 +5008,7 @@ static void UI_BuildFindPlayerList(qboolean force) {
 UI_BuildServerStatus
 ==================
 */
-static void UI_BuildServerStatus(qboolean force) {
+static void UI_BuildServerStatus(qbool force) {
 
   if (uiInfo.nextFindPlayerRefresh) {
     return;
@@ -5455,7 +5455,7 @@ static void UI_FeederSelection(float feederID, int index) {
 //TA: tremulous menus
 }
 
-static void UI_Pause(qboolean b) {
+static void UI_Pause(qbool b) {
   if (b) {
     // pause the game and set the ui keycatcher
     trap_Cvar_Set( "cl_paused", "1" );
@@ -5514,7 +5514,7 @@ static void UI_RunCinematicFrame(int handle) {
 UI_Init
 =================
 */
-void _UI_Init( qboolean inGameLoad ) {
+void _UI_Init( qbool inGameLoad ) {
   const char *menuSet;
   int start;
 
@@ -5678,7 +5678,7 @@ void _UI_Init( qboolean inGameLoad ) {
 UI_KeyEvent
 =================
 */
-void _UI_KeyEvent( int key, qboolean down ) {
+void _UI_KeyEvent( int key, qbool down ) {
 
   if (Menu_Count() > 0) {
     menuDef_t *menu = Menu_GetFocused();
@@ -5800,7 +5800,7 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
   }
 }
 
-qboolean _UI_IsFullscreen( void ) {
+qbool _UI_IsFullscreen( void ) {
   return Menus_AnyFullScreenVisible();
 }
 
@@ -6006,7 +6006,7 @@ This will also be overlaid on the cgame info screen during loading
 to prevent it from blinking away too rapidly on local or lan games.
 ========================
 */
-void UI_DrawConnectScreen( qboolean overlay ) {
+void UI_DrawConnectScreen( qbool overlay ) {
   char      *s;
   uiClientState_t cstate;
   char      info[MAX_INFO_VALUE];
@@ -6187,7 +6187,7 @@ UI_DoServerRefresh
 */
 static void UI_DoServerRefresh( void )
 {
-  qboolean wait = qfalse;
+  qbool wait = qfalse;
 
   if (!uiInfo.serverStatus.refreshActive) {
     return;
@@ -6228,7 +6228,7 @@ static void UI_DoServerRefresh( void )
 UI_StartServerRefresh
 =================
 */
-static void UI_StartServerRefresh(qboolean full)
+static void UI_StartServerRefresh(qbool full)
 {
   int   i;
   char  *ptr;

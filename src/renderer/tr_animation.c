@@ -325,7 +325,7 @@ void R_MDRAddAnimSurfaces( trRefEntity_t *ent ) {
 	int				lodnum = 0;
 	int				fogNum = 0;
 	int				cull;
-	qboolean	personalModel;
+	qbool	personalModel;
 
 	header = (mdrHeader_t *) tr.currentModel->md4;
 	

@@ -607,7 +607,7 @@ WindingOnPlaneSide
 */
 int		WindingOnPlaneSide (winding_t *w, vec3_t normal, vec_t dist)
 {
-	qboolean	front, back;
+	qbool	front, back;
 	int			i;
 	vec_t		d;
 
@@ -657,8 +657,8 @@ void	AddWindingToConvexHull( winding_t *w, winding_t **hull, vec3_t normal ) {
 	vec3_t		hullPoints[MAX_HULL_POINTS];
 	vec3_t		newHullPoints[MAX_HULL_POINTS];
 	vec3_t		hullDirs[MAX_HULL_POINTS];
-	qboolean	hullSide[MAX_HULL_POINTS];
-	qboolean	outside;
+	qbool	hullSide[MAX_HULL_POINTS];
+	qbool	outside;
 
 	if ( !*hull ) {
 		*hull = CopyWinding( w );

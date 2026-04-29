@@ -58,18 +58,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     ASPAWN_BT,             //int       buildTime;
-    qfalse,                //qboolean  usable;
+    qfalse,                //qbool  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.5f,                  //float     minNormal;
-    qtrue,                 //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
+    qtrue,                 //qbool  invertNormal;
+    qfalse,                //qbool  creepTest;
     ASPAWN_CREEPSIZE,      //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse,                //qboolean  transparentTest;
-    qfalse,                //qboolean  reactorTest;
-    qfalse,                //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qfalse,                //qbool  transparentTest;
+    qfalse,                //qbool  reactorTest;
+    qfalse,                //qbool  replacable;
   },
   {
     BA_A_BARRICADE,        //int       buildNum;
@@ -95,18 +95,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     BARRICADE_BT,          //int       buildTime;
-    qfalse,                //qboolean  usable;
+    qfalse,                //qbool  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qtrue,                 //qboolean  creepTest;
+    qfalse,                //qbool  invertNormal;
+    qtrue,                 //qbool  creepTest;
     BARRICADE_CREEPSIZE,   //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse,                //qboolean  transparentTest;
-    qfalse,                //qboolean  reactorTest;
-    qfalse,                //qboolean  replaceable;
+    qfalse,                //qbool  dccTest;
+    qfalse,                //qbool  transparentTest;
+    qfalse,                //qbool  reactorTest;
+    qfalse,                //qbool  replaceable;
   },
   {
     BA_A_BOOSTER,          //int       buildNum;
@@ -132,18 +132,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     BOOSTER_BT,            //int       buildTime;
-    qfalse,                //qboolean  usable;
+    qfalse,                //qbool  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qtrue,                 //qboolean  creepTest;
+    qfalse,                //qbool  invertNormal;
+    qtrue,                 //qbool  creepTest;
     BOOSTER_CREEPSIZE,     //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qtrue,                 //qboolean  transparentTest;
-    qfalse,                //qboolean  reactorTest;
-    qtrue,                 //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qtrue,                 //qbool  transparentTest;
+    qfalse,                //qbool  reactorTest;
+    qtrue,                 //qbool  replacable;
   },
   {
     BA_A_ACIDTUBE,         //int       buildNum;
@@ -169,18 +169,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     200,                   //int       nextthink;
     ACIDTUBE_BT,           //int       buildTime;
-    qfalse,                //qboolean  usable;
+    qfalse,                //qbool  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.0f,                  //float     minNormal;
-    qtrue,                 //qboolean  invertNormal;
-    qtrue,                 //qboolean  creepTest;
+    qtrue,                 //qbool  invertNormal;
+    qtrue,                 //qbool  creepTest;
     ACIDTUBE_CREEPSIZE,    //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse,                //qboolean  transparentTest;
-    qfalse,                //qboolean  reactorTest;
-    qfalse,                //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qfalse,                //qbool  transparentTest;
+    qfalse,                //qbool  reactorTest;
+    qfalse,                //qbool  replacable;
   },
   {
     BA_A_HIVE,             //int       buildNum;
@@ -206,18 +206,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     500,                   //int       nextthink;
     HIVE_BT,               //int       buildTime;
-    qfalse,                //qboolean  usable;
+    qfalse,                //qbool  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_HIVE,               //weapon_t  turretProjType;
     0.0f,                  //float     minNormal;
-    qtrue,                 //qboolean  invertNormal;
-    qtrue,                 //qboolean  creepTest;
+    qtrue,                 //qbool  invertNormal;
+    qtrue,                 //qbool  creepTest;
     HIVE_CREEPSIZE,        //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse,                //qboolean  transparentTest;
-    qfalse,                //qboolean  reactorTest;
-    qfalse,                //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qfalse,                //qbool  transparentTest;
+    qfalse,                //qbool  reactorTest;
+    qfalse,                //qbool  replacable;
   },
   {
     BA_A_TRAPPER,          //int       buildNum;
@@ -243,18 +243,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     TRAPPER_BT,            //int       buildTime;
-    qfalse,                //qboolean  usable;
+    qfalse,                //qbool  usable;
     TRAPPER_RANGE,         //int       turretRange;
     TRAPPER_REPEAT,        //int       turretFireSpeed;
     WP_LOCKBLOB_LAUNCHER,  //weapon_t  turretProjType;
     0.0f,                  //float     minNormal;
-    qtrue,                 //qboolean  invertNormal;
-    qtrue,                 //qboolean  creepTest;
+    qtrue,                 //qbool  invertNormal;
+    qtrue,                 //qbool  creepTest;
     TRAPPER_CREEPSIZE,     //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qtrue,                 //qboolean  transparentTest;
-    qfalse,                 //qboolean  reactorTest;
-    qfalse,                //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qtrue,                 //qbool  transparentTest;
+    qfalse,                 //qbool  reactorTest;
+    qfalse,                //qbool  replacable;
   },
   {
     BA_A_OVERMIND,         //int       buildNum;
@@ -280,18 +280,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     OVERMIND_ATTACK_REPEAT,//int       nextthink;
     OVERMIND_BT,           //int       buildTime;
-    qfalse,                //qboolean  usable;
+    qfalse,                //qbool  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.95f,                 //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
+    qfalse,                //qbool  invertNormal;
+    qfalse,                //qbool  creepTest;
     OVERMIND_CREEPSIZE,    //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse,                //qboolean  transparentTest;
-    qtrue,                 //qboolean  reactorTest;
-    qtrue,                 //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qfalse,                //qbool  transparentTest;
+    qtrue,                 //qbool  reactorTest;
+    qtrue,                 //qbool  replacable;
   },
   {
     BA_A_HOVEL,            //int       buildNum;
@@ -317,18 +317,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     150,                   //int       nextthink;
     HOVEL_BT,              //int       buildTime;
-    qtrue,                 //qboolean  usable;
+    qtrue,                 //qbool  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.95f,                 //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qtrue,                 //qboolean  creepTest;
+    qfalse,                //qbool  invertNormal;
+    qtrue,                 //qbool  creepTest;
     HOVEL_CREEPSIZE,       //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse,                //qboolean  transparentTest;
-    qtrue,                 //qboolean  reactorTest;
-    qfalse,                //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qfalse,                //qbool  transparentTest;
+    qtrue,                 //qbool  reactorTest;
+    qfalse,                //qbool  replacable;
   },
   {
     BA_H_SPAWN,            //int       buildNum;
@@ -354,18 +354,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     HSPAWN_BT,             //int       buildTime;
-    qfalse,                //qboolean  usable;
+    qfalse,                //qbool  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.95f,                 //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
+    qfalse,                //qbool  invertNormal;
+    qfalse,                //qbool  creepTest;
     0,                     //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qtrue,                 //qboolean  transparentTest;
-    qfalse,                //qboolean  reactorTest;
-    qfalse,                //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qtrue,                 //qbool  transparentTest;
+    qfalse,                //qbool  reactorTest;
+    qfalse,                //qbool  replacable;
   },
   {
     BA_H_MEDISTAT,         //int       buildNum;
@@ -391,18 +391,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     MEDISTAT_BT,           //int       buildTime;
-    qfalse,                //qboolean  usable;
+    qfalse,                //qbool  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.95f,                 //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
+    qfalse,                //qbool  invertNormal;
+    qfalse,                //qbool  creepTest;
     0,                     //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qtrue,                 //qboolean  transparentTest;
-    qfalse,                //qboolean  reactorTest;
-    qtrue,                 //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qtrue,                 //qbool  transparentTest;
+    qfalse,                //qbool  reactorTest;
+    qtrue,                 //qbool  replacable;
   },
   {
     BA_H_MGTURRET,         //int       buildNum;
@@ -430,18 +430,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     50,                    //int       nextthink;
     MGTURRET_BT,           //int       buildTime;
-    qfalse,                //qboolean  usable;
+    qfalse,                //qbool  usable;
     MGTURRET_RANGE,        //int       turretRange;
     MGTURRET_REPEAT,       //int       turretFireSpeed;
     WP_MGTURRET,           //weapon_t  turretProjType;
     0.95f,                 //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
+    qfalse,                //qbool  invertNormal;
+    qfalse,                //qbool  creepTest;
     0,                     //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qtrue,                 //qboolean  transparentTest;
-    qfalse,                 //qboolean  reactorTest;
-    qfalse,                //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qtrue,                 //qbool  transparentTest;
+    qfalse,                 //qbool  reactorTest;
+    qfalse,                //qbool  replacable;
   },
   {
     BA_H_TESLAGEN,         //int       buildNum;
@@ -467,18 +467,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     150,                   //int       nextthink;
     TESLAGEN_BT,           //int       buildTime;
-    qfalse,                //qboolean  usable;
+    qfalse,                //qbool  usable;
     TESLAGEN_RANGE,        //int       turretRange;
     TESLAGEN_REPEAT,       //int       turretFireSpeed;
     WP_TESLAGEN,           //weapon_t  turretProjType;
     0.95f,                 //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
+    qfalse,                //qbool  invertNormal;
+    qfalse,                //qbool  creepTest;
     0,                     //int       creepSize;
-    qtrue,                 //qboolean  dccTest;
-    qtrue,                 //qboolean  transparentTest;
-    qfalse,                //qboolean  reactorTest;
-    qfalse,                //qboolean  replacable;
+    qtrue,                 //qbool  dccTest;
+    qtrue,                 //qbool  transparentTest;
+    qfalse,                //qbool  reactorTest;
+    qfalse,                //qbool  replacable;
   },
   {
     BA_H_DCC,              //int       buildNum;
@@ -504,18 +504,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     DC_BT,                 //int       buildTime;
-    qfalse,                //qboolean  usable;
+    qfalse,                //qbool  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.95f,                 //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
+    qfalse,                //qbool  invertNormal;
+    qfalse,                //qbool  creepTest;
     0,                     //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse,                //qboolean  transparentTest;
-    qfalse,                //qboolean  reactorTest;
-    qtrue,                 //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qfalse,                //qbool  transparentTest;
+    qfalse,                //qbool  reactorTest;
+    qtrue,                 //qbool  replacable;
   },
   {
     BA_H_ARMOURY,          //int       buildNum;
@@ -541,18 +541,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     ARMOURY_BT,            //int       buildTime;
-    qtrue,                 //qboolean  usable;
+    qtrue,                 //qbool  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.95f,                 //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
+    qfalse,                //qbool  invertNormal;
+    qfalse,                //qbool  creepTest;
     0,                     //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse,                //qboolean  transparentTest;
-    qfalse,                //qboolean  reactorTest;
-    qtrue,                 //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qfalse,                //qbool  transparentTest;
+    qfalse,                //qbool  reactorTest;
+    qtrue,                 //qbool  replacable;
   },
   {
     BA_H_REACTOR,          //int       buildNum;
@@ -578,18 +578,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     REACTOR_ATTACK_REPEAT, //int       nextthink;
     REACTOR_BT,            //int       buildTime;
-    qtrue,                 //qboolean  usable;
+    qtrue,                 //qbool  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.95f,                 //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
+    qfalse,                //qbool  invertNormal;
+    qfalse,                //qbool  creepTest;
     0,                     //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse,                //qboolean  transparentTest;
-    qtrue,                 //qboolean  reactorTest;
-    qtrue,                 //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qfalse,                //qbool  transparentTest;
+    qtrue,                 //qbool  reactorTest;
+    qtrue,                 //qbool  replacable;
   },
   {
     BA_H_REPEATER,         //int       buildNum;
@@ -615,18 +615,18 @@ buildableAttributes_t bg_buildableList[ ] =
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     REPEATER_BT,           //int       buildTime;
-    qtrue,                 //qboolean  usable;
+    qtrue,                 //qbool  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.95f,                 //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
+    qfalse,                //qbool  invertNormal;
+    qfalse,                //qbool  creepTest;
     0,                     //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse,                //qboolean  transparentTest;
-    qfalse,                //qboolean  reactorTest;
-    qtrue,                 //qboolean  replacable;
+    qfalse,                //qbool  dccTest;
+    qfalse,                //qbool  transparentTest;
+    qfalse,                //qbool  reactorTest;
+    qtrue,                 //qbool  replacable;
   }
 };
 
@@ -902,7 +902,7 @@ int BG_FindBuildPointsForBuildable( int bclass )
 BG_FindStagesForBuildable
 ==============
 */
-qboolean BG_FindStagesForBuildable( int bclass, stage_t stage )
+qbool BG_FindStagesForBuildable( int bclass, stage_t stage )
 {
   int i;
 
@@ -1125,7 +1125,7 @@ int BG_FindBuildTimeForBuildable( int bclass )
 BG_FindUsableForBuildable
 ==============
 */
-qboolean BG_FindUsableForBuildable( int bclass )
+qbool BG_FindUsableForBuildable( int bclass )
 {
   int i;
 
@@ -1225,7 +1225,7 @@ float BG_FindMinNormalForBuildable( int bclass )
 BG_FindInvertNormalForBuildable
 ==============
 */
-qboolean BG_FindInvertNormalForBuildable( int bclass )
+qbool BG_FindInvertNormalForBuildable( int bclass )
 {
   int i;
 
@@ -1325,7 +1325,7 @@ int BG_FindUniqueTestForBuildable( int bclass )
 BG_FindReplaceableTestForBuildable
 ==============
 */
-qboolean BG_FindReplaceableTestForBuildable( int bclass )
+qbool BG_FindReplaceableTestForBuildable( int bclass )
 {
   int i;
 
@@ -1354,7 +1354,7 @@ static buildableAttributeOverrides_t *BG_FindOverrideForBuildable( int bclass )
 BG_FindTransparentTestForBuildable
 ==============
 */
-qboolean BG_FindTransparentTestForBuildable( int bclass )
+qbool BG_FindTransparentTestForBuildable( int bclass )
 {
   int i;
 
@@ -1375,7 +1375,7 @@ BG_ParseBuildableFile
 Parses a configuration file describing a builable
 ======================
 */
-static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeOverrides_t *bao )
+static qbool BG_ParseBuildableFile( const char *filename, buildableAttributeOverrides_t *bao )
 {
   char          *text_p;
   int           i;
@@ -2223,7 +2223,7 @@ char *BG_FindHudNameForClass( int pclass )
 BG_FindStagesForClass
 ==============
 */
-qboolean BG_FindStagesForClass( int pclass, stage_t stage )
+qbool BG_FindStagesForClass( int pclass, stage_t stage )
 {
   int i;
 
@@ -2676,7 +2676,7 @@ int BG_FindSteptimeForClass( int pclass )
 BG_ClassHasAbility
 ==============
 */
-qboolean BG_ClassHasAbility( int pclass, int ability )
+qbool BG_ClassHasAbility( int pclass, int ability )
 {
   int i;
 
@@ -2836,7 +2836,7 @@ BG_ParseClassFile
 Parses a configuration file describing a class
 ======================
 */
-static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides_t *cao )
+static qbool BG_ParseClassFile( const char *filename, classAttributeOverrides_t *cao )
 {
   char          *text_p;
   int           i;
@@ -3088,12 +3088,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     BLASTER_K_SCALE,      //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qtrue,                //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qtrue,                //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3113,12 +3113,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     RIFLE_RELOAD,         //int       reloadTime;
     RIFLE_K_SCALE,        //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qtrue,                //qboolean  longRanged;
+    qtrue,                //qbool  purchasable;
+    qtrue,                //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3138,12 +3138,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     SHOTGUN_RELOAD,       //int       reloadTime;
     SHOTGUN_K_SCALE,        //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qtrue,                //qboolean  longRanged;
+    qtrue,                //qbool  purchasable;
+    qtrue,                //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3163,12 +3163,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     FLAMER_K_SCALE,       //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qtrue,                //qboolean  longRanged;
+    qtrue,                //qbool  purchasable;
+    qtrue,                //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3188,12 +3188,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     CHAINGUN_K_SCALE,     //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qtrue,                //qboolean  longRanged;
+    qtrue,                //qbool  purchasable;
+    qtrue,                //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3213,12 +3213,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     MDRIVER_RELOAD,       //int       reloadTime;
     MDRIVER_K_SCALE,      //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qtrue,                //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qtrue,                //qbool  canZoom;
     20.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qtrue,                //qboolean  longRanged;
+    qtrue,                //qbool  purchasable;
+    qtrue,                //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3238,12 +3238,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     PRIFLE_RELOAD,        //int       reloadTime;
     PRIFLE_K_SCALE,       //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qtrue,                //qboolean  longRanged;
+    qtrue,                //qbool  purchasable;
+    qtrue,                //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3263,12 +3263,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     LCANNON_RELOAD,       //int       reloadTime;
     LCANNON_K_SCALE,      //float     knockbackScale;
-    qtrue,                //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qtrue,                //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qtrue,                //qboolean  longRanged;
+    qtrue,                //qbool  purchasable;
+    qtrue,                //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3288,12 +3288,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     LASGUN_RELOAD,        //int       reloadTime;
     LASGUN_K_SCALE,       //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qtrue,                //qboolean  longRanged;
+    qtrue,                //qbool  purchasable;
+    qtrue,                //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3313,12 +3313,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     PAINSAW_K_SCALE,      //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qtrue,                //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3338,12 +3338,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     GRENADE_K_SCALE,      //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3363,12 +3363,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     0.0f,                 //float     knockbackScale;
-    qtrue,                //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qtrue,                //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qtrue,                //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     HBUILD_DELAY,         //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3388,12 +3388,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     0.0f,                 //float     knockbackScale;
-    qtrue,                //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qtrue,                //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qtrue,                //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     HBUILD2_DELAY,        //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3413,12 +3413,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     0.0f,                 //float     knockbackScale;
-    qtrue,                //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qtrue,                //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qtrue,                //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     ABUILDER_BASE_DELAY,  //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3438,12 +3438,12 @@ weaponAttributes_t bg_weapons[ ] =
     ABUILDER_BLOB_REPEAT, //int       repeatRate3;
     0,                    //int       reloadTime;
     ABUILDER_CLAW_K_SCALE,//float     knockbackScale;
-    qtrue,                //qboolean  hasAltMode;
-    qtrue,                //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qtrue,                //qbool  hasAltMode;
+    qtrue,                //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qtrue,                //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     ABUILDER_ADV_DELAY,   //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3463,12 +3463,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     LEVEL0_BITE_K_SCALE,  //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3488,12 +3488,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     LEVEL1_CLAW_K_SCALE,  //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3513,12 +3513,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     LEVEL1_CLAW_U_K_SCALE,//float     knockbackScale;
-    qtrue,                //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qtrue,                //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qtrue,                //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qtrue,                //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3538,12 +3538,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     LEVEL2_CLAW_K_SCALE,        //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3563,12 +3563,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     LEVEL2_CLAW_U_K_SCALE,//float     knockbackScale;
-    qtrue,                //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qtrue,                //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3588,12 +3588,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     LEVEL3_CLAW_K_SCALE,  //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3613,12 +3613,12 @@ weaponAttributes_t bg_weapons[ ] =
     LEVEL3_BOUNCEBALL_REPEAT,//int       repeatRate3;
     0,                    //int       reloadTime;
     LEVEL3_CLAW_U_K_SCALE,//float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qtrue,                //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qtrue,                //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qtrue,                //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qtrue,                //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3638,12 +3638,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     LEVEL4_CLAW_K_SCALE,  //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3663,12 +3663,12 @@ weaponAttributes_t bg_weapons[ ] =
     500,                  //int       repeatRate3;
     0,                    //int       reloadTime;
     LOCKBLOB_K_SCALE,     //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3688,12 +3688,12 @@ weaponAttributes_t bg_weapons[ ] =
     500,                  //int       repeatRate3;
     0,                    //int       reloadTime;
     HIVE_K_SCALE,         //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3713,12 +3713,12 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     MGTURRET_K_SCALE,     //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3738,12 +3738,12 @@ weaponAttributes_t bg_weapons[ ] =
     500,                  //int       repeatRate3;
     0,                    //int       reloadTime;
     TESLAGEN_K_SCALE,     //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
+    qfalse,               //qbool  hasAltMode;
+    qfalse,               //qbool  hasThirdMode;
+    qfalse,               //qbool  canZoom;
     90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
+    qfalse,               //qbool  purchasable;
+    qfalse,               //qbool  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   }
@@ -3776,7 +3776,7 @@ int BG_FindPriceForWeapon( int weapon )
 BG_FindStagesForWeapon
 ==============
 */
-qboolean BG_FindStagesForWeapon( int weapon, stage_t stage )
+qbool BG_FindStagesForWeapon( int weapon, stage_t stage )
 {
   int i;
 
@@ -3900,7 +3900,7 @@ void BG_FindAmmoForWeapon( int weapon, int *maxAmmo, int *maxClips )
 BG_FindInfinteAmmoForWeapon
 ==============
 */
-qboolean BG_FindInfinteAmmoForWeapon( int weapon )
+qbool BG_FindInfinteAmmoForWeapon( int weapon )
 {
   int i;
 
@@ -3920,7 +3920,7 @@ qboolean BG_FindInfinteAmmoForWeapon( int weapon )
 BG_FindUsesEnergyForWeapon
 ==============
 */
-qboolean BG_FindUsesEnergyForWeapon( int weapon )
+qbool BG_FindUsesEnergyForWeapon( int weapon )
 {
   int i;
 
@@ -4034,7 +4034,7 @@ float BG_FindKnockbackScaleForWeapon( int weapon )
 BG_WeaponHasAltMode
 ==============
 */
-qboolean BG_WeaponHasAltMode( int weapon )
+qbool BG_WeaponHasAltMode( int weapon )
 {
   int i;
 
@@ -4054,7 +4054,7 @@ qboolean BG_WeaponHasAltMode( int weapon )
 BG_WeaponHasThirdMode
 ==============
 */
-qboolean BG_WeaponHasThirdMode( int weapon )
+qbool BG_WeaponHasThirdMode( int weapon )
 {
   int i;
 
@@ -4074,7 +4074,7 @@ qboolean BG_WeaponHasThirdMode( int weapon )
 BG_WeaponCanZoom
 ==============
 */
-qboolean BG_WeaponCanZoom( int weapon )
+qbool BG_WeaponCanZoom( int weapon )
 {
   int i;
 
@@ -4114,7 +4114,7 @@ float BG_FindZoomFovForWeapon( int weapon )
 BG_FindPurchasableForWeapon
 ==============
 */
-qboolean BG_FindPurchasableForWeapon( int weapon )
+qbool BG_FindPurchasableForWeapon( int weapon )
 {
   int i;
 
@@ -4134,7 +4134,7 @@ qboolean BG_FindPurchasableForWeapon( int weapon )
 BG_FindLongRangeForWeapon
 ==============
 */
-qboolean BG_FindLongRangedForWeapon( int weapon )
+qbool BG_FindLongRangedForWeapon( int weapon )
 {
   int i;
 
@@ -4201,8 +4201,8 @@ upgradeAttributes_t bg_upgrades[ ] =
     "larmour",              //char  *upgradeName;
     "Light Armour",         //char  *upgradeHumanName;
     "icons/iconu_larmour",
-    qtrue,                  //qboolean purchasable
-    qfalse,                 //qboolean usable
+    qtrue,                  //qbool purchasable
+    qfalse,                 //qbool usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4213,8 +4213,8 @@ upgradeAttributes_t bg_upgrades[ ] =
     "helmet",               //char  *upgradeName;
     "Helmet",               //char  *upgradeHumanName;
     "icons/iconu_helmet",
-    qtrue,                  //qboolean purchasable
-    qfalse,                 //qboolean usable
+    qtrue,                  //qbool purchasable
+    qfalse,                 //qbool usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4225,8 +4225,8 @@ upgradeAttributes_t bg_upgrades[ ] =
     "medkit",               //char  *upgradeName;
     "Medkit",               //char  *upgradeHumanName;
     "icons/iconu_atoxin",
-    qfalse,                 //qboolean purchasable
-    qtrue,                  //qboolean usable
+    qfalse,                 //qbool purchasable
+    qtrue,                  //qbool usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4237,8 +4237,8 @@ upgradeAttributes_t bg_upgrades[ ] =
     "battpack",             //char  *upgradeName;
     "Battery Pack",         //char  *upgradeHumanName;
     "icons/iconu_battpack",
-    qtrue,                  //qboolean purchasable
-    qfalse,                 //qboolean usable
+    qtrue,                  //qbool purchasable
+    qfalse,                 //qbool usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4249,8 +4249,8 @@ upgradeAttributes_t bg_upgrades[ ] =
     "jetpack",              //char  *upgradeName;
     "Jet Pack",             //char  *upgradeHumanName;
     "icons/iconu_jetpack",
-    qtrue,                  //qboolean purchasable
-    qtrue,                  //qboolean usable
+    qtrue,                  //qbool purchasable
+    qtrue,                  //qbool usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4261,8 +4261,8 @@ upgradeAttributes_t bg_upgrades[ ] =
     "bsuit",                //char  *upgradeName;
     "Battlesuit",           //char  *upgradeHumanName;
     "icons/iconu_bsuit",
-    qtrue,                  //qboolean purchasable
-    qfalse,                 //qboolean usable
+    qtrue,                  //qbool purchasable
+    qfalse,                 //qbool usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4273,8 +4273,8 @@ upgradeAttributes_t bg_upgrades[ ] =
     "gren",                 //char  *upgradeName;
     "Grenade",              //char  *upgradeHumanName;
     0,
-    qtrue,                  //qboolean purchasable
-    qtrue,                  //qboolean usable
+    qtrue,                  //qbool purchasable
+    qtrue,                  //qbool usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4285,8 +4285,8 @@ upgradeAttributes_t bg_upgrades[ ] =
     "ammo",                 //char  *upgradeName;
     "Ammunition",           //char  *upgradeHumanName;
     0,
-    qtrue,                  //qboolean purchasable
-    qfalse,                 //qboolean usable
+    qtrue,                  //qbool purchasable
+    qfalse,                 //qbool usable
     WUT_HUMANS              //WUTeam_t  team;
   }
 };
@@ -4318,7 +4318,7 @@ int BG_FindPriceForUpgrade( int upgrade )
 BG_FindStagesForUpgrade
 ==============
 */
-qboolean BG_FindStagesForUpgrade( int upgrade, stage_t stage )
+qbool BG_FindStagesForUpgrade( int upgrade, stage_t stage )
 {
   int i;
 
@@ -4437,7 +4437,7 @@ char *BG_FindIconForUpgrade( int upgrade )
 BG_FindPurchasableForUpgrade
 ==============
 */
-qboolean BG_FindPurchasableForUpgrade( int upgrade )
+qbool BG_FindPurchasableForUpgrade( int upgrade )
 {
   int i;
 
@@ -4455,7 +4455,7 @@ qboolean BG_FindPurchasableForUpgrade( int upgrade )
 BG_FindUsableForUpgrade
 ==============
 */
-qboolean BG_FindUsableForUpgrade( int upgrade )
+qbool BG_FindUsableForUpgrade( int upgrade )
 {
   int i;
 
@@ -4654,7 +4654,7 @@ This is done after each set of usercmd_t on the server,
 and after local prediction on the client
 ========================
 */
-void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap )
+void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qbool snap )
 {
   int     i;
 
@@ -4761,7 +4761,7 @@ This is done after each set of usercmd_t on the server,
 and after local prediction on the client
 ========================
 */
-void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap )
+void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qbool snap )
 {
   int     i;
 
@@ -4915,7 +4915,7 @@ BG_WeaponIsFull
 Check if a weapon has full ammo
 ========================
 */
-qboolean BG_WeaponIsFull( weapon_t weapon, int stats[ ], int psAmmo[ ], int psAmmo2[ ] )
+qbool BG_WeaponIsFull( weapon_t weapon, int stats[ ], int psAmmo[ ], int psAmmo2[ ] )
 {
   int maxAmmo, maxClips;
   int ammo, clips;
@@ -4981,7 +4981,7 @@ BG_InventoryContainsWeapon
 Does the player hold a weapon?
 ========================
 */
-qboolean BG_InventoryContainsWeapon( int weapon, int stats[ ] )
+qbool BG_InventoryContainsWeapon( int weapon, int stats[ ] )
 {
   int  weaponList;
 
@@ -5028,7 +5028,7 @@ BG_InventoryContainsUpgrade
 Does the player hold an upgrade?
 ========================
 */
-qboolean BG_InventoryContainsUpgrade( int item, int stats[ ] )
+qbool BG_InventoryContainsUpgrade( int item, int stats[ ] )
 {
   return( stats[ STAT_ITEMS ] & ( 1 << item ) );
 }
@@ -5064,7 +5064,7 @@ BG_UpgradeIsActive
 Is this upgrade active?
 ========================
 */
-qboolean BG_UpgradeIsActive( int item, int stats[ ] )
+qbool BG_UpgradeIsActive( int item, int stats[ ] )
 {
   return( stats[ STAT_ACTIVEITEMS ] & ( 1 << item ) );
 }
@@ -5076,8 +5076,8 @@ BG_RotateAxis
 Shared axis rotation function
 ===============
 */
-qboolean BG_RotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
-                        vec3_t outAxis[ 3 ], qboolean inverse, qboolean ceiling )
+qbool BG_RotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
+                        vec3_t outAxis[ 3 ], qbool inverse, qbool ceiling )
 {
   vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
   vec3_t  ceilingNormal = { 0.0f, 0.0f, -1.0f };
@@ -5221,7 +5221,7 @@ atof_neg
 atof with an allowance for negative values
 ===============
 */
-float atof_neg( char *token, qboolean allowNegative )
+float atof_neg( char *token, qbool allowNegative )
 {
   float value;
 
@@ -5240,7 +5240,7 @@ atoi_neg
 atoi with an allowance for negative values
 ===============
 */
-int atoi_neg( char *token, qboolean allowNegative )
+int atoi_neg( char *token, qbool allowNegative )
 {
   int value;
 
@@ -5263,7 +5263,7 @@ void BG_ParseCSVEquipmentList( const char *string, weapon_t *weapons, int weapon
   char      buffer[ MAX_STRING_CHARS ];
   int       i = 0, j = 0;
   char      *p, *q;
-  qboolean  EOS = qfalse;
+  qbool  EOS = qfalse;
 
   Q_strncpyz( buffer, string, MAX_STRING_CHARS );
 
@@ -5327,7 +5327,7 @@ void BG_ParseCSVClassList( const char *string, pClass_t *classes, int classesSiz
   char      buffer[ MAX_STRING_CHARS ];
   int       i = 0;
   char      *p, *q;
-  qboolean  EOS = qfalse;
+  qbool  EOS = qfalse;
 
   Q_strncpyz( buffer, string, MAX_STRING_CHARS );
 
@@ -5377,7 +5377,7 @@ void BG_ParseCSVBuildableList( const char *string, buildable_t *buildables, int 
   char      buffer[ MAX_STRING_CHARS ];
   int       i = 0;
   char      *p, *q;
-  qboolean  EOS = qfalse;
+  qbool  EOS = qfalse;
 
   Q_strncpyz( buffer, string, MAX_STRING_CHARS );
 
@@ -5422,7 +5422,7 @@ void BG_ParseCSVBuildableList( const char *string, buildable_t *buildables, int 
 BG_UpgradeClassAvailable
 ============
 */
-qboolean BG_UpgradeClassAvailable( playerState_t *ps )
+qbool BG_UpgradeClassAvailable( playerState_t *ps )
 {
   int     i;
   char    buffer[ MAX_STRING_CHARS ];
@@ -5489,7 +5489,7 @@ void BG_InitAllowedGameElements( void )
 BG_WeaponIsAllowed
 ============
 */
-qboolean BG_WeaponIsAllowed( weapon_t weapon )
+qbool BG_WeaponIsAllowed( weapon_t weapon )
 {
   int i;
 
@@ -5508,7 +5508,7 @@ qboolean BG_WeaponIsAllowed( weapon_t weapon )
 BG_UpgradeIsAllowed
 ============
 */
-qboolean BG_UpgradeIsAllowed( upgrade_t upgrade )
+qbool BG_UpgradeIsAllowed( upgrade_t upgrade )
 {
   int i;
 
@@ -5527,7 +5527,7 @@ qboolean BG_UpgradeIsAllowed( upgrade_t upgrade )
 BG_ClassIsAllowed
 ============
 */
-qboolean BG_ClassIsAllowed( pClass_t class )
+qbool BG_ClassIsAllowed( pClass_t class )
 {
   int i;
 
@@ -5546,7 +5546,7 @@ qboolean BG_ClassIsAllowed( pClass_t class )
 BG_BuildableIsAllowed
 ============
 */
-qboolean BG_BuildableIsAllowed( buildable_t buildable )
+qbool BG_BuildableIsAllowed( buildable_t buildable )
 {
   int i;
 
@@ -5565,7 +5565,7 @@ qboolean BG_BuildableIsAllowed( buildable_t buildable )
 BG_ClientListTest
 ============
 */
-qboolean BG_ClientListTest( clientList_t *list, int clientNum )
+qbool BG_ClientListTest( clientList_t *list, int clientNum )
 {
   if( clientNum < 0 || clientNum >= MAX_CLIENTS || !list )
     return qfalse;

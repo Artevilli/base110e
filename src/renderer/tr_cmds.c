@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 volatile renderCommandList_t	*renderCommandList;
 
-volatile qboolean	renderThreadActive;
+volatile qbool	renderThreadActive;
 
 
 /*
@@ -115,7 +115,7 @@ R_IssueRenderCommands
 int	c_blockedOnRender;
 int	c_blockedOnMain;
 
-void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
+void R_IssueRenderCommands( qbool runPerformanceCounters ) {
 	renderCommandList_t	*cmdList;
 
 	cmdList = &backEndData[tr.smpFrame]->commands;
@@ -452,7 +452,7 @@ RE_TakeVideoFrame
 =============
 */
 void RE_TakeVideoFrame( int width, int height,
-		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg )
+		byte *captureBuffer, byte *encodeBuffer, qbool motionJpeg )
 {
 	videoFrameCommand_t	*cmd;
 

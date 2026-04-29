@@ -36,11 +36,11 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
 void CG_Shutdown( void );
 
 //extension interface
-qboolean intShaderTime = qfalse;
-qboolean linearLight = qfalse;
+qbool intShaderTime = qfalse;
+qbool linearLight = qfalse;
 
 #if defined(Q3_VM)
-qboolean (*trap_GetValue)(char *value, int valueSize, const char *key);
+qbool (*trap_GetValue)(char *value, int valueSize, const char *key);
 void (*trap_R_AddRefEntityToScene2)(const refEntity_t *re);
 void (*trap_R_AddLinearLightToScene)(const vec3_t start, const vec3_t end, float intensity, float r, float g, float b);
 #else
@@ -367,7 +367,7 @@ CG_FileExists
 Test if a specific file exists or not
 =================
 */
-qboolean CG_FileExists( char *filename )
+qbool CG_FileExists( char *filename )
 {
   fileHandle_t  f;
 
@@ -812,7 +812,7 @@ char *CG_GetMenuBuffer( const char *filename )
   return buf;
 }
 
-qboolean CG_Asset_Parse( int handle )
+qbool CG_Asset_Parse( int handle )
 {
   pc_token_t token;
   const char *tempStr;
@@ -1029,7 +1029,7 @@ void CG_ParseMenu( const char *menuFile )
   trap_Parse_FreeSource( handle );
 }
 
-qboolean CG_Load_Menu( char **p )
+qbool CG_Load_Menu( char **p )
 {
   char *token;
 
@@ -1118,7 +1118,7 @@ void CG_LoadMenus( const char *menuFile )
 
 
 
-static qboolean CG_OwnerDrawHandleKey( int ownerDraw, int flags, float *special, int key )
+static qbool CG_OwnerDrawHandleKey( int ownerDraw, int flags, float *special, int key )
 {
   return qfalse;
 }
@@ -1214,7 +1214,7 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
   clientInfo_t  *info = NULL;
   int           team = -1;
   score_t       *sp = NULL;
-  qboolean      showIcons = qfalse;
+  qbool      showIcons = qfalse;
 
   *handle = -1;
 
@@ -1370,7 +1370,7 @@ static void CG_RunCinematicFrame( int handle )
 }
 
 //TA: hack to prevent warning
-static qboolean CG_OwnerDrawVisible( int parameter )
+static qbool CG_OwnerDrawVisible( int parameter )
 {
   return qfalse;
 }

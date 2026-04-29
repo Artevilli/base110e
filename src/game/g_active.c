@@ -373,8 +373,8 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
 {
   pmove_t pm;
   gclient_t *client;
-  qboolean attack1, attack3;
-  qboolean  doPmove = qtrue;
+  qbool attack1, attack3;
+  qbool  doPmove = qtrue;
 
   client = ent->client;
 
@@ -503,7 +503,7 @@ ClientInactivityTimer
 Returns qfalse if the client is dropped
 =================
 */
-qboolean ClientInactivityTimer( gclient_t *client )
+qbool ClientInactivityTimer( gclient_t *client )
 {
   if( ! g_inactivity.integer )
   {
@@ -550,7 +550,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
   gclient_t *client;
   usercmd_t *ucmd;
   int       aForward, aRight;
-  qboolean  walking = qfalse, stopped = qfalse,
+  qbool  walking = qfalse, stopped = qfalse,
             crouched = qfalse, jumping = qfalse,
             strafing = qfalse;
 

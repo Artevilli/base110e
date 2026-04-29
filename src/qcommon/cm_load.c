@@ -443,7 +443,7 @@ void CMod_LoadBrushSides (lump_t *l)
 CMod_BrushEdgesAreTheSame
 =================
 */
-static qboolean CMod_BrushEdgesAreTheSame( const vec3_t p0, const vec3_t p1,
+static qbool CMod_BrushEdgesAreTheSame( const vec3_t p0, const vec3_t p1,
 		const vec3_t q0, const vec3_t q1 )
 {
 	if( VectorCompareEpsilon( p0, q0, CM_EDGE_VERTEX_EPSILON ) &&
@@ -462,7 +462,7 @@ static qboolean CMod_BrushEdgesAreTheSame( const vec3_t p0, const vec3_t p1,
 CMod_AddEdgeToBrush
 =================
 */
-static qboolean CMod_AddEdgeToBrush( const vec3_t p0, const vec3_t p1,
+static qbool CMod_AddEdgeToBrush( const vec3_t p0, const vec3_t p1,
 		cbrushedge_t *edges, int *numEdges )
 {
 	int i;
@@ -713,7 +713,7 @@ CM_LoadMap
 Loads in the map and all submodels
 ==================
 */
-void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
+void CM_LoadMap( const char *name, qbool clientload, int *checksum ) {
 	int				*buf;
 	int				i;
 	dheader_t		header;
