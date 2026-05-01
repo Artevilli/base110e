@@ -962,10 +962,16 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
 CG_DrawAlienSense
 ==============
 */
-static void CG_DrawAlienSense( rectDef_t *rect )
+static void
+CG_DrawAlienSense(rectDef_t *rect)
 {
-  if( BG_ClassHasAbility( cg.snap->ps.stats[ STAT_PCLASS ], SCA_ALIENSENSE ) )
-    CG_AlienSense( rect );
+  if (cg_sense.integer)
+  {
+    if (BG_ClassHasAbility(cg.snap->ps.stats[STAT_PCLASS], SCA_ALIENSENSE))
+    {
+      CG_AlienSense(rect);
+    }
+  }
 }
 
 
@@ -974,10 +980,16 @@ static void CG_DrawAlienSense( rectDef_t *rect )
 CG_DrawHumanScanner
 ==============
 */
-static void CG_DrawHumanScanner( rectDef_t *rect, qhandle_t shader, vec4_t color )
+static void
+CG_DrawHumanScanner( rectDef_t *rect, qhandle_t shader, vec4_t color )
 {
-  if( BG_InventoryContainsUpgrade( UP_HELMET, cg.snap->ps.stats ) )
-    CG_Scanner( rect, shader, color );
+  if (cg_scanner.integer)
+  {
+    if (BG_InventoryContainsUpgrade(UP_HELMET, cg.snap->ps.stats))
+    {
+      CG_Scanner(rect, shader, color);
+    }
+  }
 }
 
 
