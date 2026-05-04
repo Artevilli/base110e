@@ -246,7 +246,15 @@ static void CG_EntityEffects( centity_t *cent )
     g = ( cl >> 8 ) & 255;
     b = ( cl >> 16 ) & 255;
     i = ( ( cl >> 24 ) & 255 ) * 4;
-    trap_R_AddLightToScene( cent->lerpOrigin, i, r, g, b );
+
+    if (cg_maraZapLight.integer)
+    {
+      trap_R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
+    }
+    else if (cent->currentState.eType != ET_LEV2_ZAP_CHAIN)
+    {
+      trap_R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
+    }
   }
 
   if( CG_IsTrailSystemValid( &cent->muzzleTS ) )
