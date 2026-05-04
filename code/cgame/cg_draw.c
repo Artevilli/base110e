@@ -3516,6 +3516,11 @@ void CG_DrawActive( stereoFrame_t stereoView )
     VectorMA( cg.refdef.vieworg, -separation, cg.refdef.viewaxis[ 1 ],
               cg.refdef.vieworg );
 
+  if (cg_lanternLight.integer)
+  {
+    trap_R_AddLightToScene(cg.refdef.vieworg, cg_lanternLightRadius.value, cg_lanternLightColorRed.value, cg_lanternLightColorGreen.value, cg_lanternLightColorBlue.value);
+  }
+
   // draw 3D view
   trap_R_RenderScene( &cg.refdef );
 
