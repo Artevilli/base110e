@@ -2112,7 +2112,7 @@ CheckVote(void)
       //execute the command, then remove the vote
       trap_SendServerCommand(-1, va("print \"^2Vote Passed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
       level.voteExecuteTime = level.time + 3000;
-      G_LogPrintf("global pass %i %i %i", level.voteYes, level.voteNo, level.numVotingClients);
+      G_LogPrintf("global pass %i %i %i\n", level.voteYes, level.voteNo, level.numVotingClients);
     }
     else if (voteYesPercent <= votePassThreshold)
     {
@@ -2124,7 +2124,7 @@ CheckVote(void)
     {
       //no one voted or idencisive
       trap_SendServerCommand(-1, va("print \"^1Vote Failed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
-      G_LogPrintf("global fail %i %i %i", level.voteYes, level.voteNo, level.numVotingClients);
+      G_LogPrintf("global fail %i %i %i\n", level.voteYes, level.voteNo, level.numVotingClients);
     }
   }
   else if (Q_stricmpn(level.voteDisplayString, "[Poll]", 6))
@@ -2134,13 +2134,13 @@ CheckVote(void)
       //execute the command, then remove the vote
       trap_SendServerCommand(-1, va("print \"^2Vote Passed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
       level.voteExecuteTime = level.time + 3000;
-      G_LogPrintf("global pass %i %i %i", level.voteYes, level.voteNo, level.numVotingClients);
+      G_LogPrintf("global pass %i %i %i\n", level.voteYes, level.voteNo, level.numVotingClients);
     }
     else if (level.voteNo >= ceil((float)level.numVotingClients * votePassThreshold / 100) && voteYesPercent <= votePassThreshold)
     {
       //same behavior as a timeout
       trap_SendServerCommand(-1, va("print \"^1Vote Failed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
-      G_LogPrintf("global fail %i %i %i", level.voteYes, level.voteNo, level.numVotingClients);
+      G_LogPrintf("global fail %i %i %i\n", level.voteYes, level.voteNo, level.numVotingClients);
     }
     else
     {
@@ -2212,12 +2212,12 @@ CheckTeamVote(int team)
     {
       G_TeamCommand(team, va("print \"^2Team Vote Passed^7 (^2Y:^7%i, ^1N:^7%i, %i percent)\n\"", yays, nays, voteYesPercent));
       trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset]));
-      G_LogPrintf("%s pass %i %i %i", teamt, yays, nays, tp);
+      G_LogPrintf("%s pass %i %i %i\n", teamt, yays, nays, tp);
     }
     else
     {
       G_TeamCommand(team, va("print \"^1Team Vote Failed^7 (^2Y^7:%i, ^1N^7:%i, %i percent)\n\"", yays, nays, voteYesPercent));
-      G_LogPrintf("%s fail %i %i %i", teamt, yays, nays, tp);
+      G_LogPrintf("%s fail %i %i %i\n", teamt, yays, nays, tp);
     }
   }
   else if (yays + nays > 0)
@@ -2227,12 +2227,12 @@ CheckTeamVote(int team)
       //execute the command, then remove the vote
       G_TeamCommand(team, va("print \"^2Team Vote Passed^7 (^2Y^7:%i, ^1N^7:%i, %i percent)\n\"", yays, nays, voteYesPercent));
       trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset]));
-      G_LogPrintf("%s pass %i %i %i", teamt, yays, nays, tp);
+      G_LogPrintf("%s pass %i %i %i\n", teamt, yays, nays, tp);
     }
     else if (nays >= level.numteamVotingClients[cs_offset] / 2)
     {
       G_TeamCommand(team, va("print \"^1Team Vote Failed^7 (^2Y^7:%i, ^1N^7:%i, %i percent)\n\"", yays, nays, voteYesPercent));
-      G_LogPrintf("%s fail %i %i %i", teamt, yays, nays, tp);
+      G_LogPrintf("%s fail %i %i %i\n", teamt, yays, nays, tp);
     }
     else
     {
