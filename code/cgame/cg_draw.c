@@ -2038,7 +2038,7 @@ LAGOMETER
 ===============================================================================
 */
 
-#define LAG_SAMPLES   128
+#define LAG_SAMPLES   256
 
 typedef struct
 {
@@ -2166,7 +2166,7 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
   int     a, x, y, i;
   float   v;
   float   ax, ay, aw, ah, mid, range;
-  int     color;
+  int     color, d;
   vec4_t  adjustedColor;
   float   vscale;
   vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -2205,6 +2205,8 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
 
   vscale = range / MAX_LAGOMETER_RANGE;
 
+  d = (int)(ax + aw);
+
   // draw the frame interpoalte / extrapolate graph
   for( a = 0 ; a < aw ; a++ )
   {
@@ -2223,7 +2225,7 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
       if( v > range )
         v = range;
 
-      trap_R_DrawStretchPic( ax + aw - a, mid - v, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
+      trap_R_DrawStretchPic( d - a, mid - v, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
     }
     else if( v < 0 )
     {
@@ -2237,7 +2239,7 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
       if( v > range )
         v = range;
 
-      trap_R_DrawStretchPic( ax + aw - a, mid, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
+      trap_R_DrawStretchPic( d - a, mid, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
     }
   }
 
@@ -2275,7 +2277,7 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
       if( v > range )
         v = range;
 
-      trap_R_DrawStretchPic( ax + aw - a, ay + ah - v, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
+      trap_R_DrawStretchPic( d - a, ay + ah - v, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
     }
     else if( v < 0 )
     {
@@ -2285,7 +2287,7 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
         trap_R_SetColor( g_color_table[ ColorIndex( COLOR_RED ) ] );
       }
 
-      trap_R_DrawStretchPic( ax + aw - a, ay + ah - range, 1, range, 0, 0, 0, 0, cgs.media.whiteShader );
+      trap_R_DrawStretchPic( d - a, ay + ah - range, 1, range, 0, 0, 0, 0, cgs.media.whiteShader );
     }
   }
 
