@@ -1270,6 +1270,35 @@ static void CG_PlayBufferedSounds( void )
 
 //=========================================================================
 
+
+/*
+=================
+CG_FirstFrame
+
+Called once on first rendered frame
+=================
+*/
+static void
+CG_FirstFrame(void)
+{
+  CG_SetConfigValues();
+
+  cgs.voteTime = atoi(CG_ConfigString(CS_VOTE_TIME));
+  cgs.voteYes = atoi(CG_ConfigString(CS_VOTE_YES));
+  cgs.voteNo = atoi(CG_ConfigString(CS_VOTE_NO));
+  Q_strncpyz(cgs.voteString, CG_ConfigString(CS_VOTE_STRING), sizeof(cgs.voteString));
+
+  if (cgs.voteTime)
+  {
+    cgs.voteModified = qtrue;
+  }
+  else
+  {
+    cgs.voteModified = qfalse;
+  }
+}
+
+
 /*
 =================
 CG_DrawActiveFrame
@@ -1316,8 +1345,10 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qbool demoPla
   // let the client system know what our weapon and zoom settings are
   trap_SetUserCmdValue( cg.weaponSelect, cg.zoomSensitivity );
 
-  // this counter will be bumped for every valid scene we generate
-  cg.clientFrame++;
+  if (cg.clientFrame == 0)
+  {
+    CG_FirstFrame();
+  }
 
   // update cg.predictedPlayerState
   CG_PredictPlayerState( );
@@ -1395,6 +1426,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qbool demoPla
 
   // actually issue the rendering calls
   CG_DrawActive( stereoView );
+
+  // this counter will be bumped for every valid scene we generate
+  cg.clientFrame++;
 
   if( cg_stats.integer )
     CG_Printf( "cg.clientFrame:%i\n", cg.clientFrame );
