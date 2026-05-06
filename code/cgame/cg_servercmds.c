@@ -897,34 +897,52 @@ static void CG_ServerCommand( void )
     return;
   }
 
-  if( !strcmp( cmd, "chat" ) )
+  if (!strcmp(cmd, "chat"))
   {
-    if( !cg_teamChatsOnly.integer )
+    if (!cg_teamChatsOnly.integer)
     {
-      Q_strncpyz( text, CG_Argv( 1 ), MAX_SAY_TEXT );
-      if( Q_stricmpn( text, "[skipnotify]", 12 ) )
-        trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-      CG_RemoveChatEscapeChar( text );
-      CG_Printf( "%s\n", text );
+      Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
+
+      if (cg_chatBeep.integer)
+      {
+        if (Q_stricmpn(text, "[skipnotify]", 12))
+        {
+          trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
+        }
+      }
+
+      CG_RemoveChatEscapeChar(text);
+      CG_Printf("%s\n", text);
     }
 
     return;
   }
 
-  if( !strcmp( cmd, "tchat" ) )
+  if (!strcmp(cmd, "tchat"))
   {
-    Q_strncpyz( text, CG_Argv( 1 ), MAX_SAY_TEXT );
-    if( Q_stricmpn( text, "[skipnotify]", 12 ) )
+    Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
+
+    if (Q_stricmpn(text, "[skipnotify]", 12))
     {
-      if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-        trap_S_StartLocalSound( cgs.media.alienTalkSound, CHAN_LOCAL_SOUND );
-      else if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-        trap_S_StartLocalSound( cgs.media.humanTalkSound, CHAN_LOCAL_SOUND );
-      else
-        trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+      if (cg_teamChatBeep.integer)
+      {
+        if (cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS)
+        {
+          trap_S_StartLocalSound(cgs.media.alienTalkSound, CHAN_LOCAL_SOUND);
+        }
+        else if (cg.snap->ps.stats[STAT_PTEAM] == PTE_HUMANS)
+        {
+          trap_S_StartLocalSound(cgs.media.humanTalkSound, CHAN_LOCAL_SOUND);
+        }
+        else
+        {
+          trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
+        }
+      }
     }
-    CG_RemoveChatEscapeChar( text );
-    CG_Printf( "%s\n", text );
+
+    CG_RemoveChatEscapeChar(text);
+    CG_Printf("%s\n", text);
     return;
   }
 

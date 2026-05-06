@@ -12,6 +12,8 @@
 
 CG_CVAR(cg_ignore, "cg_ignore", "0", 0) //used for debugging
 CG_CVAR(cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE)
+CG_CVAR(cg_chatBeep, "cg_chatBeep", "1", CVAR_ARCHIVE)
+CG_CVAR(cg_teamChatBeep, "cg_teamChatBeep", "1", CVAR_ARCHIVE)
 CG_CVAR(cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE)
 CG_CVAR(cg_zoomFov, "cg_zoomfov", "22.5", CVAR_ARCHIVE)
 CG_CVAR(cg_fov, "cg_fov", "90", CVAR_ARCHIVE)
