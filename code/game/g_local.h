@@ -309,6 +309,10 @@ typedef struct
 
 #define MAX_NETNAME       36
 
+//unlagged - true ping
+#define NUM_PING_SAMPLES 64
+//unlagged - true ping
+
 // data to store details of clients that have abnormally disconnected
 typedef struct connectionRecord_s
 {
@@ -412,6 +416,11 @@ typedef struct
   qbool            denyBuild;
   int                 adminLevel;
   char                adminName[ MAX_NETNAME ];
+  //unlagged - true ping
+  int realPing;
+  int pingsamples[NUM_PING_SAMPLES];
+  int samplehead;
+  //unlagged - true ping
   qbool            designatedBuilder;
   qbool            firstConnect;        // This is the first map since connect
   qbool            useUnlagged;

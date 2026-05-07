@@ -296,6 +296,66 @@ void G_RunMissile( gentity_t *ent )
 
 //=============================================================================
 
+
+/*
+==================
+G_LagNudge
+
+This does the anti lag stuff for projectiles.
+==================
+*/
+static int
+G_LagNudge(gentity_t *self)
+{
+  if (sv_running.integer == 0)
+  {
+    return 0; //the server deals with the nudge, not clients
+  }
+
+  if (self->client->pers.useUnlagged == qfalse)
+  {
+    return 0; //client doesn't want unlagged
+  }
+
+  if (g_unlaggedProjectiles.integer <= 0)
+  {
+    return 0; //old behavior
+  }
+  else if (g_unlaggedProjectiles.integer == 1)
+  {
+    return MISSILE_PRESTEP_TIME; //less old behavior, unlagged versions use this
+  }
+  else if (g_unlaggedProjectiles.integer == 2)
+  {
+    return 1000 / sv_fps.integer; //accurate to 1 server snap, usually no different from 50msec
+  }
+  else
+  {
+    int ping;
+    int offset;
+
+    ping = self->client->pers.realPing; //use "realPing", should be smoother
+
+    if (ping > g_unlaggedProjectiles.integer)
+    {
+      ping = g_unlaggedProjectiles.integer;
+    }
+
+    //use the best approximation we have to the number of ms into a frame, instead of the
+    //maximum possible offset given by the interval between server snaps
+    offset = level.time - (level.previousTime + self->client->frameOffset);
+
+    if (offset < 0)
+    {
+      offset = 0;
+    }
+
+    offset = offset <= 1000 / sv_fps.integer ? offset:1000 / sv_fps.integer;
+
+    return ping + offset;
+  }
+}
+
 /*
 =================
 fire_flamer
@@ -335,7 +395,7 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.otherEntityNum = self->s.number;
 
   bolt->s.pos.trType = TR_LINEAR;
-  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  bolt->s.pos.trTime = level.time - G_LagNudge(self);   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
   VectorScale( self->client->ps.velocity, FLAMER_LAG, pvel );
   VectorMA( pvel, FLAMER_SPEED, dir, bolt->s.pos.trDelta );
@@ -384,7 +444,7 @@ gentity_t *fire_blaster( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.otherEntityNum = self->s.number;
 
   bolt->s.pos.trType = TR_LINEAR;
-  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  bolt->s.pos.trTime = level.time - G_LagNudge(self);   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
   VectorScale( dir, BLASTER_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
@@ -432,7 +492,7 @@ gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.otherEntityNum = self->s.number;
 
   bolt->s.pos.trType = TR_LINEAR;
-  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  bolt->s.pos.trTime = level.time - G_LagNudge(self);   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
   VectorScale( dir, PRIFLE_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
@@ -487,7 +547,7 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int da
   bolt->s.otherEntityNum = self->s.number;
 
   bolt->s.pos.trType = TR_LINEAR;
-  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  bolt->s.pos.trTime = level.time - (damage == LCANNON_TOTAL_CHARGE ? 0:G_LagNudge(self));   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
   VectorScale( dir, LCANNON_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
@@ -537,7 +597,7 @@ gentity_t *launch_grenade( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.otherEntityNum = self->s.number;
 
   bolt->s.pos.trType = TR_GRAVITY;
-  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  bolt->s.pos.trTime = level.time - G_LagNudge(self);   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
   VectorScale( dir, GRENADE_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
@@ -668,7 +728,7 @@ gentity_t *fire_hive( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->target_ent = self->target_ent;
 
   bolt->s.pos.trType = TR_LINEAR;
-  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  bolt->s.pos.trTime = level.time - G_LagNudge(self);   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
   VectorScale( dir, HIVE_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
@@ -708,7 +768,7 @@ gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->target_ent = NULL;
 
   bolt->s.pos.trType = TR_LINEAR;
-  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  bolt->s.pos.trTime = level.time - G_LagNudge(self);   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
   VectorScale( dir, 500, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
@@ -752,7 +812,7 @@ gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.otherEntityNum = self->s.number;
 
   bolt->s.pos.trType = TR_GRAVITY;
-  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  bolt->s.pos.trTime = level.time - G_LagNudge(self);   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
   VectorScale( dir, ABUILDER_BLOB_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
@@ -789,7 +849,7 @@ gentity_t *fire_paraLockBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->target_ent = NULL;
 
   bolt->s.pos.trType = TR_GRAVITY;
-  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  bolt->s.pos.trTime = level.time - G_LagNudge(self);   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
   VectorScale( dir, LOCKBLOB_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
@@ -833,7 +893,7 @@ gentity_t *fire_bounceBall( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.otherEntityNum = self->s.number;
 
   bolt->s.pos.trType = TR_GRAVITY;
-  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  bolt->s.pos.trTime = level.time - G_LagNudge(self);   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
   VectorScale( dir, LEVEL3_BOUNCEBALL_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth

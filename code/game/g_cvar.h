@@ -14,6 +14,7 @@
 G_CVAR(g_cheats, "sv_cheats", "", 0, 0, qfalse)
 
 G_CVAR(sv_fps, "sv_fps", "30", CVAR_ARCHIVE, 0, qfalse)
+G_CVAR(sv_running, "sv_running", "0", CVAR_ARCHIVE, 0, qfalse)
 
 //noset vars
 G_CVAR(g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse)
@@ -118,7 +119,11 @@ G_CVAR(g_alienStage3Threshold, "g_alienStage3Threshold", DEFAULT_ALIEN_STAGE3_TH
 G_CVAR(g_teamImbalanceWarnings, "g_teamImbalanceWarnings", "30", CVAR_ARCHIVE, 0, qfalse)
 
 G_CVAR(g_unlagged, "g_unlagged", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse)
+G_CVAR(g_unlaggedProjectiles, "g_unlaggedProjectiles", "150", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_predictPVS, "g_predictPVS", "0", CVAR_ARCHIVE, 0, qfalse)
+//unlagged - true ping
+G_CVAR(g_truePing, "g_truePing", "1", CVAR_ARCHIVE, 0, qtrue)
+//unlagged - true ping
 
 G_CVAR(g_disabledEquipment, "g_disabledEquipment", "", CVAR_ROM, 0, qfalse)
 G_CVAR(g_disabledClasses, "g_disabledClasses", "", CVAR_ROM, 0, qfalse)

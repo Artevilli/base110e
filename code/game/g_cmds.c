@@ -252,12 +252,16 @@ void ScoreboardMessage( gentity_t *ent )
 
     cl = &level.clients[ level.sortedClients[ i ] ];
 
-    if( cl->pers.connected == CON_CONNECTING )
+    if (cl->pers.connected == CON_CONNECTING)
+    {
       ping = -1;
-    else if( cl->sess.spectatorState == SPECTATOR_FOLLOW )
-      ping = cl->pers.ping < 999 ? cl->pers.ping : 999;
+    }
     else
-      ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
+    {
+      //unlagged - true ping
+      ping = cl->pers.realPing < 999 ? cl->pers.realPing:999;
+      //unlagged - true ping
+    }
 
     //If (loop) client is a spectator, they have nothing, so indicate such. 
     //Only send the client requesting the scoreboard the weapon/upgrades information for members of their team. If they are not on a team, send it all.

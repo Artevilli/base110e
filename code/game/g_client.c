@@ -1489,6 +1489,16 @@ void ClientBegin( int clientNum )
     }
   }
 
+  // unlagged
+  if (g_unlaggedProjectiles.integer > 0)
+  {
+    trap_SendServerCommand(clientNum, va("print \"Lag compensation: hitscan %s^7, projectiles ^2ON ^7(up to %ims)\n\"", g_unlagged.integer ? "^2ON^7":"^1OFF^7", g_unlaggedProjectiles.integer));
+  }
+  else
+  {
+    trap_SendServerCommand(clientNum, va("print \"Lag compensation: hitscan %s^7, projectiles ^1OFF\n\"", g_unlagged.integer ? "^2ON^7":"^1OFF^7"));
+  }
+
   // count current clients and rank for scoreboard
   CalculateRanks( );
 }
