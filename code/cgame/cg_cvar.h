@@ -26,6 +26,7 @@ CG_CVAR(cg_lanternLightColorGreen, "cg_lanternLightColorGreen", "1.0", CVAR_ARCH
 CG_CVAR(cg_lanternLightColorBlue, "cg_lanternLightColorBlue", "1.0", CVAR_ARCHIVE)
 CG_CVAR(cg_lanternLightRadius, "cg_lanternLightRadius", "400.0", CVAR_ARCHIVE)
 CG_CVAR(cg_maraZapLight, "cg_maraZapLight", "0", CVAR_ARCHIVE)
+CG_CVAR(cg_precisionLoss, "cg_precisionLoss", "0", CVAR_ARCHIVE)
 CG_CVAR(cg_viewsize, "cg_viewsize", "100", CVAR_ARCHIVE)
 CG_CVAR(cg_stereoSeparation, "cg_stereoSeparation", "0.4", CVAR_ARCHIVE)
 CG_CVAR(cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE)

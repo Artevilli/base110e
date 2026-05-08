@@ -356,6 +356,7 @@ G_LagNudge(gentity_t *self)
   }
 }
 
+
 /*
 =================
 fire_flamer
