@@ -1400,6 +1400,7 @@ void ClientThink_real( gentity_t *ent )
   pm.airControl = pm_airControl.integer;
   pm.fastWeaponSwitches = pm_fastWeaponSwitches.integer;
   pm.noStamina = pm_noStamina.integer;
+  pm.rampJumps = pm_rampJumps.integer;
   pm.reloadFix = pm_reloadFix.integer;
 
   VectorCopy( client->ps.origin, client->oldOrigin );

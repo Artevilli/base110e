@@ -192,6 +192,7 @@ typedef struct
   int airControl;
   int fastWeaponSwitches;
   int noStamina;
+  int rampJumps;
   int reloadFix;
 
   // callbacks to test the world

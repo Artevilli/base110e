@@ -1399,6 +1399,7 @@ typedef struct
   qbool pm_airControl;
   qbool pm_fastWeaponSwitches;
   qbool pm_noStamina;
+  qbool pm_rampJumps;
   qbool pm_reloadFix;
 
 } cgs_t;

@@ -756,7 +756,21 @@ static qbool PM_CheckJump( void )
               normal, pm->ps->velocity );
   }
   else
-    pm->ps->velocity[ 2 ] = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] );
+  {
+    if (!pm->rampJumps)
+    {
+      pm->ps->velocity[2] = BG_FindJumpMagnitudeForClass(pm->ps->stats[STAT_PCLASS]);
+    }
+    else
+    {
+      if (pm->ps->velocity[2] < 0)
+      {
+        pm->ps->velocity[2] = 0;
+      }
+
+      pm->ps->velocity[2] += BG_FindJumpMagnitudeForClass(pm->ps->stats[STAT_PCLASS]);
+    }
+  }
 
   PM_AddEvent( EV_JUMP );
 
