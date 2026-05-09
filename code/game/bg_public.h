@@ -189,7 +189,9 @@ typedef struct
   // 1.1.0e only
   int fixedPmove;
   int fixedPmoveFPS;
-
+  int airControl;
+  int fastWeaponSwitches;
+  int noStamina;
   int reloadFix;
 
   // callbacks to test the world

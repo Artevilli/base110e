@@ -99,8 +99,12 @@ G_CVAR(g_newbieNamePrefix, "g_newbieNamePrefix", "Newbie#", CVAR_ARCHIVE, 0, qfa
 
 G_CVAR(g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse)
 G_CVAR(g_clientUpgradeNotice, "g_clientUpgradeNotice", "1", 0, 0, qfalse)
+G_CVAR(g_fallDamage, "g_fallDamage", "1", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(pm_fixedPmove, "pm_fixedPmove", "0", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", CVAR_SYSTEMINFO, 0, qfalse)
+G_CVAR(pm_airControl, "pm_airControl", "0", CVAR_SYSTEMINFO, 0, qfalse)
+G_CVAR(pm_fastWeaponSwitches, "pm_fastWeaponSwitches", "0", CVAR_SYSTEMINFO, 0, qfalse)
+G_CVAR(pm_noStamina, "pm_noStamina", "0", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_reloadFix, "pm_reloadFix", "1", CVAR_SYSTEMINFO, 0, qfalse)
 
 G_CVAR(g_humanBuildPoints, "g_humanBuildPoints", DEFAULT_HUMAN_BUILDPOINTS, CVAR_SERVERINFO, 0, qfalse)

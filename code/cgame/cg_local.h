@@ -1396,6 +1396,9 @@ typedef struct
   // 1.1.0e only
   qbool pm_fixedPmove;
   int pm_fixedPmoveFPS;
+  qbool pm_airControl;
+  qbool pm_fastWeaponSwitches;
+  qbool pm_noStamina;
   qbool pm_reloadFix;
 
 } cgs_t;

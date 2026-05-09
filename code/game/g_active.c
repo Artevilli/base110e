@@ -588,33 +588,50 @@ void ClientTimerActions( gentity_t *ent, int msec )
     if( BG_InventoryContainsUpgrade( UP_JETPACK, client->ps.stats ) && BG_UpgradeIsActive( UP_JETPACK, client->ps.stats ) )
       client->ps.stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
 
-    if( ( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST ) && !crouched )
+    if (!pm_noStamina.integer)
     {
-      //subtract stamina
-      if( BG_InventoryContainsUpgrade( UP_LIGHTARMOUR, client->ps.stats ) )
-        client->ps.stats[ STAT_STAMINA ] -= STAMINA_LARMOUR_TAKE;
-      else
-        client->ps.stats[ STAT_STAMINA ] -= STAMINA_SPRINT_TAKE;
+      if ((client->ps.stats[STAT_STATE] & SS_SPEEDBOOST) && !crouched)
+      {
+        //subtract stamina
+        if (BG_InventoryContainsUpgrade(UP_LIGHTARMOUR, client->ps.stats))
+        {
+          client->ps.stats[STAT_STAMINA] -= STAMINA_LARMOUR_TAKE;
+        }
+        else
+        {
+          client->ps.stats[STAT_STAMINA] -= STAMINA_SPRINT_TAKE;
+        }
 
-      if( client->ps.stats[ STAT_STAMINA ] < -MAX_STAMINA )
-        client->ps.stats[ STAT_STAMINA ] = -MAX_STAMINA;
+        if (client->ps.stats[STAT_STAMINA] < -MAX_STAMINA)
+        {
+          client->ps.stats[STAT_STAMINA] = -MAX_STAMINA;
+        }
+      }
+
+      if (walking || crouched)
+      {
+        //restore stamina
+        client->ps.stats[STAT_STAMINA] += STAMINA_WALK_RESTORE;
+
+        if (client->ps.stats[STAT_STAMINA] > MAX_STAMINA)
+        {
+          client->ps.stats[STAT_STAMINA] = MAX_STAMINA;
+        }
+      }
+      else if (stopped)
+      {
+        //restore stamina faster
+        client->ps.stats[STAT_STAMINA] += STAMINA_STOP_RESTORE;
+
+        if (client->ps.stats[STAT_STAMINA] > MAX_STAMINA)
+        {
+          client->ps.stats[STAT_STAMINA] = MAX_STAMINA;
+        }
+      }
     }
-
-    if( walking || crouched )
+    else
     {
-      //restore stamina
-      client->ps.stats[ STAT_STAMINA ] += STAMINA_WALK_RESTORE;
-
-      if( client->ps.stats[ STAT_STAMINA ] > MAX_STAMINA )
-        client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
-    }
-    else if( stopped )
-    {
-      //restore stamina faster
-      client->ps.stats[ STAT_STAMINA ] += STAMINA_STOP_RESTORE;
-
-      if( client->ps.stats[ STAT_STAMINA ] > MAX_STAMINA )
-        client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
+      client->ps.stats[STAT_STAMINA] = MAX_STAMINA;
     }
 
     //client is charging up for a pounce
@@ -983,6 +1000,11 @@ void ClientEvents( gentity_t *ent, int oldEventSequence )
       case EV_FALL_FAR:
         if( ent->s.eType != ET_PLAYER )
           break;    // not in the player model
+
+        if (!g_fallDamage.integer)
+        {
+          break; //server disabled fall damage
+        }
 
         fallDistance = ( (float)client->ps.stats[ STAT_FALLDIST ] - MIN_FALL_DISTANCE ) /
                          ( MAX_FALL_DISTANCE - MIN_FALL_DISTANCE );
@@ -1375,6 +1397,9 @@ void ClientThink_real( gentity_t *ent )
 
   pm.fixedPmove = pm_fixedPmove.integer;
   pm.fixedPmoveFPS = pm_fixedPmoveFPS.integer;
+  pm.airControl = pm_airControl.integer;
+  pm.fastWeaponSwitches = pm_fastWeaponSwitches.integer;
+  pm.noStamina = pm_noStamina.integer;
   pm.reloadFix = pm_reloadFix.integer;
 
   VectorCopy( client->ps.origin, client->oldOrigin );

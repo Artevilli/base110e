@@ -47,6 +47,12 @@ float pm_waterfriction = 1.0f;
 float pm_flightfriction = 6.0f;
 float pm_spectatorfriction = 5.0f;
 
+//movement physics
+float pm_airStopAccelerate = 2.5f;
+float pm_airControlAmount = 150.0f;
+float pm_strafeAccelerate = 70.0f;
+float pm_wishSpeed = 30.0f;
+
 int   c_pmove = 0;
 
 /*
@@ -372,12 +378,23 @@ static float PM_CmdScale( usercmd_t *cmd )
     }
 
     //must have +ve stamina to jump
-    if( pm->ps->stats[ STAT_STAMINA ] < 0 )
-      cmd->upmove = 0;
+    if (!pm->noStamina)
+    {
+      if (pm->ps->stats[STAT_STAMINA] < 0)
+      {
+        cmd->upmove = 0;
+      }
 
-    //slow down once stamina depletes
-    if( pm->ps->stats[ STAT_STAMINA ] <= -500 )
-      modifier *= (float)( pm->ps->stats[ STAT_STAMINA ] + 1000 ) / 500.0f;
+      //slow down once stamina depletes
+      if (pm->ps->stats[STAT_STAMINA] <= -500)
+      {
+        modifier *= (float)(pm->ps->stats[STAT_STAMINA] + 1000) / 500.0f;
+      }
+    }
+    else
+    {
+      pm->ps->stats[STAT_STAMINA] = MAX_STAMINA;
+    }
 
     if( pm->ps->stats[ STAT_STATE ] & SS_CREEPSLOWED )
     {
@@ -682,9 +699,13 @@ static qbool PM_CheckJump( void )
       pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
-  if( ( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
-      ( pm->ps->stats[ STAT_STAMINA ] < 0 ) )
-    return qfalse;
+  if (!pm->noStamina)
+  {
+    if ((pm->ps->stats[STAT_PTEAM] == PTE_HUMANS) && (pm->ps->stats[STAT_STAMINA] < 0))
+    {
+      return qfalse;
+    }
+  }
 
   if( pm->ps->pm_flags & PMF_RESPAWNED )
     return qfalse;    // don't allow jump until all buttons are up
@@ -713,8 +734,13 @@ static qbool PM_CheckJump( void )
   pm->ps->pm_flags |= PMF_JUMP_HELD;
 
   //TA: take some stamina off
-  if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS )
-    pm->ps->stats[ STAT_STAMINA ] -= 500;
+  if (!pm->noStamina)
+  {
+    if (pm->ps->stats[STAT_PTEAM] == PTE_HUMANS)
+    {
+      pm->ps->stats[STAT_STAMINA] -= 500;
+    }
+  }
 
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
@@ -998,59 +1024,136 @@ static void PM_FlyMove( void )
 
 /*
 ===================
-PM_AirMove
-
+PM_AirControl
 ===================
 */
-static void PM_AirMove( void )
+static void
+PM_AirControl(pmove_t *pm, vec3_t wishdir, float wishspeed)
 {
-  int       i;
-  vec3_t    wishvel;
-  float     fmove, smove;
-  vec3_t    wishdir;
-  float     wishspeed;
-  float     scale;
-  usercmd_t cmd;
+  float zspeed;
+  float speed;
+  float dot;
+  float k;
+  int i;
 
-  PM_Friction( );
+  if ((pm->ps->movementDir && pm->ps->movementDir != 4) || !wishspeed)
+  {
+    return; //can not control movement if not moving forward or backward
+  }
+
+  zspeed = pm->ps->velocity[2];
+  pm->ps->velocity[2] = 0;
+
+  speed = VectorNormalize(pm->ps->velocity);
+
+  dot = DotProduct(pm->ps->velocity, wishdir);
+
+  k = 32;
+  k *= pm_airControlAmount * dot * dot * pml.frametime;
+
+  if (dot > 0)
+  {
+    //we can't change direction while slowing down
+    for(i = 0;i < 2;i++)
+    {
+      pm->ps->velocity[i] = pm->ps->velocity[i] * speed + wishdir[i] * k;
+    }
+
+    VectorNormalize(pm->ps->velocity);
+  }
+
+  for(i = 0;i < 2;i++)
+  {
+    pm->ps->velocity[i] *= speed;
+  }
+
+  pm->ps->velocity[2] = zspeed;
+}
+
+
+/*
+===================
+PM_AirMove
+===================
+*/
+static void
+PM_AirMove(void)
+{
+  int i;
+  vec3_t wishvel;
+  float fmove;
+  float smove;
+  vec3_t wishdir;
+  float wishspeed;
+  float scale;
+  usercmd_t cmd;
+  float accel;
+  float wishspeed2;
+
+  PM_Friction();
 
   fmove = pm->cmd.forwardmove;
   smove = pm->cmd.rightmove;
 
   cmd = pm->cmd;
-  scale = PM_CmdScale( &cmd );
+  scale = PM_CmdScale(&cmd);
 
-  // set the movementDir so clients can rotate the legs for strafing
-  PM_SetMovementDir( );
+  //set the movementDir so clients can rotate the legs for strafing
+  PM_SetMovementDir();
 
-  // project moves down to flat plane
-  pml.forward[ 2 ] = 0;
-  pml.right[ 2 ] = 0;
-  VectorNormalize( pml.forward );
-  VectorNormalize( pml.right );
+  //project moves down to flat plane
+  pml.forward[2] = 0;
+  pml.right[2] = 0;
+  VectorNormalize(pml.forward);
+  VectorNormalize(pml.right);
 
-  for( i = 0; i < 2; i++ )
-    wishvel[ i ] = pml.forward[ i ] * fmove + pml.right[ i ] * smove;
+  for(i = 0;i < 2;i++)
+  {
+    wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove;
+  }
 
-  wishvel[ 2 ] = 0;
+  wishvel[2] = 0;
 
-  VectorCopy( wishvel, wishdir );
-  wishspeed = VectorNormalize( wishdir );
+  VectorCopy(wishvel, wishdir);
+  wishspeed = VectorNormalize(wishdir);
   wishspeed *= scale;
 
-  // not on ground, so little effect on velocity
-  PM_Accelerate( wishdir, wishspeed,
-    BG_FindAirAccelerationForClass( pm->ps->stats[ STAT_PCLASS ] ) );
+  if (pm->airControl)
+  {
+    wishspeed2 = wishspeed;
+    accel = DotProduct(pm->ps->velocity, wishdir) < 0 ? pm_airStopAccelerate:pm_airaccelerate;
 
-  // we may have a ground plane that is very steep, even
-  // though we don't have a groundentity
-  // slide along the steep plane
-  if( pml.groundPlane )
-    PM_ClipVelocity( pm->ps->velocity, pml.groundTrace.plane.normal,
-      pm->ps->velocity, OVERCLIP );
+    if (pm->ps->movementDir == 2 || pm->ps->movementDir == 6)
+    {
+      if (wishspeed > pm_wishSpeed)
+      {
+        wishspeed = pm_wishSpeed;
+      }
 
-  PM_StepSlideMove( qtrue, qfalse );
+      accel = pm_strafeAccelerate;
+    }
+
+    //not on ground so little effect on velocity
+    PM_Accelerate(wishdir, wishspeed, accel);
+    PM_AirControl(pm, wishdir, wishspeed2);
+  }
+  else
+  {
+    //not on ground, so little effect on velocity
+    PM_Accelerate(wishdir, wishspeed, BG_FindAirAccelerationForClass(pm->ps->stats[STAT_PCLASS]));
+  }
+
+  //we may have a ground plane that is very steep, even
+  //though we don't have a groundentity
+  //slide along the steep plane
+  if (pml.groundPlane)
+  {
+    PM_ClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity, OVERCLIP);
+  }
+
+  PM_StepSlideMove(qtrue, qfalse);
 }
+
 
 /*
 ===================
@@ -2626,7 +2729,12 @@ static void PM_BeginWeaponChange( int weapon )
 
   PM_AddEvent( EV_CHANGE_WEAPON );
   pm->ps->weaponstate = WEAPON_DROPPING;
-  pm->ps->weaponTime += 200;
+
+  if (!pm->fastWeaponSwitches)
+  {
+    pm->ps->weaponTime += 200;
+  }
+
   pm->ps->persistant[ PERS_NEWWEAPON ] = weapon;
 
   //reset build weapon
@@ -2655,7 +2763,11 @@ static void PM_FinishWeaponChange( void )
 
   pm->ps->weapon = weapon;
   pm->ps->weaponstate = WEAPON_RAISING;
-  pm->ps->weaponTime += 250;
+
+  if (!pm->fastWeaponSwitches)
+  {
+    pm->ps->weaponTime += 250;
+  }
 
   if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
     PM_StartTorsoAnim( TORSO_RAISE );
@@ -2806,7 +2918,15 @@ static void PM_Weapon( void )
   if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
   {
     PM_AddEvent( EV_NOAMMO );
-    pm->ps->weaponTime += 200;
+
+    if (pm->fastWeaponSwitches)
+    {
+      pm->ps->weaponTime += 100;
+    }
+    else
+    {
+      pm->ps->weaponTime += 200;
+    }
 
     if( pm->ps->weaponstate == WEAPON_FIRING )
       pm->ps->weaponstate = WEAPON_READY;
