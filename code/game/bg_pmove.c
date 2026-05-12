@@ -3665,7 +3665,14 @@ void PmoveSingle( pmove_t *pmove )
   else
   {
     //snap some parts of playerstate to save network bandwidth
-    trap_SnapVector(pm->ps->velocity);
+    if (pm->korxPmove)
+    {
+      SnapVector(pm->ps->velocity);
+    }
+    else
+    {
+      trap_SnapVector(pm->ps->velocity);
+    }
   }
 }
 

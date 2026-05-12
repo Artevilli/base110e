@@ -863,6 +863,7 @@ void CG_PredictPlayerState( void )
     cg_pmove.fixedPmoveFPS = cgs.pm_fixedPmoveFPS;
     cg_pmove.airControl = cgs.pm_airControl;
     cg_pmove.fastWeaponSwitches = cgs.pm_fastWeaponSwitches;
+    cg_pmove.korxPmove = cgs.pm_korxPmove;
     cg_pmove.noStamina = cgs.pm_noStamina;
     cg_pmove.rampJumps = cgs.pm_rampJumps;
     cg_pmove.reloadFix = cgs.pm_reloadFix;
