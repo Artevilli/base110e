@@ -53,8 +53,6 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
     }
   }
 
-  ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
-
   if (weapon == WP_NONE || !BG_InventoryContainsWeapon(weapon, ent->client->ps.stats))
   {
     //switch to the first non blaster weapon
@@ -90,7 +88,8 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
   // force this here to prevent flamer effect from continuing
   ent->client->ps.generic1 = WPM_NOTFIRING;
 
-  ent->client->ps.weapon = ent->client->ps.persistant[PERS_NEWWEAPON];
+  //the pmove will do an animated drop, raise, and set the new weapon
+  ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
 }
 
 /*

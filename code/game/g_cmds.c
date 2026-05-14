@@ -2942,53 +2942,49 @@ void Cmd_DeActivateItem_f( gentity_t *ent )
 Cmd_ToggleItem_f
 =================
 */
-void Cmd_ToggleItem_f( gentity_t *ent )
+void
+Cmd_ToggleItem_f(gentity_t *ent)
 {
-  char  s[ MAX_TOKEN_CHARS ];
-  int   upgrade, weapon, i;
+  char  s[MAX_TOKEN_CHARS];
+  int   upgrade, weapon;
 
-  trap_Argv( 1, s, sizeof( s ) );
-  upgrade = BG_FindUpgradeNumForName( s );
-  weapon = BG_FindWeaponNumForName( s );
+  trap_Argv(1, s, sizeof(s));
+  upgrade = BG_FindUpgradeNumForName(s);
+  weapon = BG_FindWeaponNumForName(s);
 
-  if( weapon != WP_NONE )
+  if (weapon != WP_NONE)
   {
     //special case to allow switching between
     //the blaster and the primary weapon
 
-    if( ent->client->ps.weapon != WP_BLASTER )
+    if (ent->client->ps.weapon != WP_BLASTER)
+    {
       weapon = WP_BLASTER;
+    }
     else
     {
-      //find a held weapon which isn't the blaster
-      for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
-      {
-        if( i == WP_BLASTER )
-          continue;
-
-        if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) )
-        {
-          weapon = i;
-          break;
-        }
-      }
-
-      if( i == WP_NUM_WEAPONS )
-        weapon = WP_BLASTER;
+      weapon = WP_NONE;
     }
 
-    G_ForceWeaponChange( ent, weapon );
+    G_ForceWeaponChange(ent, weapon);
   }
-  else if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
+  else if (BG_InventoryContainsUpgrade(upgrade, ent->client->ps.stats))
   {
-    if( BG_UpgradeIsActive( upgrade, ent->client->ps.stats ) )
-      BG_DeactivateUpgrade( upgrade, ent->client->ps.stats );
+    if (BG_UpgradeIsActive(upgrade, ent->client->ps.stats))
+    {
+      BG_DeactivateUpgrade(upgrade, ent->client->ps.stats);
+    }
     else
-      BG_ActivateUpgrade( upgrade, ent->client->ps.stats );
+    {
+      BG_ActivateUpgrade(upgrade, ent->client->ps.stats);
+    }
   }
   else
-    trap_SendServerCommand( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
+  {
+    trap_SendServerCommand(ent - g_entities, va("print \"You don't have the %s\n\"", s));
+  }
 }
+
 
 /*
 =================
