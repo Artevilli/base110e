@@ -804,10 +804,7 @@ static void CG_Lev2ZapChain( centity_t *cent )
     switch( i )
     {
       case 0:
-        if( es->time <= 0 )
-          continue;
-
-        source = &cg_entities[ es->powerups ];
+        source = &cg_entities[ cg.snap->ps.clientNum ];
         target = &cg_entities[ es->time ];
         break;
 
