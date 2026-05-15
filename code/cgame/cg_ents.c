@@ -809,7 +809,7 @@ static void CG_Lev2ZapChain( centity_t *cent )
         break;
 
       case 1:
-        if( es->time2 <= 0 )
+        if( es->time2 < 0 )
           continue;
 
         source = &cg_entities[ es->time ];
@@ -817,7 +817,7 @@ static void CG_Lev2ZapChain( centity_t *cent )
         break;
 
       case 2:
-        if( es->constantLight <= 0 )
+        if( es->constantLight < 0 )
           continue;
 
         source = &cg_entities[ es->time2 ];
