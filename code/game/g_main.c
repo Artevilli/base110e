@@ -2307,11 +2307,6 @@ CheckCountdown(void)
 
   lastmsg = level.time;
 
-  if (timeleft >= 6)
-  {
-    trap_SendServerCommand(-1, va("cp \"^1Get Ready^7\n^2>>>>> ^7%i ^2<<<<<\"", timeleft));
-  }
-
   if (timeleft > 0 && timeleft < 6)
   {
     switch(timeleft)

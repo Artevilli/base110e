@@ -1856,17 +1856,20 @@ void Cmd_CallVote_f( gentity_t *ent )
     trap_SendServerCommand(ent - g_entities, "print \"Valid vote commands are:\nmap, map_restart, draw, nextmap, kick, mute, unmute, poll, sudden_death, extend, random_map, and random_nextmap\n");
     return;
   }
-  
-  Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " (Needs > %d percent)", level.votePassThreshold ) );
+
+  if (level.votePassThreshold != 50)
+  {
+    Q_strcat(level.voteDisplayString, sizeof(level.voteDisplayString), va(" (Needs > %d percent)", level.votePassThreshold));
+  }
   
   if ( reason[0]!='\0' )
     Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " Reason: '%s^7'", reason ) );
-  
 
   trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
          " called a vote: %s" S_COLOR_WHITE "\n\"", ent->client->pers.netname, level.voteDisplayString ) );
-  
-  G_LogPrintf("Vote: %s^7 called a vote: %s^7\n", ent->client->pers.netname, level.voteDisplayString );
+
+  //for players who are blind
+  trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " has called a vote\n^2F1 ^7(Yes) - ^1F2 ^7(No)\"", ent->client->pers.netname));
   
   Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " Called by: '%s^7'", ent->client->pers.netname ) );
 
@@ -2275,31 +2278,18 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   if ( reason[0]!='\0' )
     Q_strcat( level.teamVoteDisplayString[ cs_offset ], sizeof( level.teamVoteDisplayString[ cs_offset ] ), va( " Reason: '%s'^7", reason ) );
 
-  for( i = 0 ; i < level.maxclients ; i++ )
-  {
-    if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
-      continue;
+  G_TeamCommand(team, va("print\"%s " S_COLOR_WHITE "called a team vote: %s\n\"", ent->client->pers.netname, level.teamVoteDisplayString[cs_offset]));
 
-    if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == team )
-    {
-      trap_SendServerCommand( i, va("print \"%s " S_COLOR_WHITE
-            "called a team vote: %s^7 \n\"", ent->client->pers.netname, level.teamVoteDisplayString[ cs_offset ] ) );
-    }
-    else if( G_admin_permission( &g_entities[ i ], ADMF_ADMINCHAT ) && 
-             ( ( !Q_stricmp( arg1, "kick" ) || !Q_stricmp( arg1, "denybuild" ) ) || 
-             level.clients[ i ].pers.teamSelection == PTE_NONE ) )
-    {
-      trap_SendServerCommand( i, va("print \"^6[Admins]^7 %s " S_COLOR_WHITE
-            "called a team vote: %s^7 \n\"", ent->client->pers.netname, level.teamVoteDisplayString[ cs_offset ] ) );
-    }
+  if (team==PTE_ALIENS)
+  {
+    G_LogPrintf("Teamvote: %s^7 called a teamvote (aliens): %s^7\n", ent->client->pers.netname, level.teamVoteDisplayString[cs_offset]);
   }
-  
-  if(team==PTE_ALIENS)
-    G_LogPrintf("Teamvote: %s^7 called a teamvote (aliens): %s^7\n", ent->client->pers.netname, level.teamVoteDisplayString[ cs_offset ] );
-  else if(team==PTE_HUMANS)
-    G_LogPrintf("Teamvote: %s^7 called a teamvote (humans): %s^7\n", ent->client->pers.netname, level.teamVoteDisplayString[ cs_offset ] );
-  
-  Q_strcat( level.teamVoteDisplayString[ cs_offset ], sizeof( level.teamVoteDisplayString[ cs_offset ] ), va( " Called by: '%s^7'", ent->client->pers.netname ) );
+  else if (team==PTE_HUMANS)
+  {
+    G_LogPrintf("Teamvote: %s^7 called a teamvote (humans): %s^7\n", ent->client->pers.netname, level.teamVoteDisplayString[cs_offset]);
+  }
+
+  G_TeamCommand(team, va("cp \"%s " S_COLOR_WHITE "has called a team vote\n^2F3^7 (Yes) - ^1F4 ^7(No)\"", ent->client->pers.netname));
 
   // start the voting
   level.teamVoteTime[cs_offset] = level.time;
