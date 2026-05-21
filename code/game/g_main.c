@@ -489,12 +489,17 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_CountSpawns( );
 
   G_ResetPTRConnections( );
+
+  if (g_instagib.integer)
+  {
+    level.alienTeamLocked = qtrue;
+  }
   
-  if(g_lockTeamsAtStart.integer)
+  if (g_lockTeamsAtStart.integer)
   {
     level.alienTeamLocked=qtrue;
     level.humanTeamLocked=qtrue;
-    trap_Cvar_Set( "g_lockTeamsAtStart", "0" );
+    trap_Cvar_Set("g_lockTeamsAtStart", "0");
   }
 }
 
@@ -910,6 +915,11 @@ G_TimeTilSuddenDeath
 */
 int G_TimeTilSuddenDeath( void )
 {
+  if (g_instagib.integer)
+  {
+    return 999999999; //there is no sudden death in instagib
+  }
+
   if( (!g_suddenDeathTime.integer && level.suddenDeathBeginTime==0 ) || level.suddenDeathBeginTime<0 )
     return 999999999; // Always some time away
 
@@ -939,19 +949,24 @@ void G_CalculateBuildPoints( void )
 
         // Extend votes
         if ( g_extendVote.integer ) {
-                if ( !g_suddenDeath.integer && g_suddenDeathTime.integer ) {
+                if ( !g_suddenDeath.integer && g_suddenDeathTime.integer && !g_instagib.integer ) {
                         g_suddenDeathTime.integer += g_extendVoteTime.integer;
                         trap_SendServerCommand( -1, va( "print \"^7Sudden Death is now at %d\n\"", g_suddenDeathTime.integer ) );
                 }
 
-                g_timelimit.integer += g_extendVoteTime.integer;
-                trap_SendServerCommand( -1, va( "print \"^7The time limit is now at %d\n\"", g_timelimit.integer ) );
+                if (!g_instagib.integer) {
+                        g_timelimit.integer += g_extendVoteTime.integer;
+                } else {
+                        g_instagibTimelimit.integer += g_extendVoteTime.integer;
+                }
+
+                trap_SendServerCommand( -1, va( "print \"^7The time limit is now at %d\n\"", ( g_instagib.integer ) ? g_instagibTimelimit.integer : g_timelimit.integer ) );
 
                 trap_Cvar_Set( "g_extendVote", "0" );
         }
 
   // reset if SD was on, but now it's off
-  if(!g_suddenDeath.integer && level.suddenDeath) 
+  if(!g_suddenDeath.integer && level.suddenDeath && !g_instagib.integer) 
   {
     level.suddenDeath=qfalse;
     level.suddenDeathWarning = TW_NOT;
@@ -967,7 +982,7 @@ void G_CalculateBuildPoints( void )
           level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
   }
 
-  if(!level.suddenDeath)
+  if(!level.suddenDeath && !g_instagib.integer)
   {
     if(g_suddenDeath.integer || G_TimeTilSuddenDeath( ) <= 0 ) //Conditions to enter SD
     {
@@ -1031,7 +1046,7 @@ void G_CalculateBuildPoints( void )
   }
   
   //set BP at each cycle
-  if( g_suddenDeath.integer )
+  if( g_suddenDeath.integer && !g_instagib.integer )
   {
     localHTP = level.suddenDeathHBuildPoints;
     localATP = level.suddenDeathABuildPoints;
@@ -1971,30 +1986,62 @@ CheckExitRules(void)
     return;
   }
 
-  if (g_timelimit.integer)
+  if (!g_instagib.integer)
   {
-    if (level.time - level.startTime >= g_timelimit.integer * 60000)
+    if (g_timelimit.integer)
     {
-      level.lastWin = PTE_NONE;
-      trap_SendServerCommand(-1, "print \"Timelimit hit\n\"");
-      trap_SetConfigstring(CS_WINNER, "Stalemate");
-      LogExit("Timelimit hit.");
-      G_admin_maplog_result("t");
-      return;
+      if (level.time - level.startTime >= g_timelimit.integer * 60000)
+      {
+        level.lastWin = PTE_NONE;
+        trap_SendServerCommand(-1, "print \"Timelimit hit\n\"");
+        trap_SetConfigstring(CS_WINNER, "Stalemate");
+        LogExit("Timelimit hit.");
+        G_admin_maplog_result("t");
+        return;
+      }
+      else if (level.time - level.startTime >= (g_timelimit.integer - 5) * 60000 && level.timelimitWarning < TW_CLOSE)
+      {
+        trap_SendServerCommand(-1, "cp \"5 minutes remaining!\"");
+        level.timelimitWarning = TW_CLOSE;
+      }
+      else if (level.time - level.startTime >= (g_timelimit.integer - 1) * 60000 && level.timelimitWarning < TW_PASSED)
+      {
+        trap_SendServerCommand(-1, "cp \"1 minute remaining!\"");
+        level.timelimitWarning = TW_PASSED;
+      }
+      else if (level.time - level.startTime < (g_timelimit.integer - 5) * 60000 && level.timelimitWarning != TW_NOT)
+      {
+        level.timelimitWarning = TW_NOT;
+      }
     }
-    else if (level.time - level.startTime >= (g_timelimit.integer - 5) * 60000 && level.timelimitWarning < TW_CLOSE)
+  }
+  else
+  {
+    if (g_instagibTimelimit.integer)
     {
-      trap_SendServerCommand(-1, "cp \"5 minutes remaining!\"");
-      level.timelimitWarning = TW_CLOSE;
-    }
-    else if (level.time - level.startTime >= (g_timelimit.integer - 1) * 60000 && level.timelimitWarning < TW_PASSED)
-    {
-      trap_SendServerCommand(-1, "cp \"1 minute remaining!\"");
-      level.timelimitWarning = TW_PASSED;
-    }
-    else if (level.time - level.startTime < (g_timelimit.integer - 5) * 60000 && level.timelimitWarning != TW_NOT)
-    {
-      level.timelimitWarning = TW_NOT;
+      if (level.time - level.startTime >= g_instagibTimelimit.integer * 60000)
+      {
+        level.lastWin = PTE_NONE;
+        trap_SendServerCommand(-1, "print \"Timelimit hit\n\"");
+        trap_SetConfigstring(CS_WINNER, "Stalemate");
+        LogExit("Timelimit hit.");
+        G_admin_maplog_result("t");
+        return;
+      }
+      else if (level.time - level.startTime >= (g_instagibTimelimit.integer - 5) * 60000 && level.timelimitWarning < TW_CLOSE)
+      {
+        trap_SendServerCommand(-1, "cp \"5 minutes remaining!\"");
+        level.timelimitWarning = TW_CLOSE;
+      }
+      else if (level.time - level.startTime >= (g_instagibTimelimit.integer - 1) * 60000 && level.timelimitWarning < TW_PASSED)
+      {
+        trap_SendServerCommand(-1, "cp \"1 minute remaining!\"");
+        level.timelimitWarning = TW_PASSED;
+      }
+      else if (level.time - level.startTime < (g_instagibTimelimit.integer - 5) * 60000 && level.timelimitWarning != TW_NOT)
+      {
+        level.timelimitWarning = TW_NOT;
+      }
     }
   }
 

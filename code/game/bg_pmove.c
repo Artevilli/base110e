@@ -2928,6 +2928,12 @@ static void PM_Weapon( void )
   BG_UnpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips );
   BG_FindAmmoForWeapon( pm->ps->weapon, NULL, &maxClips );
 
+  if (pm->instagib)
+  {
+    clips = 0;
+    maxClips = 0;
+  }
+
   // check for out of ammo
   if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
   {
@@ -3213,7 +3219,16 @@ static void PM_Weapon( void )
         ammo = 0;
     }
     else
-      ammo--;
+    {
+      if (pm->instagib)
+      {
+        ammo = 999;
+      }
+      else
+      {
+        ammo--;
+      }
+    }
 
     BG_PackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips );
   }
@@ -3428,6 +3443,12 @@ void PmoveSingle( pmove_t *pmove )
   pm = pmove;
 
   BG_UnpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips );
+
+  if (pm->instagib)
+  {
+    clips = 0;
+    ammo = 999;
+  }
 
   // this counter lets us debug movement problems with a journal
   // by setting a conditional breakpoint fot the previous frame

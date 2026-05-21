@@ -1017,6 +1017,14 @@ void ClientEvents( gentity_t *ent, int oldEventSequence )
         damage = (int)( (float)BG_FindHealthForClass( class ) *
                  BG_FindFallDamageForClass( class ) * fallDistance );
 
+        if (g_restrictFallDamage.integer)
+        {
+          if (damage > 10)
+          {
+            damage = 10;
+          }
+        }
+
         VectorSet( dir, 0, 0, 1 );
         BG_FindBBoxForClass( class, mins, NULL, NULL, NULL, NULL );
         mins[ 0 ] = mins[ 1 ] = 0.0f;
@@ -1403,6 +1411,7 @@ void ClientThink_real( gentity_t *ent )
   pm.noStamina = pm_noStamina.integer;
   pm.rampJumps = pm_rampJumps.integer;
   pm.reloadFix = pm_reloadFix.integer;
+  pm.instagib = g_instagib.integer;
 
   VectorCopy( client->ps.origin, client->oldOrigin );
 

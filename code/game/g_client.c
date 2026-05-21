@@ -419,6 +419,49 @@ gentity_t *G_SelectHumanSpawnPoint( vec3_t preference )
 
 
 /*
+================
+G_SelectRandomHumanSpawnPoint
+
+go to a random point that doesn't telefrag
+================
+*/
+static gentity_t *
+G_SelectRandomHumanSpawnPoint(vec3_t fallback)
+{
+  gentity_t *spot;
+  int count;
+  int selection;
+  gentity_t *spots[MAX_SPAWN_POINTS];
+
+  if (level.numHumanSpawns <= 0)
+  {
+    return NULL;
+  }
+
+  count = 0;
+  spot = NULL;
+
+  while((spot = G_Find(spot, FOFS(classname), BG_FindEntityNameForBuildable(BA_H_SPAWN))) != NULL)
+  {
+    if (SpotWouldTelefrag(spot))
+    {
+      continue;
+    }
+
+    spots[count++] = spot;
+  }
+
+  if (!count) //no spots that won't telefrag
+  {
+    return G_SelectHumanSpawnPoint(fallback);
+  }
+
+  selection = rand() % count;
+  return spots[selection];
+}
+
+
+/*
 ===========
 G_SelectSpawnPoint
 
@@ -442,10 +485,21 @@ gentity_t *G_SelectTremulousSpawnPoint( pTeam_t team, vec3_t preference, vec3_t 
 {
   gentity_t *spot = NULL;
 
-  if( team == PTE_ALIENS )
-    spot = G_SelectAlienSpawnPoint( preference );
-  else if( team == PTE_HUMANS )
-    spot = G_SelectHumanSpawnPoint( preference );
+  if (team == PTE_ALIENS)
+  {
+    spot = G_SelectAlienSpawnPoint(preference);
+  }
+  else if (team == PTE_HUMANS)
+  {
+    if (g_instagib.integer && g_instagibRandomSpawn.integer)
+    {
+      spot = G_SelectRandomHumanSpawnPoint(preference);
+    }
+    else
+    {
+      spot = G_SelectHumanSpawnPoint(preference);
+    }
+  }
 
   //no available spots
   if( !spot )
@@ -1675,9 +1729,21 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   // clear entity values
   if( ent->client->pers.classSelection == PCL_HUMAN )
   {
-    BG_AddWeaponToInventory( WP_BLASTER, client->ps.stats );
-    BG_AddUpgradeToInventory( UP_MEDKIT, client->ps.stats );
-    weapon = client->pers.humanItemSelection;
+    if (!g_instagib.integer)
+    {
+      BG_AddWeaponToInventory(WP_BLASTER, client->ps.stats);
+      BG_AddUpgradeToInventory(UP_MEDKIT, client->ps.stats);
+      weapon = client->pers.humanItemSelection;
+    }
+    else
+    {
+      if (g_instagibAllowBlaster.integer)
+      {
+        BG_AddWeaponToInventory(WP_BLASTER, client->ps.stats);
+      }
+
+      weapon = WP_MASS_DRIVER;
+    }
   }
   else if( client->sess.sessionTeam != TEAM_SPECTATOR )
     weapon = BG_FindStartWeaponForClass( ent->client->pers.classSelection );

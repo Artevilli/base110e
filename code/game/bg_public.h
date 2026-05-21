@@ -195,6 +195,7 @@ typedef struct
   int noStamina;
   int rampJumps;
   int reloadFix;
+  int instagib;
 
   // callbacks to test the world
   // these will be different functions during game and cgame
