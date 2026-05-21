@@ -429,8 +429,13 @@ static gentity_t *
 G_SelectRandomHumanSpawnPoint(vec3_t fallback)
 {
   gentity_t *spot;
+  vec3_t delta;
+  float dist;
+  float list_dist[MAX_SPAWN_POINTS];
   int count;
   int selection;
+  int i;
+  int j;
   gentity_t *spots[MAX_SPAWN_POINTS];
 
   if (level.numHumanSpawns <= 0)
@@ -448,7 +453,43 @@ G_SelectRandomHumanSpawnPoint(vec3_t fallback)
       continue;
     }
 
-    spots[count++] = spot;
+    VectorSubtract(spot->s.origin, fallback, delta);
+    dist = VectorLength(delta);
+
+    for(i = 0;i < count;i++)
+    {
+      if (dist > list_dist[i])
+      {
+        if (count >= MAX_SPAWN_POINTS)
+        {
+          count = MAX_SPAWN_POINTS - 1;
+        }
+
+        for(j = count;j > i;j--)
+        {
+          list_dist[j] = list_dist[j - 1];
+          spots[j] = spots[j - 1];
+        }
+
+        list_dist[i] = dist;
+        spots[i] = spot;
+        count++;
+
+        if (count > MAX_SPAWN_POINTS)
+        {
+          count = MAX_SPAWN_POINTS;
+        }
+
+        break;
+      }
+    }
+
+    if (i >= count && count < MAX_SPAWN_POINTS)
+    {
+      list_dist[count] = dist;
+      spots[count] = spot;
+      count++;
+    }
   }
 
   if (!count) //no spots that won't telefrag
@@ -456,7 +497,7 @@ G_SelectRandomHumanSpawnPoint(vec3_t fallback)
     return G_SelectHumanSpawnPoint(fallback);
   }
 
-  selection = rand() % count;
+  selection = random() * (count / 2);
   return spots[selection];
 }
 
