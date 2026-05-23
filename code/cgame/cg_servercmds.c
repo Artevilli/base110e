@@ -144,7 +144,6 @@ CG_ParseSysteminfo(void)
   cgs.pm_fixedPmoveFPS = atoi(Info_ValueForKey(info, "pm_fixedPmoveFPS"));
   cgs.pm_airControl = (atoi(Info_ValueForKey(info, "pm_airControl"))) ? qtrue:qfalse;
   cgs.pm_fastWeaponSwitches = (atoi(Info_ValueForKey(info, "pm_fastWeaponSwitches"))) ? qtrue:qfalse;
-  cgs.pm_instagib = (atoi(Info_ValueForKey(info, "g_instagib"))) ? qtrue:qfalse;
   cgs.pm_korxPmove = (atoi(Info_ValueForKey(info, "pm_korxPmove"))) ? qtrue:qfalse;
   cgs.pm_noStamina = (atoi(Info_ValueForKey(info, "pm_noStamina"))) ? qtrue:qfalse;
   cgs.pm_rampJumps = (atoi(Info_ValueForKey(info, "pm_rampJumps"))) ? qtrue:qfalse;

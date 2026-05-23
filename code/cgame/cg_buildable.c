@@ -140,13 +140,9 @@ static void CG_Creep( centity_t *cent )
 
   size = CREEP_SIZE * frac;
 
-  if (cgs.pm_instagib == qfalse)
-  {
-    if (size > 0.0f)
-    {
-      CG_ImpactMark(cgs.media.creepShader, origin, cent->currentState.origin2, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, qfalse, size, qtrue);
-    }
-  }
+  if( size > 0.0f )
+    CG_ImpactMark( cgs.media.creepShader, origin, cent->currentState.origin2,
+                   0.0f, 1.0f, 1.0f, 1.0f, 1.0f, qfalse, size, qtrue );
 }
 
 /*

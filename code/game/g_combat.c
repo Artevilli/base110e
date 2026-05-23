@@ -162,7 +162,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     BG_DeactivateUpgrade( i, self->client->ps.stats );
 
   // broadcast the death event to everyone
-  if( !tk || g_instagib.integer )
+  if( !tk )
   {
     ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY );
     ent->s.eventParm = meansOfDeath;
@@ -170,7 +170,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     ent->s.otherEntityNum2 = killer;
     ent->r.svFlags = SVF_BROADCAST; // send to everyone
   }
-  else if( !g_instagib.integer && attacker && attacker->client )
+  else if( attacker && attacker->client )
   {
     // tjw: obviously this is a hack and belongs in the client, but
     //      this works as a temporary fix.
@@ -205,7 +205,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
      trap_SendServerCommand( self-g_entities, va( "print \"Your killer, %s, had %3i HP.\n\"", killerName, attacker->health ) );
    }
 
-    if( attacker == self || (!g_instagib.integer && OnSameTeam( self, attacker ) ) )
+    if( attacker == self || OnSameTeam( self, attacker ) )
     {
       AddScore( attacker, -1 );
 
@@ -263,19 +263,15 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
       attacker->client->lastKillTime = level.time;
       attacker->client->pers.statscounters.kills++;
-
-      if (!g_instagib.integer)
+      if( attacker->client->pers.teamSelection == PTE_ALIENS ) 
       {
-        if( attacker->client->pers.teamSelection == PTE_ALIENS ) 
-        {
-          level.alienStatsCounters.kills++;
-        }
-        else if( attacker->client->pers.teamSelection == PTE_HUMANS )
-        {
-           level.humanStatsCounters.kills++;
-        }
+        level.alienStatsCounters.kills++;
       }
-    }
+      else if( attacker->client->pers.teamSelection == PTE_HUMANS )
+      {
+         level.humanStatsCounters.kills++;
+      }
+     }
     
     if( attacker == self )
     {
@@ -1114,24 +1110,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   }
 
   // check for completely getting out of the damage
-  if (!(dflags & DAMAGE_NO_PROTECTION))
+  if( !( dflags & DAMAGE_NO_PROTECTION ) )
   {
-    if (g_instagib.integer)
-    {
-      switch(mod)
-      {
-        case
-        MOD_MDRIVER:
-
-        case
-        MOD_BLASTER:
-          damage = 9999;
-          break;
-
-        default:
-          break;
-      }
-    }
 
     // if TF_NO_FRIENDLY_FIRE is set, don't do damage to the target
     // if the attacker was on the same team
@@ -1151,12 +1131,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       } 
       else if(mod == MOD_LEVEL4_CHARGE || mod == MOD_LEVEL3_POUNCE )
       { // don't do friendly fire on movement attacks
-        if( (!g_instagib.integer && (g_friendlyFireMovementAttacks.value <= 0 || ( g_friendlyFire.value<=0 && g_friendlyFireAliens.value<=0 )) ) )
+        if( g_friendlyFireMovementAttacks.value <= 0 || ( g_friendlyFire.value<=0 && g_friendlyFireAliens.value<=0 ) )
           return;
         else if( g_friendlyFireMovementAttacks.value > 0 && g_friendlyFireMovementAttacks.value < 1 )
          damage =(int)(0.5 + g_friendlyFireMovementAttacks.value * (float) damage);
       }
-      else if( !g_instagib.integer && (g_friendlyFire.value <=0))
+      else if( g_friendlyFire.value <=0)
       {
         if( targ->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
         {
@@ -1173,7 +1153,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
            damage =(int)(0.5 + g_friendlyFireAliens.value * (float) damage);
         }
       }
-      else if( !g_instagib.integer && (g_friendlyFire.value > 0 && g_friendlyFire.value < 1) )
+      else if( g_friendlyFire.value > 0 && g_friendlyFire.value < 1 )
       {
         damage =(int)(0.5 + g_friendlyFire.value * (float) damage);
       }
@@ -1190,7 +1170,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
          else if(g_friendlyFireMovementAttacks.value > 0 && g_friendlyFireMovementAttacks.value < 1)
            damage =(int)(0.5 + g_friendlyFireMovementAttacks.value * (float) damage);
       }
-      if( g_friendlyBuildableFire.value <= 0 || g_instagib.integer )
+      if( g_friendlyBuildableFire.value <= 0 )
       {
         return;
       }
@@ -1292,7 +1272,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   if( take )
   {
     //Increment some stats counters
-    if( attacker && attacker->client && !g_instagib.integer )
+    if( attacker && attacker->client )
     {
       if( targ->biteam == attacker->client->pers.teamSelection || OnSameTeam( targ, attacker ) ) 
       {
@@ -1336,7 +1316,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       {
         attacker->client->pers.statscounters.dmgdone +=takeNoOverkill;
         attacker->client->pers.statscounters.hits++;
-
         if( attacker->client->pers.teamSelection == PTE_ALIENS ) 
         {
           level.alienStatsCounters.dmgdone+=takeNoOverkill;

@@ -468,12 +468,6 @@ static void G_CreepSlow( gentity_t *self )
   buildable_t buildable = self->s.modelindex;
   float       creepSize = (float)BG_FindCreepSizeForBuildable( buildable );
 
-  //alien structures "don't exist" on instagib
-  if (g_instagib.integer)
-  {
-    return;
-  }
-
   VectorSet( range, creepSize, creepSize, creepSize );
 
   VectorAdd( self->s.origin, range, maxs );
@@ -2642,45 +2636,9 @@ General think function for buildables
 */
 void G_BuildableThink( gentity_t *ent, int msec )
 {
-  static qbool killedStructures = qfalse;
   int bHealth = BG_FindHealthForBuildable( ent->s.modelindex );
   int bRegen = BG_FindRegenRateForBuildable( ent->s.modelindex );
   int bTime = BG_FindBuildTimeForBuildable( ent->s.modelindex );
-
-  if (g_instagib.integer && killedStructures == qfalse)
-  {
-    int i;
-    gentity_t *ent;
-
-    //no need for structures on instagib
-    for(i = MAX_CLIENTS;i < level.num_entities;i++)
-    {
-      ent = &level.gentities[i];
-
-      if (ent->health <= 0)
-      {
-        continue;
-      }
-
-      if (ent->s.eType != ET_BUILDABLE)
-      {
-        continue;
-      }
-
-      if (ent->s.modelindex == BA_H_SPAWN)
-      {
-        continue;
-      }
-
-      if (ent->s.modelindex == BA_A_SPAWN)
-      {
-        continue;
-      }
-
-      G_Damage(ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE);
-      killedStructures = qtrue;
-    }
-  }
 
   //pack health, power and dcc
 
@@ -3835,12 +3793,6 @@ static void G_FinishSpawningBuildable( gentity_t *ent )
   built->health = BG_FindHealthForBuildable( buildable );
   built->s.generic1 |= B_SPAWNED_TOGGLEBIT;
 
-  if (g_instagib.integer)
-  {
-    built->s.eFlags ^= EF_NODRAW;
-    built->r.contents = 0;
-  }
-
   // drop towards normal surface
   VectorScale( built->s.origin2, -4096.0f, dest );
   VectorAdd( dest, built->s.origin, dest );
@@ -4056,22 +4008,14 @@ void G_LayoutSelect( void )
   int cnt = 0;
   int layoutNum;
 
-  if (!g_instagib.integer)
-  {
-    Q_strncpyz( layouts, g_layouts.string, sizeof( layouts ) );
-  }
-  else
-  {
-    Q_strncpyz(layouts, "instagib", sizeof(layouts));
-  }
-
+  Q_strncpyz( layouts, g_layouts.string, sizeof( layouts ) );
   trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
 
   // one time use cvar 
   trap_Cvar_Set( "g_layouts", "" );
  
   // pick an included layout at random if no list has been provided 
-  if( !layouts[ 0 ] && g_layoutAuto.integer && !g_instagib.integer )
+  if( !layouts[ 0 ] && g_layoutAuto.integer )
   {
     G_LayoutList( map, layouts, sizeof( layouts ) );
   }
@@ -4102,18 +4046,7 @@ void G_LayoutSelect( void )
       cnt++;
     }
     else
-    {
-      if (g_instagib.integer)
-      {
-        if (!Q_stricmp(s, "instagib"))
-        {
-          trap_Cvar_Set("g_instagib", "0");
-        }
-      }
-
-      G_Printf(S_COLOR_YELLOW "WARNING: layout \"%s\" does not exist\n", s);
-    }
-
+      G_Printf( S_COLOR_YELLOW "WARNING: layout \"%s\" does not exist\n", s );
     s = COM_ParseExt( &l, qfalse );
   }
   if( !cnt )
@@ -4130,18 +4063,13 @@ void G_LayoutSelect( void )
   s = COM_ParseExt( &l, qfalse );
   while( *s )
   {
-    if (!Q_stricmp(s, "instagib") && !g_instagib.integer)
-    {
-      Q_strncpyz(s, "*BUILTIN*", sizeof(level.layout));
-    }
-
     Q_strncpyz( level.layout, s, sizeof( level.layout ) );
     cnt++;
     if( cnt >= layoutNum )
       break;
     s = COM_ParseExt( &l, qfalse );
   }
-  G_Printf("using layout \"%s\" from list (%s)\n", level.layout, layouts ); 
+  G_Printf("using layout \"%s\" from list ( %s)\n", level.layout, layouts ); 
 }
 
 static void G_LayoutBuildItem( buildable_t buildable, vec3_t origin,

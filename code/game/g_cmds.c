@@ -908,22 +908,19 @@ void Cmd_Team_f( gentity_t *ent )
     return;
   }
 
-  if (team != PTE_NONE)
-  {
-    char  namebuff[32];
+   if (team != PTE_NONE)
+   {
+     char  namebuff[32];
  
-    Q_strncpyz(namebuff, ent->client->pers.netname, sizeof(namebuff));
-    Q_CleanStr(namebuff);
-
-    if (!g_allowUnnamed.integer)
-    {
-      if (!namebuff[0] || !Q_stricmp(namebuff, "UnnamedPlayer"))
-      {
-        trap_SendServerCommand(ent - g_entities, va("print \"Please set your player name before joining a team. Press ESC and use the Options / Game menu  or use /name in the console\n\""));
-         return;
-      }
-    }
-  }
+     Q_strncpyz (namebuff, ent->client->pers.netname, sizeof(namebuff));
+     Q_CleanStr (namebuff);
+ 
+     if (!namebuff[0] || !Q_stricmp (namebuff, "UnnamedPlayer"))
+     {
+       trap_SendServerCommand( ent-g_entities, va( "print \"Please set your player name before joining a team. Press ESC and use the Options / Game menu  or use /name in the console\n\"") );
+       return;
+     }
+   }
  
 
   G_ChangeTeam( ent, team );
@@ -1757,12 +1754,6 @@ void Cmd_CallVote_f( gentity_t *ent )
   }
   else if (!Q_stricmp(arg1, "sudden_death") || !Q_stricmp(arg1, "suddendeath"))
   {
-    if (g_instagib.integer)
-    {
-      trap_SendServerCommand(ent - g_entities, "print \"Instagib does not support sudden death\n\"");
-      return;
-    }
-
     if (!g_suddenDeathVotePercent.integer)
     {
       trap_SendServerCommand(ent - g_entities, "print \"Sudden Death votes have been disabled\n\"");
@@ -1770,12 +1761,12 @@ void Cmd_CallVote_f( gentity_t *ent )
     } 
     else if (g_suddenDeath.integer) 
     {
-      trap_SendServerCommand(ent - g_entities, "print \"callvote: Sudden Death has already begun\n\"");
+      trap_SendServerCommand(ent - g_entities, va("print \"callvote: Sudden Death has already begun\n\""));
       return;
     }
     else if (G_TimeTilSuddenDeath() <= g_suddenDeathVoteDelay.integer * 1000)
     {
-      trap_SendServerCommand(ent - g_entities, "print \"callvote: Sudden Death is already immenent\n\"");
+      trap_SendServerCommand(ent - g_entities, va("print \"callvote: Sudden Death is already immenent\n\""));
       return;
     }
     else 

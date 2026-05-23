@@ -75,14 +75,6 @@ G_CVAR(g_blood, "com_blood", "1", 0, 0, qfalse)
 G_CVAR(g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse)
 G_CVAR(g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse)
 
-G_CVAR(g_allowUnnamed, "g_allowUnnamed", "1", CVAR_ARCHIVE, 0, qfalse)
-
-//instagib
-G_CVAR(g_instagib, "g_instagib", "0", CVAR_LATCH | CVAR_SERVERINFO | CVAR_SYSTEMINFO, 0, qfalse)
-G_CVAR(g_instagibAllowBlaster, "g_instagibAllowBlaster", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SERVERINFO, 0, qfalse)
-G_CVAR(g_instagibRandomSpawn, "g_instagibRandomSpawn", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SERVERINFO, 0, qfalse)
-G_CVAR(g_instagibTimelimit, "g_instagibTimelimit", "15", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse)
-
 G_CVAR(g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_requireVoteReasons, "g_requireVoteReasons", "0", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_voteLimit, "g_voteLimit", "5", CVAR_ARCHIVE, 0, qfalse)
@@ -108,7 +100,6 @@ G_CVAR(g_newbieNamePrefix, "g_newbieNamePrefix", "Newbie#", CVAR_ARCHIVE, 0, qfa
 G_CVAR(g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse)
 G_CVAR(g_clientUpgradeNotice, "g_clientUpgradeNotice", "1", 0, 0, qfalse)
 G_CVAR(g_fallDamage, "g_fallDamage", "1", CVAR_ARCHIVE, 0, qfalse)
-G_CVAR(g_restrictFallDamage, "g_restrictFallDamage", "0", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(pm_fixedPmove, "pm_fixedPmove", "0", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_airControl, "pm_airControl", "0", CVAR_SYSTEMINFO, 0, qfalse)
