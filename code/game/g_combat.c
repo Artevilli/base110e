@@ -1437,7 +1437,7 @@ qbool G_SelectiveRadiusDamage( vec3_t origin, gentity_t *attacker, float damage,
   vec3_t    mins, maxs;
   vec3_t    v;
   vec3_t    dir;
-  int       i, e;
+  int       i, e, swapInd;
   qbool  hitClient = qfalse;
 
   if( radius < 1 )
@@ -1450,6 +1450,42 @@ qbool G_SelectiveRadiusDamage( vec3_t origin, gentity_t *attacker, float damage,
   }
 
   numListedEntities = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+
+  //put the attacker and their team members at the beginning of the list
+  //so that we damage them first, to make for more deterministic behavior
+
+  //an alternative would be to sort by distance,
+  //which is what e.g. ETLegacy does:
+  //https://github.com/etlegacy/etlegacy/blob/764ffc00a953e59aaf435272d004c49a89710309/src/game/g_combat.c#L2373
+  for(e = 0, swapInd = 0;e < numListedEntities;e++)
+  {
+    ent = &g_entities[entityList[e]];
+
+    if (ent == attacker || OnSameTeam(ent, attacker))
+    {
+      const int temp = entityList[e];
+
+      entityList[e] = entityList[swapInd];
+      entityList[swapInd] = temp;
+
+      swapInd++;
+    }
+  }
+
+  //for extra determinism, damage self before other team members
+  for(e = 0;e < numListedEntities;e++)
+  {
+    ent = &g_entities[entityList[e]];
+
+    if (ent == attacker)
+    {
+      const int temp = entityList[e];
+
+      entityList[e] = entityList[0];
+      entityList[0] = temp;
+      break;
+    }
+  }
 
   for( e = 0; e < numListedEntities; e++ )
   {
@@ -1508,7 +1544,7 @@ qbool G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage,
   vec3_t    mins, maxs;
   vec3_t    v;
   vec3_t    dir;
-  int       i, e;
+  int       i, e, swapInd;
   qbool  hitClient = qfalse;
 
   if( radius < 1 )
@@ -1521,6 +1557,42 @@ qbool G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage,
   }
 
   numListedEntities = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+
+  //put the attacker and their team members at the beginning of the list
+  //so that we damage them first, to make for more deterministic behavior
+
+  //an alternative would be to sort by distance,
+  //which is what e.g. ETLegacy does:
+  //https://github.com/etlegacy/etlegacy/blob/764ffc00a953e59aaf435272d004c49a89710309/src/game/g_combat.c#L2373
+  for(e = 0, swapInd = 0;e < numListedEntities;e++)
+  {
+    ent = &g_entities[entityList[e]];
+
+    if (ent == attacker || OnSameTeam(ent, attacker))
+    {
+      const int temp = entityList[e];
+
+      entityList[e] = entityList[swapInd];
+      entityList[swapInd] = temp;
+
+      swapInd++;
+    }
+  }
+
+  //for extra determinism, damage self before other team members
+  for(e = 0;e < numListedEntities;e++)
+  {
+    ent = &g_entities[entityList[e]];
+
+    if (ent == attacker)
+    {
+      const int temp = entityList[e];
+
+      entityList[e] = entityList[0];
+      entityList[0] = temp;
+      break;
+    }
+  }
 
   for( e = 0; e < numListedEntities; e++ )
   {
