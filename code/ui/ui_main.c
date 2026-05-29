@@ -3709,22 +3709,16 @@ static void UI_StartSkirmish(qbool next) {
 
   temp = trap_Cvar_VariableValue( "cg_drawTimer" );
   trap_Cvar_Set("ui_drawTimer", va("%i", temp));
-  temp = trap_Cvar_VariableValue( "g_doWarmup" );
-  trap_Cvar_Set("ui_doWarmup", va("%i", temp));
   temp = trap_Cvar_VariableValue( "g_friendlyFire" );
   trap_Cvar_Set("ui_friendlyFire", va("%i", temp));
   temp = trap_Cvar_VariableValue( "sv_maxClients" );
   trap_Cvar_Set("ui_maxClients", va("%i", temp));
-  temp = trap_Cvar_VariableValue( "g_warmup" );
-  trap_Cvar_Set("ui_Warmup", va("%i", temp));
   temp = trap_Cvar_VariableValue( "sv_pure" );
   trap_Cvar_Set("ui_pure", va("%i", temp));
 
   trap_Cvar_Set("cg_cameraOrbit", "0");
   trap_Cvar_Set("cg_thirdPerson", "0");
   trap_Cvar_Set("cg_drawTimer", "1");
-  trap_Cvar_Set("g_doWarmup", "1");
-  trap_Cvar_Set("g_warmup", "15");
   trap_Cvar_Set("sv_pure", "0");
   trap_Cvar_Set("g_friendlyFire", "0");
   trap_Cvar_Set("g_redTeam", UI_Cvar_VariableString("ui_teamName"));

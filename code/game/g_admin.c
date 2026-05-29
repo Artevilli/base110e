@@ -3964,35 +3964,47 @@ qbool G_admin_spec999( gentity_t *ent, int skiparg )
   return qtrue;
 }
 
-qbool G_admin_register(gentity_t *ent, int skiparg )
+qbool
+G_admin_register(gentity_t *ent, int skiparg)
 {
   int level = 0;
+  char name[MAX_NAME_LENGTH] = {""};
 
-  if( !ent ) return qtrue;
+  if (!ent)
+  {
+    return qtrue;
+  }
 
   level = G_admin_level(ent);
 
-  if( level == 0 )
+  if (level == 0)
+  {
    level = 1;
+  }
   
-  if( !Q_stricmp( ent->client->pers.guid, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" ) )
+  if (!Q_stricmp(ent->client->pers.guid, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"))
   {
-    ADMP( va( "^3!register: ^7 You cannot register for name protection until you update your client. Please replace your client executable with the one at http://trem.tjw.org/backport/ and reconnect. Updating your client will also allow you to have faster map downloads.\n" ) );
+    ADMP(va("^3!register: ^7 You cannot register for name protection until you update your client. Please replace your client executable with the one at http://trem.tjw.org/backport/ and reconnect. Updating your client will also allow you to have faster map downloads.\n"));
     return qfalse;
   }
 
-  if( g_newbieNumbering.integer
-    && g_newbieNamePrefix.string[ 0 ]
-    && !Q_stricmpn ( ent->client->pers.netname, g_newbieNamePrefix.string, strlen(g_newbieNamePrefix.string ) ) )
+  if (g_newbieNumbering.integer && g_newbieNamePrefix.string[0] && !Q_stricmpn(ent->client->pers.netname, g_newbieNamePrefix.string, strlen(g_newbieNamePrefix.string)))
   {
-    ADMP( va( "^3!register: ^7 You cannot register names that begin with '%s^7'.\n",
-      g_newbieNamePrefix.string ) );
+    ADMP(va("^3!register: ^7You cannot register names that begin with '%s^7'.\n", g_newbieNamePrefix.string));
     return qfalse;
   }
 
-  trap_SendConsoleCommand( EXEC_APPEND,va( "!setlevel %d %d;",ent - g_entities, level) );
+  G_SanitiseString(ent->client->pers.netname, name, sizeof(name));
+
+  if (!name[0] || !Q_stricmp(name, "UnnamedPlayer"))
+  {
+    ADMP(va("^3!register: ^7You must have a valid name to register.\n"));
+    return qfalse;
+  }
+
+  trap_SendConsoleCommand(EXEC_APPEND, va("!setlevel %d %d;", ent - g_entities, level));
   
-  AP( va( "print \"^3!register: ^7%s^7 is now a protected nickname.\n\"", ent->client->pers.netname) );
+  AP(va("print \"^3!register: ^7%s^7 is now a protected nickname.\n\"", ent->client->pers.netname));
   
   return qtrue;
 }

@@ -908,19 +908,22 @@ void Cmd_Team_f( gentity_t *ent )
     return;
   }
 
-   if (team != PTE_NONE)
-   {
-     char  namebuff[32];
+  if (!g_allowUnnamed.integer)
+  {
+    if (team != PTE_NONE)
+    {
+      char  namebuff[32];
  
-     Q_strncpyz (namebuff, ent->client->pers.netname, sizeof(namebuff));
-     Q_CleanStr (namebuff);
+      Q_strncpyz(namebuff, ent->client->pers.netname, sizeof(namebuff));
+      Q_CleanStr(namebuff);
  
-     if (!namebuff[0] || !Q_stricmp (namebuff, "UnnamedPlayer"))
-     {
-       trap_SendServerCommand( ent-g_entities, va( "print \"Please set your player name before joining a team. Press ESC and use the Options / Game menu  or use /name in the console\n\"") );
-       return;
-     }
-   }
+      if (!namebuff[0] || !Q_stricmp (namebuff, "UnnamedPlayer"))
+      {
+        trap_SendServerCommand(ent - g_entities, va("print \"Please set your player name before joining a team. Press ESC and use the Options / Game menu  or use /name in the console\n\""));
+        return;
+      }
+    }
+  }
  
 
   G_ChangeTeam( ent, team );
