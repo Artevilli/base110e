@@ -698,6 +698,33 @@ static void CG_OffsetFirstPersonView( void )
 
 //======================================================================
 
+
+void
+CG_ZoomDown_f(void)
+{
+  if (cg.zoomed)
+  {
+    return;
+  }
+
+  cg.zoomed = qtrue;
+  cg.zoomTime = cg.time;
+}
+
+
+void
+CG_ZoomUp_f(void)
+{
+  if (!cg.zoomed)
+  {
+    return;
+  }
+
+  cg.zoomed = qfalse;
+  cg.zoomTime = cg.time;
+}
+
+
 /*
 ====================
 CG_CalcFov
@@ -725,12 +752,6 @@ CG_CalcFov(void)
   float f;
   int inwater;
   int attribFov;
-  usercmd_t cmd;
-  int cmdNum;
-  playerState_t *ps = &cg.predictedPlayerState;
-  
-  cmdNum = trap_GetCurrentCmdNumber();
-  trap_GetUserCmd(cmdNum, &cmd);
 
   if (cg.predictedPlayerState.pm_type == PM_INTERMISSION || (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR))
   {
@@ -795,42 +816,17 @@ CG_CalcFov(void)
     }
 
     //TA: only do all the zoom stuff if the client CAN zoom
-    //FIXME: zoom control is currently hard coded to BUTTON_ATTACK2
     if (BG_WeaponCanZoom(cg.predictedPlayerState.weapon))
     {
       if (cg.zoomed)
       {
         f = (cg.time - cg.zoomTime) / (float)ZOOM_TIME;
         fov_x = f > 1.0 ? zoomFov:fov_x + f * (zoomFov - fov_x);
-
-        //BUTTON_ATTACK2 isn't held so unzoom next time
-        if (!(cmd.buttons & BUTTON_ATTACK2))
-        {
-          cg.zoomed = qfalse;
-          cg.zoomTime = cg.time;
-
-          /*if(ps->weapon == WP_MASS_DRIVER)
-          {
-            cg_thirdPersonhax.integer = 1;
-          }*/
-        }
       }
       else
       {
         f = (cg.time - cg.zoomTime) / (float)ZOOM_TIME;
         fov_x = f > 1.0 ? fov_x:zoomFov + f * (fov_x - zoomFov);
-
-        //BUTTON_ATTACK2 is held so zoom next time
-        if (cmd.buttons & BUTTON_ATTACK2)
-        {
-          cg.zoomed = qtrue;
-          cg.zoomTime = cg.time;
-
-          /*if (ps->weapon == WP_MASS_DRIVER)
-          {
-            cg_thirdPersonhax.integer = 0;
-          }*/
-        }
       }
     }
   }

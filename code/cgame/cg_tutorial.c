@@ -38,6 +38,7 @@ static bind_t bindings[ ] =
   { "boost",          "Sprint",                 { -1, -1 } },
   { "+moveup",        "Jump",                   { -1, -1 } },
   { "+movedown",      "Crouch",                 { -1, -1 } },
+  { "+zoom",          "ZoomView",               { -1, -1 } },
   { "+attack",        "Primary Attack",         { -1, -1 } },
   { "+button5",       "Secondary Attack",       { -1, -1 } },
   { "reload",         "Reload",                 { -1, -1 } },
@@ -471,7 +472,7 @@ static void CG_HumanText( char *text, playerState_t *ps )
 
         Q_strcat( text, MAX_TUTORIAL_TEXT,
             va( "Hold %s to zoom\n",
-              CG_KeyNameForCommand( "+button5" ) ) );
+              CG_KeyNameForCommand( "+zoom" ) ) );
         break;
 
       case WP_PAIN_SAW:
