@@ -148,13 +148,13 @@ SpotWouldTelefrag
 qbool SpotWouldTelefrag( gentity_t *spot )
 {
   int       i, num;
-  int       touch[ MAX_GENTITIES ];
+  int       touch[ MAX_CLIENTS ];
   gentity_t *hit;
   vec3_t    mins, maxs;
 
   VectorAdd( spot->s.origin, playerMins, mins );
   VectorAdd( spot->s.origin, playerMaxs, maxs );
-  num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
+  num = G_EntitiesInBox( mins, maxs, touch, level.maxclients );
 
   for( i = 0; i < num; i++ )
   {
@@ -304,7 +304,7 @@ gentity_t *G_SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, 
       G_Error( "Couldn't find a spawn point" );
 
     VectorCopy( spot->s.origin, origin );
-    origin[ 2 ] += 9;
+    origin[ 2 ] += SPAWN_HEIGHT;
     VectorCopy( spot->s.angles, angles );
     return spot;
   }
@@ -313,7 +313,7 @@ gentity_t *G_SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, 
   rnd = random( ) * ( numSpots / 2 );
 
   VectorCopy( list_spot[ rnd ]->s.origin, origin );
-  origin[ 2 ] += 9;
+  origin[ 2 ] += SPAWN_HEIGHT;
   VectorCopy( list_spot[ rnd ]->s.angles, angles );
 
   return list_spot[ rnd ];
@@ -489,7 +489,7 @@ gentity_t *G_SelectInitialSpawnPoint( vec3_t origin, vec3_t angles )
   }
 
   VectorCopy( spot->s.origin, origin );
-  origin[ 2 ] += 9;
+  origin[ 2 ] += SPAWN_HEIGHT;
   VectorCopy( spot->s.angles, angles );
 
   return spot;
@@ -1517,7 +1517,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   int                 index;
   vec3_t              spawn_origin, spawn_angles;
   gclient_t           *client;
-  int                 i;
+  int                 i, vh;
   clientPersistant_t  saved;
   clientSession_t     savedSess;
   int                 persistant[ MAX_PERSISTANT ];
@@ -1756,7 +1756,10 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   // the respawned flag will be cleared after the attack and jump keys come up
   client->ps.pm_flags |= PMF_RESPAWNED;
 
-  trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
+  client->ps.gravity = g_gravity.integer;
+  client->ps.speed = BG_FindSpeedForClass(client->ps.stats[STAT_PCLASS]);
+
+  trap_GetUsercmd( client - level.clients, &client->pers.cmd );
   G_SetClientViewAngle( ent, spawn_angles );
 
   if( !( client->sess.sessionTeam == TEAM_SPECTATOR ) )

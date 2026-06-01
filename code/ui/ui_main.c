@@ -4238,7 +4238,7 @@ static void UI_RunMenuScript(char **args) {
         name[0] = addr[0] = '\0';
         Q_strncpyz(name,  Info_ValueForKey(buff, "hostname"), MAX_NAME_LENGTH);
         Q_strncpyz(addr,  Info_ValueForKey(buff, "addr"), MAX_NAME_LENGTH);
-        if (strlen(name) > 0 && strlen(addr) > 0) {
+        if (name[0] != '\0' && addr[0] != '\0') {
           res = trap_LAN_AddServer(AS_FAVORITES, name, addr);
           if (res == 0) {
             // server already in the list
@@ -4260,7 +4260,7 @@ static void UI_RunMenuScript(char **args) {
         trap_LAN_GetServerInfo(ui_netSource.integer, uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff, MAX_STRING_CHARS);
         addr[0] = '\0';
         Q_strncpyz(addr,  Info_ValueForKey(buff, "addr"), MAX_NAME_LENGTH);
-        if (strlen(addr) > 0) {
+        if (addr[0] != '\0') {
           trap_LAN_RemoveServer(AS_FAVORITES, addr);
         }
       }
@@ -4273,7 +4273,7 @@ static void UI_RunMenuScript(char **args) {
         name[0] = addr[0] = '\0';
         Q_strncpyz(name,  UI_Cvar_VariableString("ui_favoriteName"), MAX_NAME_LENGTH);
         Q_strncpyz(addr,  UI_Cvar_VariableString("ui_favoriteAddress"), MAX_NAME_LENGTH);
-        if (strlen(name) > 0 && strlen(addr) > 0) {
+        if (name[0] != '\0' && addr[0] != '\0') {
           res = trap_LAN_AddServer(AS_FAVORITES, name, addr);
           if (res == 0) {
             // server already in the list
@@ -6263,7 +6263,7 @@ static void UI_StartServerRefresh(qbool full)
     }
 
     ptr = UI_Cvar_VariableString("debug_protocol");
-    if (strlen(ptr)) {
+    if (ptr[0] != '\0') {
       trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s full empty\n", i, ptr));
     }
     else {

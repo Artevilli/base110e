@@ -1207,10 +1207,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   // at the end of the frame
   if( client )
   {
-    if( attacker )
-      client->ps.persistant[ PERS_ATTACKER ] = attacker->s.number;
-    else
-      client->ps.persistant[ PERS_ATTACKER ] = ENTITYNUM_WORLD;
+    client->ps.persistant[ PERS_ATTACKER ] = attacker->s.number;
 
     client->damage_armor += asave;
     client->damage_blood += take;

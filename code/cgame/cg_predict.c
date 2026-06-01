@@ -400,6 +400,12 @@ static void CG_TouchTriggerPrediction( void )
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
     return;
 
+  //no prediction during intermission
+  if (cg.snap->ps.pm_type == PM_INTERMISSION)
+  {
+    return;
+  }
+
   spectator = ( cg.predictedPlayerState.pm_type == PM_SPECTATOR );
 
   if( cg.predictedPlayerState.pm_type != PM_NORMAL && !spectator )

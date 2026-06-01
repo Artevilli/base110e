@@ -245,6 +245,8 @@ struct gentity_s
   int               bdnumb;     // buildlog entry ID
 };
 
+#define SPAWN_HEIGHT 0.0f
+
 typedef enum
 {
   CON_DISCONNECTED,
@@ -911,6 +913,7 @@ int         G_ShaderIndex( char *name );
 int         G_ModelIndex( char *name );
 int         G_SoundIndex( char *name );
 void        G_TeamCommand( pTeam_t team, char *cmd );
+int         G_EntitiesInBox( vec3_t mins, vec3_t maxs, int *touch, int maxents );
 void        G_KillBox (gentity_t *ent);
 gentity_t   *G_Find (gentity_t *from, int fieldofs, const char *match);
 gentity_t   *G_PickTarget (char *targetname);

@@ -962,6 +962,8 @@ void ClientIntermissionThink( gclient_t *client )
   client->buttons = client->pers.cmd.buttons;
   if( client->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) & ( client->oldbuttons ^ client->buttons ) )
     client->readyToExit = 1;
+
+  client->ps.commandTime = client->pers.cmd.serverTime;
 }
 
 
@@ -1111,7 +1113,7 @@ void ClientThink_real( gentity_t *ent )
     return;
 
   // mark the time, so the connection sprite can be removed
-  ucmd = &ent->client->pers.cmd;
+  ucmd = &client->pers.cmd;
 
   // sanity check the command time to prevent speedup cheating
   if( ucmd->serverTime > level.time + 200 )
@@ -1365,7 +1367,7 @@ void ClientThink_real( gentity_t *ent )
   if( ent->flags & FL_FORCE_GESTURE )
   {
     ent->flags &= ~FL_FORCE_GESTURE;
-    ent->client->pers.cmd.buttons |= BUTTON_GESTURE;
+    client->pers.cmd.buttons |= BUTTON_GESTURE;
   }
 
   pm.ps = &client->ps;
@@ -1408,16 +1410,16 @@ void ClientThink_real( gentity_t *ent )
 
   // moved from after Pmove -- potentially the cause of
   // future triggering bugs
-  if( !ent->client->noclip )
+  if( !client->noclip )
     G_TouchTriggers( ent );
 
   Pmove( &pm );
 
   // save results of pmove
-  if( ent->client->ps.eventSequence != oldEventSequence )
+  if( client->ps.eventSequence != oldEventSequence )
     ent->eventTime = level.time;
 
-  BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
+  BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
 
   SendPendingPredictableEvents( &ent->client->ps );
 
@@ -1445,11 +1447,11 @@ void ClientThink_real( gentity_t *ent )
   trap_LinkEntity( ent );
 
   // NOTE: now copy the exact origin over otherwise clients can be snapped into solid
-  VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
-  VectorCopy( ent->client->ps.origin, ent->s.origin );
+  VectorCopy( client->ps.origin, ent->r.currentOrigin );
+  VectorCopy( client->ps.origin, ent->s.origin );
 
   // save results of triggers and client events
-  if( ent->client->ps.eventSequence != oldEventSequence )
+  if( client->ps.eventSequence != oldEventSequence )
     ent->eventTime = level.time;
   
   // Don't think anymore if dead
@@ -1623,17 +1625,20 @@ SpectatorClientEndFrame
 */
 void SpectatorClientEndFrame( gentity_t *ent )
 {
-  gclient_t *cl;
-  int       clientNum, flags;
+  gclient_t *cl, *client;
   int       score, ping;
   vec3_t   spawn_origin, spawn_angles;
 
-  // if we are doing a chase cam or a remote view, grab the latest info
-  if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
-  {
-    clientNum = ent->client->sess.spectatorClient;
+  client = ent->client;
 
-    if( clientNum >= 0 )
+  // if we are doing a chase cam or a remote view, grab the latest info
+  if( client->sess.spectatorState == SPECTATOR_FOLLOW )
+  {
+    int clientNum;
+
+    clientNum = client->sess.spectatorClient;
+
+    if( (unsigned)clientNum < (unsigned)level.maxclients )
     {
       cl = &level.clients[ clientNum ];
 
@@ -1642,24 +1647,25 @@ void SpectatorClientEndFrame( gentity_t *ent )
  
     if( cl -> sess.spectatorState != SPECTATOR_FOLLOW ) 
     {
-          flags = ( cl->ps.eFlags & ~( EF_VOTED | EF_TEAMVOTED ) ) |
-            ( ent->client->ps.eFlags & ( EF_VOTED | EF_TEAMVOTED ) );
-          score = ent->client->ps.persistant[ PERS_SCORE ];
-          ping = ent->client->ps.ping;
-          ent->client->ps = cl->ps;
-          ent->client->ps.persistant[ PERS_SCORE ] = score;
-          ent->client->ps.ping = ping;
-          ent->client->ps.eFlags = flags;
-          ent->client->ps.pm_flags |= PMF_FOLLOW;
-          ent->client->ps.pm_flags &= ~PMF_QUEUED;
+      int flags;
+
+      flags = ( cl->ps.eFlags & ~( EF_VOTED | EF_TEAMVOTED ) ) | ( ent->client->ps.eFlags & ( EF_VOTED | EF_TEAMVOTED ) );
+      score = ent->client->ps.persistant[ PERS_SCORE ];
+      ping = ent->client->ps.ping;
+      ent->client->ps = cl->ps;
+      ent->client->ps.persistant[ PERS_SCORE ] = score;
+      ent->client->ps.ping = ping;
+      ent->client->ps.eFlags = flags;
+      ent->client->ps.pm_flags |= PMF_FOLLOW;
+      ent->client->ps.pm_flags &= ~PMF_QUEUED;
     }
     else //we are stickyspec-spectating someone who is spectating someone else
     {
-      ent->client->ps.clientNum = (g_entities + clientNum)->s.number;
-      ent->client->ps.commandTime = cl->ps.commandTime;
-      ent->client->ps.weapon = 0;
-      ent->client->ps.pm_flags |= PMF_FOLLOW;
-      ent->client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
+      client->ps.clientNum = (g_entities + clientNum)->s.number;
+      client->ps.commandTime = cl->ps.commandTime;
+      client->ps.weapon = 0;
+      client->ps.pm_flags |= PMF_FOLLOW;
+      client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
 
       if( cl->pers.teamSelection == PTE_ALIENS )
         G_SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
