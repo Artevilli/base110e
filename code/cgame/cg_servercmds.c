@@ -873,7 +873,7 @@ Cmd_Argc() / Cmd_Argv()
 */
 static void CG_ServerCommand( void )
 {
-  const char  *cmd;
+  const char  *cmd, *id;
   char        text[ MAX_SAY_TEXT ];
 
   cmd = CG_Argv( 0 );
@@ -917,7 +917,16 @@ static void CG_ServerCommand( void )
       }
 
       CG_RemoveChatEscapeChar(text);
-      CG_Printf("%s\n", text);
+      id = CG_Argv(2);
+
+      if (*id >= '0' && *id <= '9')
+      {
+        CG_Printf("(%i) %s\n", atoi(id), text);
+      }
+      else
+      {
+        CG_Printf("%s\n", text);
+      }
     }
 
     return;
@@ -947,7 +956,17 @@ static void CG_ServerCommand( void )
     }
 
     CG_RemoveChatEscapeChar(text);
-    CG_Printf("%s\n", text);
+    id = CG_Argv(2);
+
+    if (*id >= '0' && *id <= '9')
+    {
+      CG_Printf("(%i) %s\n", atoi(id), text);
+    }
+    else
+    {
+      CG_Printf("%s\n", text);
+    }
+
     return;
   }
 

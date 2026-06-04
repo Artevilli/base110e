@@ -92,13 +92,19 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
   {
     idnum = atoi( s );
 
-    if( idnum < 0 || idnum >= level.maxclients )
+    if ((unsigned)idnum >= (unsigned)level.maxclients)
+    {
+      trap_SendServerCommand(to - g_entities, va("print \"Bad client slot: %i\n\"", idnum));
       return -1;
+    }
 
-    cl = &level.clients[ idnum ];
+    cl = &level.clients[idnum];
 
-    if( cl->pers.connected == CON_DISCONNECTED )
+    if (cl->pers.connected == CON_DISCONNECTED)
+    {
+      trap_SendServerCommand(to - g_entities, va("print \"Client %i is not active\n\"", idnum));
       return -1;
+    }
 
     return idnum;
   }
@@ -117,6 +123,7 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
       return idnum;
   }
 
+  trap_SendServerCommand(to - g_entities, va("print \"User %s is not on the server\n\"", s));
   return -1;
 }
 
@@ -993,11 +1000,11 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
   if( BG_ClientListTest( &other->client->sess.ignoreList, ent-g_entities ) )
     ignore = qtrue;
   
-  trap_SendServerCommand( other-g_entities, va( "%s \"%s%s%s%c%c%s\"",
+  trap_SendServerCommand( other-g_entities, va( "%s \"%s%s%s%c%c%s\" %i",
     ( mode == SAY_TEAM || mode == SAY_ACTION_T ) ? "tchat" : "chat",
     ( ignore ) ? "[skipnotify]" : "",
     ( specAllChat ) ? prefix : "",
-    name, Q_COLOR_ESCAPE, color, message ) );
+    name, Q_COLOR_ESCAPE, color, message, ent - g_entities ) );
 }
 
 #define EC    "\x19"
