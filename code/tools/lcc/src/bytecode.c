@@ -273,6 +273,7 @@ static void LoadSourceFile( const char *filename ) {
 	length = filelength( f );
 	sourceFile = malloc( length + 1 );
 	if ( sourceFile ) {
+		fread( sourceFile, length, 1, f );
 		sourceFile[length] = 0;
 	}
 
@@ -332,16 +333,16 @@ static void I(stabline)(Coordinate *cp) {
 #define b_blockend blockend
 
 Interface bytecodeIR = {
-	{1, 1, 0},	/* char */
-	{2, 2, 0},	/* short */
-	{4, 4, 0},	/* int */
-	{4, 4, 0},	/* long */
-	{4, 4, 0},	/* long long */
-	{4, 4, 0},	/* float */				// JDC: use inline floats
-	{4, 4, 0},	/* double */			// JDC: don't ever emit 8 byte double code
-	{4, 4, 0},	/* long double */		// JDC: don't ever emit 8 byte double code
-	{4, 4, 0},	/* T* */
-	{0, 4, 0},	/* struct */
+	1, 1, 0,	/* char */
+	2, 2, 0,	/* short */
+	4, 4, 0,	/* int */
+	4, 4, 0,	/* long */
+	4, 4, 0,	/* long long */
+	4, 4, 0,	/* float */           // JDC: use inline floats
+	4, 4, 0,	/* double */          // JDC: don't ever emit 8 byte double code
+	4, 4, 0,	/* long double */     // JDC: don't ever emit 8 byte double code
+	4, 4, 0,	/* T* */
+	0, 4, 0,	/* struct */
 	0,		/* little_endian */
 	0,		/* mulops_calls */
 	0,		/* wants_callb */

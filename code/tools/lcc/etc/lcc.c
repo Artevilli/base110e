@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
 		tempdir = getenv("TMPDIR");
 	assert(tempdir);
 	i = strlen(tempdir);
-	for (; (i > 0 && tempdir[i-1] == '/') || tempdir[i-1] == '\\'; i--)
+	for (; i > 0 && tempdir[i-1] == '/' || tempdir[i-1] == '\\'; i--)
 		tempdir[i-1] = '\0';
 	if (argc <= 1) {
 		help();
@@ -163,7 +163,7 @@ int main(int argc, char *argv[]) {
 			char *name = exists(argv[i]);
 			if (name) {
 				if (strcmp(name, argv[i]) != 0
-				|| (nf > 1 && suffix(name, suffixes, 3) >= 0))
+				|| nf > 1 && suffix(name, suffixes, 3) >= 0)
 					fprintf(stderr, "%s:\n", name);
 				filename(name, 0);
 			} else
@@ -326,7 +326,7 @@ static void compose(char *cmd[], List a, List b, List c) {
 		if (s && isdigit(s[1])) {
 			int k = s[1] - '0';
 			assert(k >=1 && k <= 3);
-			if ((b = lists[k-1])) {
+			if (b = lists[k-1]) {
 				b = b->link;
 				av[j] = alloc(strlen(cmd[i]) + strlen(b->str) - 1);
 				strncpy(av[j], cmd[i], s - cmd[i]);
@@ -449,7 +449,7 @@ static int filename(char *name, char *base) {
 static List find(char *str, List list) {
 	List b;
 	
-	if ((b = list))
+	if (b = list)
 		do {
 			if (strcmp(str, b->str) == 0)
 				return b;
@@ -505,7 +505,7 @@ static void help(void) {
 		if (strncmp("-tempdir", msgs[i], 8) == 0 && tempdir)
 			fprintf(stderr, "; default=%s", tempdir);
 	}
-#define xx(v) if ((s = getenv(#v))) fprintf(stderr, #v "=%s\n", s)
+#define xx(v) if (s = getenv(#v)) fprintf(stderr, #v "=%s\n", s)
 	xx(LCCINPUTS);
 	xx(LCCDIR);
 #ifdef WIN32
@@ -524,7 +524,7 @@ static void initinputs(void) {
 		s = ".";
 	if (s) {
 		lccinputs = path2list(s);
-		if ((b = lccinputs))
+		if (b = lccinputs)
 			do {
 				b = b->link;
 				if (strcmp(b->str, ".") != 0) {
@@ -720,9 +720,8 @@ static List path2list(const char *path) {
 	if (strchr(path, ';'))
 		sep = ';';
 	while (*path) {
-		const char *p;
-		char buf[512];
-		if ((p = strchr(path, sep))) {
+		char *p, buf[512];
+		if (p = strchr(path, sep)) {
 			assert(p - path < sizeof buf);
 			strncpy(buf, path, p - path);
 			buf[p-path] = '\0';
@@ -787,7 +786,7 @@ int suffix(char *name, char *tails[], int n) {
 
 	for (i = 0; i < n; i++) {
 		char *s = tails[i], *t;
-		for ( ; (t = strchr(s, ';')); s = t + 1) {
+		for ( ; t = strchr(s, ';'); s = t + 1) {
 			int m = t - s;
 			if (len > m && strncmp(&name[len-m], s, m) == 0)
 				return i;

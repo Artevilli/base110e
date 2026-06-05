@@ -9,7 +9,6 @@ static Symbol frameno;		/* local holding frame number */
 static void appendstr(char *str) {
 	do
 		if (fp == fmtend)
-		{
 			if (fp) {
 				char *s = allocate(2*(fmtend - fmt), FUNC);
 				strncpy(s, fmt, fmtend - fmt);
@@ -20,7 +19,6 @@ static void appendstr(char *str) {
 				fp = fmt = allocate(80, FUNC);
 				fmtend = fmt + 80;
 			}
-		}
 	while ((*fp++ = *str++) != 0);
 	fp--;
 }

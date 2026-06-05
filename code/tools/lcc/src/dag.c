@@ -2,9 +2,9 @@
 
 
 #define iscall(op) (generic(op) == CALL \
-	|| (IR->mulops_calls \
+	|| IR->mulops_calls \
 	&& (generic(op)==DIV||generic(op)==MOD||generic(op)==MUL) \
-	&& ( optype(op)==U  || optype(op)==I)))
+	&& ( optype(op)==U  || optype(op)==I))
 static Node forest;
 static struct dag {
 	struct node node;
@@ -66,6 +66,7 @@ static Node node(int op, Node l, Node r, Symbol sym) {
 }
 
 static Node constnode( int op, Symbol sym ) {
+	int i;
 	struct dag *p;
 	p = dagnode( op, NULL, NULL, sym );
 	++nodecount;
@@ -188,8 +189,8 @@ Node listnodes(Tree tp, int tlab, int flab) {
 			} break;
 	case RIGHT: { if (   tp->kids[0] && tp->kids[1]
 			  &&  generic(tp->kids[1]->op) == ASGN
-			  && ((generic(tp->kids[0]->op) == INDIR
-			  && tp->kids[0]->kids[0] == tp->kids[1]->kids[0])
+			  && (generic(tp->kids[0]->op) == INDIR
+			  && tp->kids[0]->kids[0] == tp->kids[1]->kids[0]
 			  || (tp->kids[0]->op == FIELD
 			  &&  tp->kids[0] == tp->kids[1]->kids[0]))) {
 		      	assert(tlab == 0 && flab == 0);
@@ -292,11 +293,11 @@ Node listnodes(Tree tp, int tlab, int flab) {
 				unsigned int fmask = fieldmask(f);
 				unsigned int  mask = fmask<<fieldright(f);
 				Tree q = tp->kids[1];
-				if ((q->op == CNST+I && q->u.v.i == 0)
-				||  (q->op == CNST+U && q->u.v.u == 0))
+				if (q->op == CNST+I && q->u.v.i == 0
+				||  q->op == CNST+U && q->u.v.u == 0)
 					q = bittree(BAND, x, cnsttree(unsignedtype, (unsigned long)~mask));
-				else if ((q->op == CNST+I && (q->u.v.i&fmask) == fmask)
-				||       (q->op == CNST+U && (q->u.v.u&fmask) == fmask))
+				else if (q->op == CNST+I && (q->u.v.i&fmask) == fmask
+				||       q->op == CNST+U && (q->u.v.u&fmask) == fmask)
 					q = bittree(BOR, x, cnsttree(unsignedtype, (unsigned long)mask));
 				else {
 					listnodes(q, 0, 0);
@@ -536,10 +537,7 @@ void emitcode(void) {
 			       	(*IR->stabline)(&cp->u.point.src); swtoseg(CODE); } break;
 		case Gen: case Jump:
 		case Label:    if (cp->u.forest)
-		              {
-			       	(*IR->emit)(cp->u.forest);
-			      }
-			       	break;
+			       	(*IR->emit)(cp->u.forest); break;
 		case Local:    if (glevel && IR->stabsym) {
 			       	(*IR->stabsym)(cp->u.var);
 			       	swtoseg(CODE);
@@ -643,11 +641,10 @@ static Node prune(Node forest) {
 }
 static Node visit(Node p, int listed) {
 	if (p)
-	{
 		if (p->syms[2])
 			p = tmpnode(p);
-		else if ((p->count <= 1 && !iscall(p->op))
-		||       (p->count == 0 &&  iscall(p->op))) {
+		else if (p->count <= 1 && !iscall(p->op)
+		||       p->count == 0 &&  iscall(p->op)) {
 			p->kids[0] = visit(p->kids[0], 0);
 			p->kids[1] = visit(p->kids[1], 0);
 		}
@@ -676,7 +673,6 @@ static Node visit(Node p, int listed) {
 			if (!listed)
 				p = tmpnode(p);
 		};
-	}
 	return p;
 }
 static Node tmpnode(Node p) {

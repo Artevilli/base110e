@@ -1,6 +1,6 @@
 #include "c.h"
 
-//static char rcsid[] = "$Id$";
+static char rcsid[] = "$Id$";
 
 #define add(x,n) (x > inttype->u.sym->u.limits.max.i-(n) ? (overflow=1,x) : x+(n))
 #define chkoverflow(x,n) ((void)add(x,n))
@@ -116,10 +116,10 @@ static Type specifier(int *sclass) {
 		type = INT;
 		ty = inttype;
 	}
-	if ((size == SHORT     && type != INT)
-	||  (size == LONG+LONG && type != INT)
-	||  (size == LONG      && type != INT && type != DOUBLE)
-	||  (sign && type != INT && type != CHAR))
+	if (size == SHORT     && type != INT
+	||  size == LONG+LONG && type != INT
+	||  size == LONG      && type != INT && type != DOUBLE
+	||  sign && type != INT && type != CHAR)
 		error("invalid type specification\n");
 	if (type == CHAR && sign)
 		ty = sign == UNSIGNED ? unsignedchar : signedchar;
@@ -197,7 +197,7 @@ static void decl(Symbol (*dcl)(int, char *, Type, Coordinate *)) {
 		}
 	} else if (ty == NULL
 	|| !(isenum(ty) ||
-	     (isstruct(ty) && (*unqual(ty)->u.sym->name < '1' || *unqual(ty)->u.sym->name > '9'))))
+	     isstruct(ty) && (*unqual(ty)->u.sym->name < '1' || *unqual(ty)->u.sym->name > '9')))
 		error("empty declaration\n");
 	test(';', stop);
 }
@@ -221,9 +221,9 @@ static Symbol dclglobal(int sclass, char *id, Type ty, Coordinate *pos) {
 		if (!isfunc(ty) && p->defined && t == '=')
 			error("redefinition of `%s' previously defined at %w\n", p->name, &p->src);
 
-		if ((p->sclass == EXTERN && sclass == STATIC)
-		||  (p->sclass == STATIC && sclass == AUTO)
-		||  (p->sclass == AUTO   && sclass == STATIC))
+		if (p->sclass == EXTERN && sclass == STATIC
+		||  p->sclass == STATIC && sclass == AUTO
+		||  p->sclass == AUTO   && sclass == STATIC)
 			warning("inconsistent linkage for `%s' previously declared at %w\n", p->name, &p->src);
 
 	}
@@ -419,8 +419,8 @@ static Symbol *parameters(Type fty) {
 				error("missing parameter type\n");
 			n++;
 			ty = dclr(specifier(&sclass), &id, NULL, 1);
-			if ( (ty == voidtype && (ty1 || id))
-			||  (ty1 == voidtype))
+			if ( ty == voidtype && (ty1 || id)
+			||  ty1 == voidtype)
 				error("illegal formal parameter types\n");
 			if (id == NULL)
 				id = stringd(n);
@@ -738,9 +738,9 @@ static void funcdefn(int sclass, char *id, Type ty, Symbol params[], Coordinate 
 	if (Aflag >= 2 && sclass != STATIC && strcmp(id, "main") == 0) {
 		if (ty->u.f.oldstyle)
 			warning("`%t %s()' is a non-ANSI definition\n", rty, id);
-		else if (!((rty == inttype
-			&& n == 0 && callee[0] == NULL)
-			||  (n == 2 && callee[0]->type == inttype
+		else if (!(rty == inttype
+			&& (n == 0 && callee[0] == NULL
+			||  n == 2 && callee[0]->type == inttype
 			&& isptr(callee[1]->type) && callee[1]->type->type == charptype
 			&& !variadic(ty))))
 			warning("`%s' is a non-ANSI definition\n", typestring(ty, id));
@@ -844,7 +844,7 @@ void compound(int loop, struct swtch *swp, int lev) {
 		registers = append(retv, registers);
 	}
 	while (kind[t] == CHAR || kind[t] == STATIC
-	|| (istypename(t, tsym) && getchr() != ':'))
+	|| istypename(t, tsym) && getchr() != ':')
 		decl(dcllocal);
 	{
 		int i;
@@ -911,7 +911,7 @@ static void checkref(Symbol p, void *cl) {
 				p->type, p->name);
 	}
 	if (p->sclass == AUTO
-	&& ((p->scope  == PARAM && regcount == 0)
+	&& (p->scope  == PARAM && regcount == 0
 	 || p->scope  >= LOCAL)
 	&& !p->addressed && isscalar(p->type) && p->ref >= 3.0)
 		p->sclass = REGISTER;
@@ -936,15 +936,13 @@ static Symbol dcllocal(int sclass, char *id, Type ty, Coordinate *pos) {
 		sclass = AUTO;
 	}
 	q = lookup(id, identifiers);
-	if ((q && q->scope >= level)
-	||  (q && q->scope == PARAM && level == LOCAL))
-	{
+	if (q && q->scope >= level
+	||  q && q->scope == PARAM && level == LOCAL)
 		if (sclass == EXTERN && q->sclass == EXTERN
 		&& eqtype(q->type, ty, 1))
 			ty = compose(ty, q->type);
 		else
 			error("redeclaration of `%s' previously declared at %w\n", q->name, &q->src);
-	}
 
 	assert(level >= LOCAL);
 	p = install(id, &identifiers, level, sclass == STATIC || sclass == EXTERN ? PERM : FUNC);
@@ -970,14 +968,12 @@ static Symbol dcllocal(int sclass, char *id, Type ty, Coordinate *pos) {
 	case STATIC:   (*IR->defsymbol)(p);
 		       initglobal(p, 0);
 		       if (!p->defined)
-		       {
 		       	if (p->type->size > 0) {
 		       		defglobal(p, BSS);
 		       		(*IR->space)(p->type->size);
 		       	} else
 		       		error("undefined size for `%t %s'\n",
 		       			p->type, p->name);
-		       	}
 		       p->defined = 1; break;
 	case REGISTER: registers = append(p, registers);
 		       regcount++;
@@ -986,8 +982,7 @@ static Symbol dcllocal(int sclass, char *id, Type ty, Coordinate *pos) {
 	case AUTO:     autos = append(p, autos);
 		       p->defined = 1;
 		       if (isarray(ty))
-		       	p->addressed = 1;
-		      break;
+		       	p->addressed = 1; break;
 	default: assert(0);
 	}
 	if (t == '=') {
@@ -997,7 +992,7 @@ static Symbol dcllocal(int sclass, char *id, Type ty, Coordinate *pos) {
 		t = gettok();
 		definept(NULL);
 		if (isscalar(p->type)
-		||  (isstruct(p->type) && t != '{')) {
+		||  isstruct(p->type) && t != '{') {
 			if (t == '{') {
 				t = gettok();
 				e = expr1(0);
@@ -1037,7 +1032,7 @@ static void doextern(Symbol p, void *cl) {
 }
 static void doglobal(Symbol p, void *cl) {
 	if (!p->defined && (p->sclass == EXTERN
-	|| (isfunc(p->type) && p->sclass == AUTO)))
+	|| isfunc(p->type) && p->sclass == AUTO))
 		(*IR->import)(p);
 	else if (!p->defined && !isfunc(p->type)
 	&& (p->sclass == AUTO || p->sclass == STATIC)) {
@@ -1094,7 +1089,7 @@ void checklab(Symbol p, void *cl) {
 Type enumdcl(void) {
 	char *tag;
 	Type ty;
-	Symbol p = {0};
+	Symbol p;
 	Coordinate pos;
 
 	t = gettok();

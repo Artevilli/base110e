@@ -11,9 +11,9 @@
 #define YYAND ;
 #define YYPTR char *
 #endif
-/*#ifndef lint
+#ifndef lint
 YYCONST static char yysccsid[] = "@(#)yaccpar	1.8 (Berkeley +Cygnus.28) 01/20/91";
-#endif*/
+#endif
 #define YYBYACC 1
 #ifndef YYDONT_INCLUDE_STDIO
 #include <stdio.h>
@@ -227,9 +227,7 @@ inline
 #endif
 yygrow ()
 {
-#if YYDEBUG
     int old_stacksize = yystacksize;
-#endif
     short *new_yyss;
     YYSTYPE *new_yyvs;
 
@@ -471,7 +469,7 @@ yypush:
     *++yyvsp = yyval;
 
 yyloop:
-    if ((yyn = yydefred[yystate])) goto yyreduce;
+    if (yyn = yydefred[yystate]) goto yyreduce;
     yyn = yysindex[yystate];
     if (yychar < 0)
     {
@@ -511,13 +509,13 @@ yyloop:
     if (yyerrflag) goto yyinrecovery;
 #ifdef lint
     goto yynewerror;
-yynewerror:
 #endif
+yynewerror:
     yyerror("syntax error");
 #ifdef lint
     goto yyerrlab;
-yyerrlab:
 #endif
+yyerrlab:
     ++yynerrs;
 yyinrecovery:
     if (yyerrflag < 3)

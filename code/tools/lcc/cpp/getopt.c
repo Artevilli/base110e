@@ -12,10 +12,9 @@ lcc_getopt (int argc, char *const argv[], const char *opts)
 {
 	static int sp = 1;
 	int c;
-	const char *cp;
+	char *cp;
 
 	if (sp == 1)
-	{
 		if (optind >= argc ||
 		   argv[optind][0] != '-' || argv[optind][1] == '\0')
 			return -1;
@@ -23,7 +22,6 @@ lcc_getopt (int argc, char *const argv[], const char *opts)
 			optind++;
 			return -1;
 		}
-	}
 	optopt = c = argv[optind][sp];
 	if (c == ':' || (cp=strchr(opts, c)) == 0) {
 		ERR (": illegal option -- ", c);
