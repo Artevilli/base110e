@@ -1206,3 +1206,24 @@ void BG_ClientListParse( clientList_t *list, const char *s );
 #define FFF_ALIENS         2
 #define FFF_BUILDABLES     4
 
+// custom functions
+
+int BG_sprintf( char *buf, const char *format, ... );
+int Q_vsprintf( char *buffer, const char *fmt, va_list argptr );
+
+char *Q_stristr( const char * str1, const char * str2 );
+
+char *strtok( char *strToken, const char *strDelimit );
+char *EncodedString( const char *str );
+char *DecodedString( const char *str );
+
+void BG_CleanName( const char *in, char *out, int outSize, const char *blankString );
+char *BG_StripColor( char *string );
+
+void Q_strcpy( char *dst, const char *src );
+char *Q_stradd( char *dst, const char *src );
+int Q_sscanf( const char *buffer, const char *fmt, ... );
+
+qbool replace1( const char match, const char replace, char *str );
+
+qbool  BigEndian( void );

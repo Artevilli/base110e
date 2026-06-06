@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ui_shared.h"
+#include "../game/bg_public.h"
 
 #define SCROLL_TIME_START         500
 #define SCROLL_TIME_ADJUST        150
@@ -266,7 +267,7 @@ void PC_SourceWarning(int handle, char *format, ...) {
   static char string[4096];
 
   va_start (argptr, format);
-  vsprintf (string, format, argptr);
+  Q_vsprintf (string, format, argptr);
   va_end (argptr);
 
   filename[0] = '\0';
@@ -288,7 +289,7 @@ void PC_SourceError(int handle, char *format, ...) {
   static char string[4096];
 
   va_start (argptr, format);
-  vsprintf (string, format, argptr);
+  Q_vsprintf (string, format, argptr);
   va_end (argptr);
 
   filename[0] = '\0';

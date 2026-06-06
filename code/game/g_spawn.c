@@ -72,7 +72,7 @@ qbool  G_SpawnVector( const char *key, const char *defaultString, float *out )
   qbool  present;
 
   present = G_SpawnString( key, defaultString, &s );
-  sscanf( s, "%f %f %f", &out[ 0 ], &out[ 1 ], &out[ 2 ] );
+  Q_sscanf( s, "%f %f %f", &out[ 0 ], &out[ 1 ], &out[ 2 ] );
   return present;
 }
 
@@ -82,7 +82,7 @@ qbool  G_SpawnVector4( const char *key, const char *defaultString, float *out )
   qbool  present;
 
   present = G_SpawnString( key, defaultString, &s );
-  sscanf( s, "%f %f %f %f", &out[ 0 ], &out[ 1 ], &out[ 2 ], &out[ 3 ] );
+  Q_sscanf( s, "%f %f %f %f", &out[ 0 ], &out[ 1 ], &out[ 2 ], &out[ 3 ] );
   return present;
 }
 
@@ -426,7 +426,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
           break;
 
         case F_VECTOR:
-          sscanf( value, "%f %f %f", &vec[ 0 ], &vec[ 1 ], &vec[ 2 ] );
+          Q_sscanf( value, "%f %f %f", &vec[ 0 ], &vec[ 1 ], &vec[ 2 ] );
 
           ( (float *)( b + f->ofs ) )[ 0 ] = vec[ 0 ];
           ( (float *)( b + f->ofs ) )[ 1 ] = vec[ 1 ];
@@ -434,7 +434,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
           break;
 
         case F_VECTOR4:
-          sscanf( value, "%f %f %f %f", &vec4[ 0 ], &vec4[ 1 ], &vec4[ 2 ], &vec4[ 3 ] );
+          Q_sscanf( value, "%f %f %f %f", &vec4[ 0 ], &vec4[ 1 ], &vec4[ 2 ], &vec4[ 3 ] );
 
           ( (float *)( b + f->ofs ) )[ 0 ] = vec4[ 0 ];
           ( (float *)( b + f->ofs ) )[ 1 ] = vec4[ 1 ];

@@ -3620,7 +3620,7 @@ void PmoveSingle( pmove_t *pmove )
   // entering / leaving water splashes
   PM_WaterEvents( );
 
-  if (pm->fixedPmove && !pmove->pmove_fixed)
+  if (pm->fixedPmove)
   {
     //the new way: don't care so much about 6 bytes/frame
     //or so of network bandwidth, and add some mostly framerate-
@@ -3706,21 +3706,11 @@ void Pmove( pmove_t *pmove )
 
     msec = finalTime - pmove->ps->commandTime;
 
-    if (!pm->fixedPmove)
+    if (pmove->pmove_fixed)
     {
-      if (pmove->pmove_fixed)
+      if (msec > pmove->pmove_msec)
       {
-        if (msec > pmove->pmove_msec)
-        {
-          msec = pmove->pmove_msec;
-        }
-      }
-      else
-      {
-        if (msec > 66)
-        {
-          msec = 66;
-        }
+        msec = pmove->pmove_msec;
       }
     }
     else

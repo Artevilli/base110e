@@ -4366,7 +4366,7 @@ void G_LayoutLoad( void )
     if( *layout == '\n' )
     {
       i = 0; 
-      sscanf( line, "%d %f %f %f %f %f %f %f %f %f %f %f %f\n",
+      Q_sscanf( line, "%d %f %f %f %f %f %f %f %f %f %f %f %f\n",
         &buildable,
         &origin[ 0 ], &origin[ 1 ], &origin[ 2 ],
         &angles[ 0 ], &angles[ 1 ], &angles[ 2 ],

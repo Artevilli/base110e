@@ -84,9 +84,7 @@ void G_ReadSessionData( gclient_t *client )
   var = va( "session%i", client - level.clients );
   trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-  // FIXME: should be using BG_ClientListParse() for ignoreList, but
-  //        bg_lib.c's sscanf() currently lacks %s
-  sscanf( s, "%i %i %i %i %i %i %i %i %x%x",
+  Q_sscanf( s, "%i %i %i %i %i %i %i %i %x%x",
     &sessionTeam,
     &restartTeam,
     &client->sess.spectatorTime,

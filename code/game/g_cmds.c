@@ -190,7 +190,7 @@ int G_ClientNumbersFromString( char *s, int *plist)
   int max = MAX_CLIENTS;
 
   // if a number is provided, it might be a slot #
-  for( i = 0; s[ i ] && isdigit( s[ i ] ); i++ );
+  for( i = 0; s[ i ] && ( s[ i ] >= '0' && s[ i ] <= '9' ); i++ );
   if( !s[ i ] )
   {
     i = atoi( s );

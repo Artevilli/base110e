@@ -4609,6 +4609,7 @@ const char *eventnames[EV_MAX] = {
 #define EVENT_STRINGS
         #include "bg_events.h"
 #undef EVENT_STRINGS
+	"NULL"	// avoid -Wpedantic warnings
 };
 
 /*
@@ -5636,7 +5637,7 @@ void BG_ClientListParse( clientList_t *list, const char *s )
     return;
   if( strlen( s ) != 16 )
     return;
-  sscanf( s, "%x%x", &list->hi, &list->lo );
+  Q_sscanf( s, "%x%x", &list->hi, &list->lo );
 }
 
 

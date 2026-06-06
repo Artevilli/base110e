@@ -501,7 +501,7 @@ qbool G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
     }
   }
    
-  if( Q_isdigit( name2[ 0 ] ) || name2[ 0 ] == '-' )
+  if( ( name2[ 0 ] >= '0' && name2[ 0 ] <= '9' ) || name2[ 0 ] == '-' )
   {
     Q_strncpyz( err, "Names cannot begin with a number or with a dash. Please choose another.", len );
     return qfalse;
@@ -1224,7 +1224,7 @@ qbool G_admin_ban_check( char *userinfo, char *reason, int rlen )
   
   t = trap_RealTime( NULL );
   memset( IP, 0, sizeof( IP ));
-  sscanf(ip, "%i.%i.%i.%i", &IP[4], &IP[3], &IP[2], &IP[1]);
+  Q_sscanf(ip, "%i.%i.%i.%i", &IP[4], &IP[3], &IP[2], &IP[1]);
   for(k = 4; k >= 1; k--)
   {
     if(!IP[k]) continue;
@@ -1244,7 +1244,7 @@ qbool G_admin_ban_check( char *userinfo, char *reason, int rlen )
       mask = -1;
 
       memset( IP, 0, sizeof( IP ));
-      ipscanfcount = sscanf(g_admin_bans[ i ]->ip, "%d.%d.%d.%d/%d", &IP[4], &IP[3], &IP[2], &IP[1], &IP[0]);
+      ipscanfcount = Q_sscanf(g_admin_bans[ i ]->ip, "%d.%d.%d.%d/%d", &IP[4], &IP[3], &IP[2], &IP[1], &IP[0]);
 
       if( ipscanfcount == 4 )
         mask = -1;
@@ -1920,12 +1920,12 @@ int G_admin_parse_time( const char *time )
   int i;
   for( i = 0; time[ i ]; i++ )
   {
-    if( isdigit( time[ i ] ) )
+    if( time[ i ] >= '0' && time[ i ] <= '9' )
     {
       num = num * 10 + time[ i ] - '0';
       continue;
     }
-    if( i == 0 || !isdigit( time[ i - 1 ] ) )
+    if( i == 0 || time[ i - 1 ] < '0' && time[ i - 1 ] > '9' )
       return -1;
     switch( time[ i ] )
     {
@@ -2414,7 +2414,7 @@ qbool G_admin_subnetban( gentity_t *ent, int skiparg )
     }
 
     memset( IP, 0, sizeof( IP ) );
-    sscanf(g_admin_bans[ bnum - 1 ]->ip, "%d.%d.%d.%d/%d", &IP[4], &IP[3], &IP[2], &IP[1], &IP[0]);
+    Q_sscanf(g_admin_bans[ bnum - 1 ]->ip, "%d.%d.%d.%d/%d", &IP[4], &IP[3], &IP[2], &IP[1], &IP[0]);
     for(k = 4; k >= 1; k--)
     {
       if( IP[k] )
@@ -3545,7 +3545,7 @@ qbool G_admin_showbans( gentity_t *ent, int skiparg )
           int mask = -1;
           int dummy;
           int scanflen = 0;
-          scanflen = sscanf( g_admin_bans[ i ]->ip, "%d.%d.%d.%d/%d", &dummy, &dummy, &dummy, &dummy, &mask );
+          scanflen = Q_sscanf( g_admin_bans[ i ]->ip, "%d.%d.%d.%d/%d", &dummy, &dummy, &dummy, &dummy, &mask );
           if( scanflen == 5 && mask < 32 )
           {
             match = qtrue;
@@ -3596,7 +3596,7 @@ qbool G_admin_showbans( gentity_t *ent, int skiparg )
         int mask = -1;
         int dummy;
         int scanflen = 0;
-        scanflen = sscanf( g_admin_bans[ i ]->ip, "%d.%d.%d.%d/%d", &dummy, &dummy, &dummy, &dummy, &mask );
+        scanflen = Q_sscanf( g_admin_bans[ i ]->ip, "%d.%d.%d.%d/%d", &dummy, &dummy, &dummy, &dummy, &mask );
         if( scanflen != 5 || mask >= 32 )
         {
           continue;
@@ -5158,7 +5158,7 @@ qbool G_StringReplaceCvars( char *input, char *output, int len )
       input++;
       if( *input == '{' ) 
         input++;
-      for( i = 0; *input && ( isalnum( *input ) || *input == '_' ) && 
+      for( i = 0; *input && ( ( *input >= 'a' && *input <= 'z' ) || ( *input >= 'A' && *input <= 'Z' ) || ( *input >= '0' && *input <= '9' ) || *input == '_' ) && 
           i < 63; i++ )
         cvarName[ i ] = *input++;
       cvarName[ i ] = '\0';

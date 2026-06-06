@@ -23,14 +23,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // cg_syscalls.c -- this file is only included when building a dll
 // cg_syscalls.asm is included instead when building a qvm
+#ifdef Q3_VM
+#error "Do not use in VM build"
+#endif
 
 
 #include "cg_local.h"
 
-static intptr_t (QDECL *syscall)( intptr_t arg, ... ) = (intptr_t (QDECL *)( intptr_t, ...))-1;
+static dllSyscall_t syscall = (dllSyscall_t)-1;
 
 
-void dllEntry( intptr_t (QDECL  *syscallptr)( intptr_t arg,... ) )
+DLLEXPORT void dllEntry( dllSyscall_t syscallptr )
 {
   syscall = syscallptr;
 }

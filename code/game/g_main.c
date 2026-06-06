@@ -86,9 +86,7 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4,
-                              int arg5, int arg6, int arg7, int arg8, int arg9,
-                              int arg10, int arg11 )
+DLLEXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2 )
 {
   switch( command )
   {
@@ -141,7 +139,7 @@ void QDECL G_Printf( const char *fmt, ... )
   char    text[ 1024 ];
 
   va_start( argptr, fmt );
-  vsprintf( text, fmt, argptr );
+  Q_vsprintf( text, fmt, argptr );
   va_end( argptr );
 
   trap_Printf( text );
@@ -153,7 +151,7 @@ void QDECL G_Error( const char *fmt, ... )
   char    text[ 1024 ];
 
   va_start( argptr, fmt );
-  vsprintf( text, fmt, argptr );
+  Q_vsprintf( text, fmt, argptr );
   va_end( argptr );
 
   trap_Error( text );
@@ -558,7 +556,7 @@ void QDECL Com_Error( int level, const char *error, ... )
   char    text[ 1024 ];
 
   va_start( argptr, error );
-  vsprintf( text, error, argptr );
+  Q_vsprintf( text, error, argptr );
   va_end( argptr );
 
   G_Error( "%s", text );
@@ -570,7 +568,7 @@ void QDECL Com_Printf( const char *msg, ... )
   char    text[ 1024 ];
 
   va_start( argptr, msg );
-  vsprintf( text, msg, argptr );
+  Q_vsprintf( text, msg, argptr );
   va_end( argptr );
 
   G_Printf( "%s", text );
@@ -1550,7 +1548,7 @@ void QDECL G_AdminsPrintf( const char *fmt, ... )
   int j;
 
   va_start( argptr, fmt );
-  vsprintf( string, fmt,argptr );
+  Q_vsprintf( string, fmt,argptr );
   va_end( argptr );
 
   for( j = 0; j < level.maxclients; j++ )
@@ -1589,7 +1587,7 @@ void QDECL G_LogPrintf( const char *fmt, ... )
   Com_sprintf( string, sizeof( string ), "%3i:%i%i ", min, tens, sec );
 
   va_start( argptr, fmt );
-  vsprintf( string +7 , fmt,argptr );
+  Q_vsprintf( string +7 , fmt,argptr );
   va_end( argptr );
 
   if( g_dedicated.integer )
@@ -1632,7 +1630,7 @@ void QDECL G_LogPrintfColoured( const char *fmt, ... )
   Com_sprintf( string, sizeof( string ), "%3i:%i%i ", min, tens, sec );
 
   va_start( argptr, fmt );
-  vsprintf( string +7 , fmt,argptr );
+  Q_vsprintf( string +7 , fmt,argptr );
   va_end( argptr );
 
   if( g_dedicated.integer )
@@ -1667,7 +1665,7 @@ void QDECL G_LogOnlyPrintf( const char *fmt, ... )
   Com_sprintf( string, sizeof( string ), "%3i:%i%i ", min, tens, sec );
 
   va_start( argptr, fmt );
-  vsprintf( string +7 , fmt,argptr );
+  Q_vsprintf( string +7 , fmt,argptr );
   va_end( argptr );
 
   if( !level.logFile )

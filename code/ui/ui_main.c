@@ -154,9 +154,7 @@ void _UI_KeyEvent( int key, qbool down );
 void _UI_MouseEvent( int dx, int dy );
 void _UI_Refresh( int realtime );
 qbool _UI_IsFullscreen( void );
-intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3,
-                              int arg4, int arg5, int arg6, int arg7,
-                              int arg8, int arg9, int arg10, int arg11  ) {
+DLLEXPORT intptr_t vmMain( int command, int arg0, int arg1  ) {
   switch ( command ) {
     case UI_GETAPIVERSION:
       return UI_API_VERSION;
@@ -3152,7 +3150,7 @@ static stage_t UI_GetCurrentAlienStage( void )
   stage_t stage, dummy;
 
   trap_Cvar_VariableStringBuffer( "ui_stages", buffer, sizeof( buffer ) );
-  sscanf( buffer, "%d %d", (int *)&stage , (int *)&dummy );
+  Q_sscanf( buffer, "%d %d", (int *)&stage , (int *)&dummy );
 
   return stage;
 }
@@ -3168,7 +3166,7 @@ static stage_t UI_GetCurrentHumanStage( void )
   stage_t stage, dummy;
 
   trap_Cvar_VariableStringBuffer( "ui_stages", buffer, sizeof( buffer ) );
-  sscanf( buffer, "%d %d", (int *)&dummy, (int *)&stage );
+  Q_sscanf( buffer, "%d %d", (int *)&dummy, (int *)&stage );
 
   return stage;
 }
@@ -3463,7 +3461,7 @@ static void UI_LoadTremAlienUpgrades( void )
   stage_t stage = UI_GetCurrentAlienStage( );
 
   trap_Cvar_VariableStringBuffer( "ui_currentClass", ui_currentClass, MAX_STRING_CHARS );
-  sscanf( ui_currentClass, "%d %d", &class, &credits );
+  Q_sscanf( ui_currentClass, "%d %d", &class, &credits );
 
   uiInfo.tremAlienUpgradeCount = 0;
 

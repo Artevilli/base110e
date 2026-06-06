@@ -91,6 +91,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef Q3_VM
 
 #include "../game/bg_lib.h"
+#define DLLEXPORT
 
 #else
 
@@ -104,29 +105,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <ctype.h>
 #include <limits.h>
 
-#endif
+#ifndef _WIN32
+#include <stdint.h>
+#define DLLEXPORT __attribute__((visibility ("default")))
+#else
+#define DLLEXPORT __declspec(dllexport)
+#endif // _WIN32
+
+#endif // !Q3_VM
 
 #include "q_platform.h"
 
 //=============================================================
-
-#ifdef Q3_VM
-   typedef int intptr_t;
-#else
-  #ifndef _MSC_VER
-    #include <stdint.h>
-  #else
-    #include <io.h>
-    typedef __int64 int64_t;
-    typedef __int32 int32_t;
-    typedef __int16 int16_t;
-    typedef __int8 int8_t;
-    typedef unsigned __int64 uint64_t;
-    typedef unsigned __int32 uint32_t;
-    typedef unsigned __int16 uint16_t;
-    typedef unsigned __int8 uint8_t;
-  #endif
-#endif
 
 typedef unsigned char 		byte;
 
@@ -699,12 +689,7 @@ void Parse1DMatrix (char **buf_p, int x, float *m);
 void Parse2DMatrix (char **buf_p, int y, int x, float *m);
 void Parse3DMatrix (char **buf_p, int z, int y, int x, float *m);
 
-void	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
-
-char *Com_SkipTokens( char *s, int numTokens, char *sep );
-char *Com_SkipCharset( char *s, char *sep );
-
-void Com_RandomBytes( byte *string, int len );
+int QDECL Com_sprintf( char *dest, int size, const char *fmt, ... );
 
 // mode parm for FS_FOpenFile
 typedef enum {
@@ -722,11 +707,12 @@ typedef enum {
 
 //=============================================
 
+extern const byte locase[ 256 ];
+
 int Q_isprint( int c );
 int Q_islower( int c );
 int Q_isupper( int c );
 int Q_isalpha( int c );
-int Q_isdigit( int c );
 
 // portable case insensitive compare
 int		Q_stricmp (const char *s1, const char *s2);
@@ -744,6 +730,12 @@ void	Q_strcat( char *dest, int size, const char *src );
 int Q_PrintStrlen( const char *string );
 // removes color sequences from string
 char *Q_CleanStr( char *string );
+
+//=============================================
+
+typedef intptr_t (*syscall_t)( intptr_t *parms );
+typedef intptr_t (QDECL *dllSyscall_t)( intptr_t callNum, ... );
+typedef void (QDECL *dllEntry_t)( dllSyscall_t syscallptr );
 
 //=============================================
 
@@ -774,10 +766,7 @@ float	LittleFloat (const float *l);
 
 void	Swap_Init (void);
 */
-char	* QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
-
-#define TRUNCATE_LENGTH	64
-void Com_TruncateLongString( char *buffer, const char *s );
+char* QDECL va( const char *format, ... );
 
 //=============================================
 
@@ -785,16 +774,15 @@ void Com_TruncateLongString( char *buffer, const char *s );
 // key / value info strings
 //
 char *Info_ValueForKey( const char *s, const char *key );
-void Info_RemoveKey( char *s, const char *key );
-void Info_RemoveKey_big( char *s, const char *key );
-void Info_SetValueForKey( char *s, const char *key, const char *value );
-void Info_SetValueForKey_Big( char *s, const char *key, const char *value );
+qbool Info_SetValueForKey( char *s, const char *key, const char *value );
+qbool Info_SetValueForKey_Big( char *s, const char *key, const char *value );
 qbool Info_Validate( const char *s );
-void Info_NextPair( const char **s, char *key, char *value );
+qbool Info_ValidateKeyValue( const char *s );
+const char *Info_NextPair( const char *s, char *key, char *value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
-void	QDECL Com_Error( int level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
-void	QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+void	QDECL Com_Error( int level, const char *fmt, ... );
+void	QDECL Com_Printf( const char *fmt, ... );
 
 
 /*

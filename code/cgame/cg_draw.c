@@ -1294,7 +1294,7 @@ static void CG_DrawLoadingString( rectDef_t *rect, float text_x, float text_y, v
 
     while( tw > rect->w )
     {
-      end = strrchr( buffer, ' ' );
+      end = Q_strrchr( buffer, ' ' );
 
       if( end == NULL )
         break;
