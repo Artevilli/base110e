@@ -166,7 +166,6 @@ typedef struct
   usercmd_t     cmd;
   int           tracemask;      // collide against these types of surfaces
   int           debugLevel;     // if set, diagnostic output will be printed
-  qbool      noFootsteps;    // if the game is setup for no footsteps by the server
   qbool      autoWeaponHit[ 32 ]; //FIXME: TA: remind myself later this might be a problem
 
   int           framecount;
@@ -308,6 +307,10 @@ typedef enum
 #define EF_BLOBLOCKED       0x00020000    // TA: caught by a trapper
 #define EF_REAL_LIGHT       0x00040000    // TA: light sprites according to ambient light
 #define EF_DBUILDER         0x00080000    // designated builder protection
+
+#define EF_PERSISTANT (EF_CONNECTION | EF_VOTED | EF_TEAMVOTED)
+
+#define EF_NOPREDICT (EF_PERSISTANT | EF_TALK)
 
 typedef enum
 {
@@ -1162,7 +1165,7 @@ typedef enum
 void  BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
 void  BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
 
-void  BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps );
+void  BG_AddPredictableEventToPlayerstate( entity_event_t newEvent, int eventParm, playerState_t *ps, int entityNum );
 
 void  BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qbool snap );
 void  BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qbool snap );

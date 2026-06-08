@@ -361,8 +361,17 @@ void CG_PainEvent( centity_t *cent, int health )
   char  *snd;
 
   // don't do more than two pain sounds a second
-  if( cg.time - cent->pe.painTime < 500 )
+  if (cg.time - cent->pe.painTime < 500)
+  {
+    cent->pe.painIgnore = qfalse;
     return;
+  }
+
+  if (cent->pe.painIgnore)
+  {
+    cent->pe.painIgnore = qfalse;
+    return;
+  }
 
   if( health < 25 )
     snd = "*pain25_1.wav";
@@ -390,10 +399,10 @@ also called by CG_CheckPlayerstateEvents
 ==============
 */
 #define DEBUGNAME(x) if(cg_debugEvents.integer){CG_Printf(x"\n");}
-void CG_EntityEvent( centity_t *cent, vec3_t position )
+void CG_EntityEvent( centity_t *cent, vec3_t position, int entityNum )
 {
   entityState_t *es;
-  int           event;
+  entity_event_t event;
   vec3_t        dir;
   const char    *s;
   int           clientNum;
@@ -507,6 +516,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       DEBUGNAME( "EV_FALL_MEDIUM" );
       // use normal pain sound
       trap_S_StartSound( NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*pain100_1.wav" ) );
+      cent->pe.painIgnore = qtrue;
+      cent->pe.painTime = cg.time; //don't play a pain sound right after this
 
       if( clientNum == cg.predictedPlayerState.clientNum )
       {
@@ -519,6 +530,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     case EV_FALL_FAR:
       DEBUGNAME( "EV_FALL_FAR" );
       trap_S_StartSound (NULL, es->number, CHAN_AUTO, CG_CustomSound( es->number, "*fall1.wav" ) );
+      cent->pe.painIgnore = qtrue;
       cent->pe.painTime = cg.time;  // don't play a pain sound right after this
 
       if( clientNum == cg.predictedPlayerState.clientNum )
@@ -587,7 +599,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
 
     case EV_JUMP:
       DEBUGNAME( "EV_JUMP" );
-      trap_S_StartSound( NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*jump1.wav" ) );
+      if (cg.time - cent->pe.painTime > 50)
+      {
+        trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*jump1.wav"));
+      }
 
       if( BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
       {
@@ -1025,7 +1040,7 @@ void CG_CheckEvents( centity_t *cent )
   BG_EvaluateTrajectory( &cent->currentState.pos, cg.snap->serverTime, cent->lerpOrigin );
   CG_SetEntitySoundPosition( cent );
 
-  CG_EntityEvent( cent, cent->lerpOrigin );
+  CG_EntityEvent( cent, cent->lerpOrigin, -1 );
   
   // If this was a reattached spilled event, restore the original event
   if( oldEvent != EV_NONE )

@@ -133,9 +133,6 @@ CG_CVAR(ui_alienTeamVoteActive, "ui_alienTeamVoteActive", "0", 0)
 
 CG_CVAR(cg_debugRandom, "cg_debugRandom", "0", 0)
 
-CG_CVAR(cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE)
-CG_CVAR(cg_projectileNudge, "cg_projectileNudge", "1", CVAR_ARCHIVE)
-
 //the following variables are created in other parts of the system,
 //but we also reference them here
 

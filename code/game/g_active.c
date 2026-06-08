@@ -1120,8 +1120,7 @@ void ClientThink_real( gentity_t *ent )
   {
     ucmd->serverTime = level.time + 200;
 //    G_Printf("serverTime <<<<<\n" );
-  }
-
+  } else
   if( ucmd->serverTime < level.time - 1000 )
   {
     ucmd->serverTime = level.time - 1000;
@@ -1386,7 +1385,6 @@ void ClientThink_real( gentity_t *ent )
   pm.trace = trap_Trace;
   pm.pointcontents = trap_PointContents;
   pm.debugLevel = g_debugMove.integer;
-  pm.noFootsteps = 0;
 
   if (pm_fixedPmoveFPS.integer < 60)
   {

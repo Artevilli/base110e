@@ -569,6 +569,7 @@ typedef struct
   lerpFrame_t legs, torso, flag, nonseg;
   int         painTime;
   int         painDirection;  // flip from 0 to 1
+  qbool painIgnore;
 
   // machinegun spinning
   float       barrelAngle;
@@ -614,6 +615,8 @@ typedef struct centity_s
   int                   trailTime;        // so missile trails can handle dropped initial packets
   int                   dustTrailTime;
   int                   miscTime;
+  int delaySpawn;
+  qbool delaySpawnPlayed;
   int                   snapShotTime;     // last time this entity was found in a snapshot
 
   playerEntity_t        pe;
@@ -1137,11 +1140,14 @@ typedef struct
   float         painBlendTarget;
   int           lastHealth;
 
-  int           lastPredictedCommand;
-  int           lastServerTime;
-  playerState_t savedPmoveStates[ NUM_SAVED_STATES ];
-  int           stateHead, stateTail;
-  int           ping;
+  //optimized prediction
+  int lastPredictedCommand;
+  int lastServerTime;
+  playerState_t savedPmoveStates[NUM_SAVED_STATES];
+  int stateHead, stateTail;
+
+  int meanPing;
+  int timeResidual;
 } cg_t;
 
 
@@ -1195,7 +1201,6 @@ typedef struct
   sfxHandle_t alienTalkSound;
   sfxHandle_t humanTalkSound;
   sfxHandle_t landSound;
-  sfxHandle_t fallSound;
 
   sfxHandle_t hardBounceSound1;
   sfxHandle_t hardBounceSound2;
@@ -1426,6 +1431,8 @@ extern  markPoly_t      cg_markPolys[ MAX_MARK_POLYS ];
 #include "cg_cvar.h"
 #undef EXTERN_CG_CVAR
 
+extern const char *eventnames[EV_MAX];
+
 //
 // cg_main.c
 //
@@ -1573,12 +1580,15 @@ void        CG_BiSphereTrace( trace_t *result, const vec3_t start, const vec3_t 
                 const float startRadius, const float endRadius, int skipNumber, int mask );
 void        CG_PredictPlayerState( void );
 
+void
+CG_PlayDroppedEvents(playerState_t *ps, playerState_t *ops);
+
 
 //
 // cg_events.c
 //
 void        CG_CheckEvents( centity_t *cent );
-void        CG_EntityEvent( centity_t *cent, vec3_t position );
+void        CG_EntityEvent( centity_t *cent, vec3_t position, int entityNum );
 void        CG_PainEvent( centity_t *cent, int health );
 
 

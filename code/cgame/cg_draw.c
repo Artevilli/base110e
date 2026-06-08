@@ -2077,12 +2077,8 @@ the number of snapshots that were dropped before it.
 Pass NULL for a dropped packet.
 ==============
 */
-#define PING_FRAMES 40
 void CG_AddLagometerSnapshotInfo( snapshot_t *snap )
 {
-  static int  previousPings[ PING_FRAMES ];
-  static int  index;
-  int         i;
 
   // dropped packet
   if( !snap )
@@ -2096,20 +2092,6 @@ void CG_AddLagometerSnapshotInfo( snapshot_t *snap )
   lagometer.snapshotSamples[ lagometer.snapshotCount & ( LAG_SAMPLES - 1 ) ] = snap->ping;
   lagometer.snapshotFlags[ lagometer.snapshotCount & ( LAG_SAMPLES - 1 ) ] = snap->snapFlags;
   lagometer.snapshotCount++;
-
-  cg.ping = 0;
-  if( cg.snap )
-  {
-    previousPings[ index++ ] = cg.snap->ping;
-    index = index % PING_FRAMES;
-  
-    for( i = 0; i < PING_FRAMES; i++ )
-    {
-      cg.ping += previousPings[ i ];
-    }
-
-    cg.ping /= PING_FRAMES;
-  }
 }
 
 /*
@@ -2299,7 +2281,7 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
   {
     char        *s;
 
-    s = va( "%d", cg.ping );
+    s = va( "%d", cg.meanPing );
     ax = rect->x + ( rect->w / 2.0f ) - ( CG_Text_Width( s, scale, 0 ) / 2.0f ) + text_x;
     ay = rect->y + ( rect->h / 2.0f ) + ( CG_Text_Height( s, scale, 0 ) / 2.0f ) + text_y;
 
@@ -3476,6 +3458,33 @@ void CG_ResetPainBlend( void )
   cg.lastHealth = cg.snap->ps.stats[ STAT_HEALTH ];
 }
 
+
+static void
+CG_CalculatePing(void)
+{
+  int count;
+  int i;
+  int v;
+
+  cg.meanPing = 0;
+
+  for(i = 0, count = 0;i < LAG_SAMPLES;i++)
+  {
+    v = lagometer.snapshotSamples[i];
+
+    if (v >= 0)
+    {
+      cg.meanPing += v;
+      count++;
+    }
+  }
+
+  if (count)
+  {
+    cg.meanPing /= count;
+  }
+}
+
 /*
 =====================
 CG_DrawActive
@@ -3491,6 +3500,11 @@ void CG_DrawActive( stereoFrame_t stereoView )
   // optionally draw the info screen instead
   if( !cg.snap )
     return;
+
+  if (!cg.demoPlayback)
+  {
+    CG_CalculatePing();
+  }
 
   switch ( stereoView )
   {

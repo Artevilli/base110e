@@ -290,7 +290,7 @@ static void CG_General( centity_t *cent )
   s1 = &cent->currentState;
 
   // if set to invisible, skip
-  if( !s1->modelindex )
+  if( !s1->modelindex || cent->delaySpawn > cg.time )
     return;
 
   memset( &ent, 0, sizeof( ent ) );
@@ -923,9 +923,6 @@ CG_CalcEntityLerpPositions
 */
 static void CG_CalcEntityLerpPositions( centity_t *cent )
 {
-  // this will be set to how far forward projectiles will be extrapolated
-  int timeshift = 0;
-
   // if this player does not want to see extrapolated players
   if( !cg_smoothClients.integer )
   {
@@ -952,33 +949,9 @@ static void CG_CalcEntityLerpPositions( centity_t *cent )
     return;
   }
 
-  if( cg_projectileNudge.integer > 0 &&
-    cent->currentState.eType == ET_MISSILE &&
-    !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
-  {
-    timeshift = cg.ping;
-  }
-
   // just use the current frame and evaluate as best we can
-  BG_EvaluateTrajectory( &cent->currentState.pos,
-    ( cg.time + timeshift ), cent->lerpOrigin );
-  BG_EvaluateTrajectory( &cent->currentState.apos,
-    ( cg.time + timeshift ), cent->lerpAngles );
-
-  if( timeshift )
-  {
-    trace_t tr;
-    vec3_t lastOrigin;
-	
-    BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, lastOrigin );
-	
-    CG_Trace( &tr, lastOrigin, vec3_origin, vec3_origin, cent->lerpOrigin,
-      cent->currentState.number, MASK_SHOT );
-	
-    // don't let the projectile go through the floor
-    if( tr.fraction < 1.0f )
-      VectorLerp( tr.fraction, lastOrigin, cent->lerpOrigin, cent->lerpOrigin );
-  }
+  BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
+  BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
 
   // adjust for riding a mover if it wasn't rolled into the predicted
   // player state
