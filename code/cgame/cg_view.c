@@ -415,6 +415,11 @@ static void CG_OffsetFirstPersonView( void )
   vec3_t        normal, baseOrigin;
   playerState_t *ps = &cg.predictedPlayerState;
 
+  if (cg.snap->ps.pm_type == PM_INTERMISSION)
+  {
+    return;
+  }
+
   if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
   {
     if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
@@ -424,10 +429,6 @@ static void CG_OffsetFirstPersonView( void )
   }
   else
     VectorSet( normal, 0.0f, 0.0f, 1.0f );
-
-
-  if( cg.snap->ps.pm_type == PM_INTERMISSION )
-    return;
 
   origin = cg.refdef.vieworg;
   angles = cg.refdefViewAngles;
@@ -515,12 +516,29 @@ static void CG_OffsetFirstPersonView( void )
     // make sure the bob is visible even at low speeds
     speed = cg.xyspeed > 200 ? cg.xyspeed : 200;
 
-    delta = cg.bobfracsin * ( bob2 ) * speed;
+    if (!cg_bobCustom.integer)
+    {
+      delta = cg.bobfracsin * ( bob2 ) * speed;
+    }
+    else
+    {
+      delta = cg.bobfracsin * cg_bobpitch.value * speed;
+    }
+
     if( cg.predictedPlayerState.pm_flags & PMF_DUCKED )
       delta *= 3;   // crouching
 
     angles[ PITCH ] += delta;
-    delta = cg.bobfracsin * ( bob2 ) * speed;
+
+    if (!cg_bobCustom.integer)
+    {
+      delta = cg.bobfracsin * ( bob2 ) * speed;
+    }
+    else
+    {
+      delta = cg.bobfracsin * cg_bobroll.value * speed;
+    }
+
     if( cg.predictedPlayerState.pm_flags & PMF_DUCKED )
       delta *= 3;   // crouching accentuates roll
 
@@ -661,7 +679,14 @@ static void CG_OffsetFirstPersonView( void )
   }
 
   // add bob height
-  bob = cg.bobfracsin * cg.xyspeed * bob2;
+  if (!cg_bobCustom.integer)
+  {
+    bob = cg.bobfracsin * cg.xyspeed * bob2;
+  }
+  else
+  {
+    bob = cg.bobfracsin * cg.xyspeed * cg_bobup.value;
+  }
 
   if( bob > 6 )
     bob = 6;
