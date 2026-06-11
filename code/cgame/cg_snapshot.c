@@ -408,4 +408,3 @@ void CG_ProcessSnapshots( void )
   if( cg.nextSnap != NULL && cg.nextSnap->serverTime <= cg.time )
     CG_Error( "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time" );
 }
-

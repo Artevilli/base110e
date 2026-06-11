@@ -44,6 +44,7 @@ static void CG_Obituary( entityState_t *ent )
   char          className[ 64 ];
   gender_t      gender;
   clientInfo_t  *ci;
+  qbool following;
   qbool      teamKill = qfalse;
 
   target = ent->otherEntityNum;
@@ -74,6 +75,8 @@ static void CG_Obituary( entityState_t *ent )
 
   Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof( targetName ) - 2 );
   strcat( targetName, S_COLOR_WHITE );
+
+  following = cg.snap->ps.pm_flags & PMF_FOLLOW;
 
   message2 = "";
 
@@ -183,6 +186,17 @@ static void CG_Obituary( entityState_t *ent )
   if( message )
   {
     CG_Printf( "%s %s.\n", targetName, message );
+
+    //switch to first killer if not following anyone
+    if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && cg_followKiller.integer)
+    {
+      if (!cg.followTime && attacker != cg.snap->ps.clientNum && attacker < MAX_CLIENTS)
+      {
+        cg.followClient = attacker;
+        cg.followTime = cg.time;
+      }
+    }
+
     return;
   }
 
@@ -198,7 +212,19 @@ static void CG_Obituary( entityState_t *ent )
     strcat( attackerName, S_COLOR_WHITE );
     // check for kill messages about the current clientNum
     if( target == cg.snap->ps.clientNum )
+    {
       Q_strncpyz( cg.killerName, attackerName, sizeof( cg.killerName ) );
+
+      //follow killer
+      if (following && cg_followKiller.integer)
+      {
+        if (!cg.followTime && attacker != cg.snap->ps.clientNum && attacker < MAX_CLIENTS)
+        {
+          cg.followClient = attacker;
+          cg.followTime = cg.time + 1100;
+        }
+      }
+    }
   }
 
   if( attacker != ENTITYNUM_WORLD )
@@ -329,16 +355,22 @@ static void CG_Obituary( entityState_t *ent )
 
     if( message )
     {
-      CG_Printf( "%s %s %s%s%s\n",
-        targetName, message,
-        ( teamKill ) ? S_COLOR_RED "TEAMMATE " S_COLOR_WHITE : "",
-        attackerName, message2 );
+      CG_Printf( "%s %s %s%s%s\n", targetName, message, ( teamKill ) ? S_COLOR_RED "TEAMMATE " S_COLOR_WHITE : "", attackerName, message2 );
+
       if( teamKill && attacker == cg.clientNum )
       {
-        CG_CenterPrint( va ( "You killed " S_COLOR_RED "TEAMMATE "
-          S_COLOR_WHITE "%s", targetName ),
-          SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+        CG_CenterPrint( va ( "You killed " S_COLOR_RED "TEAMMATE \n" S_COLOR_WHITE "%s", targetName ), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
       }
+
+      if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && cg_followKiller.integer)
+      {
+        if (!cg.followTime && attacker != cg.snap->ps.clientNum && attacker < MAX_CLIENTS)
+        {
+          cg.followClient = attacker;
+          cg.followTime = cg.time;
+        }
+      }
+
       return;
     }
   }

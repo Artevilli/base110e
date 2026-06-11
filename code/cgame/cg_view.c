@@ -1378,6 +1378,17 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qbool demoPla
   cg.renderingThirdPerson = cg_thirdPerson.integer || ( cg.snap->ps.stats[ STAT_HEALTH ] <= 0 );
   cg.renderingEyesPerson = !cg_thirdPerson.integer && cg_cameraEyes.integer && cg.predictedPlayerState.pm_type != PM_INTERMISSION && cg.snap->ps.persistant[ PERS_TEAM ] != TEAM_SPECTATOR && cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS;
 
+  //follow killer
+  if (cg.followTime && cg.followTime < cg.time)
+  {
+    cg.followTime = 0;
+
+    if (!cg.demoPlayback)
+    {
+      trap_SendConsoleCommand(va("follow %i\n", cg.followClient));
+    }
+  }
+
   // build cg.refdef
   inwater = CG_CalcViewValues( );
 

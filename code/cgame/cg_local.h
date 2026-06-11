@@ -1148,6 +1148,9 @@ typedef struct
 
   int meanPing;
   int timeResidual;
+
+  int followTime;
+  int followClient;
 } cg_t;
 
 
