@@ -37,15 +37,18 @@ void CG_Shutdown( void );
 //extension interface
 qbool intShaderTime = qfalse;
 qbool linearLight = qfalse;
+qbool can_trap_Cvar_SetDescription = qfalse;
 
 #if defined(Q3_VM)
 qbool (*trap_GetValue)(char *value, int valueSize, const char *key);
 void (*trap_R_AddRefEntityToScene2)(const refEntity_t *re);
 void (*trap_R_AddLinearLightToScene)(const vec3_t start, const vec3_t end, float intensity, float r, float g, float b);
+void (*trap_Cvar_SetDescription)(const char *var_name, const char *var_description);
 #else
 int dll_com_trapGetValue;
 int dll_trap_R_AddRefEntityToScene2;
 int dll_trap_R_AddLinearLightToScene;
+int dll_trap_Cvar_SetDescription;
 #endif
 
 /*
@@ -126,10 +129,11 @@ buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
 
 typedef struct
 {
-  vmCvar_t  *vmCvar;
-  const char      *cvarName;
-  const char      *defaultString;
-  const int       cvarFlags;
+  vmCvar_t *vmCvar;
+  const char *cvarName;
+  const char *defaultString;
+  const int cvarFlags;
+  const char *description;
 } cvarTable_t;
 
 static const cvarTable_t cvarTable[] =
@@ -153,10 +157,14 @@ void CG_RegisterCvars( void )
   const cvarTable_t *cv;
   char        var[ MAX_TOKEN_CHARS ];
 
-  for( i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++ )
+  for(i = 0, cv = cvarTable;i < cvarTableSize;i++, cv++)
   {
-    trap_Cvar_Register( cv->vmCvar, cv->cvarName,
-      cv->defaultString, cv->cvarFlags );
+    trap_Cvar_Register(cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags);
+
+    if (can_trap_Cvar_SetDescription && cv->description)
+    {
+      trap_Cvar_SetDescription(cv->cvarName, cv->description);
+    }
   }
 
   //repress standard Q3 console
@@ -1500,6 +1508,12 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
       trap_R_AddLinearLightToScene = (void *)~atoi(value);
       linearLight = qtrue;
     }
+
+    if (trap_GetValue(value, sizeof(value), "trap_Cvar_SetDescription_T110E"))
+    {
+      trap_Cvar_SetDescription = (void *)~atoi(value);
+      can_trap_Cvar_SetDescription = qtrue;
+    }
 #else
     dll_com_trapGetValue = atoi(value);
 
@@ -1513,6 +1527,12 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
     {
       dll_trap_R_AddLinearLightToScene = atoi(value);
       linearLight = qtrue;
+    }
+
+    if (trap_GetValue(value, sizeof(value), "trap_Cvar_SetDescription_T110E"))
+    {
+      dll_trap_Cvar_SetDescription = atoi(value);
+      can_trap_Cvar_SetDescription = qtrue;
     }
 #endif
   }

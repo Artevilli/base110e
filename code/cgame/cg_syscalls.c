@@ -590,3 +590,9 @@ trap_R_AddLinearLightToScene(const vec3_t start, const vec3_t end, float intensi
 {
   syscall(dll_trap_R_AddLinearLightToScene, start, end, intensity, r, g, b);
 }
+
+void
+trap_Cvar_SetDescription(const char *var_name, const char *var_description)
+{
+  syscall(dll_trap_Cvar_SetDescription, var_name, var_description);
+}
