@@ -13,7 +13,7 @@
 //don't override the cheat state set by the system
 G_CVAR(g_cheats, "sv_cheats", "", 0, 0, qfalse)
 
-G_CVAR(sv_fps, "sv_fps", "30", CVAR_ARCHIVE, 0, qfalse)
+G_CVAR(sv_fps, "sv_fps", "20", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(sv_running, "sv_running", "0", CVAR_ARCHIVE, 0, qfalse)
 
 //noset vars
@@ -25,18 +25,18 @@ G_CVAR(g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_A
 G_CVAR(g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue)
 
 //change anytime vars
-G_CVAR(g_timelimit, "timelimit", "45", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue)
-G_CVAR(g_suddenDeathTime, "g_suddenDeathTime", "30", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue)
+G_CVAR(g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue)
+G_CVAR(g_suddenDeathTime, "g_suddenDeathTime", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue)
 G_CVAR(g_suddenDeathMode, "g_suddenDeathMode", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue)
 G_CVAR(g_suddenDeath, "g_suddenDeath", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qtrue)
 
 G_CVAR(g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse)
 
-G_CVAR(g_friendlyFire, "g_friendlyFire", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue)
-G_CVAR(g_friendlyFireAliens, "g_friendlyFireAliens", "0", CVAR_ARCHIVE, 0, qtrue)
-G_CVAR(g_friendlyFireHumans, "g_friendlyFireHumans", "0", CVAR_ARCHIVE, 0, qtrue)
+G_CVAR(g_friendlyFire, "g_friendlyFire", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue)
+G_CVAR(g_friendlyFireAliens, "g_friendlyFireAliens", "1", CVAR_ARCHIVE, 0, qtrue)
+G_CVAR(g_friendlyFireHumans, "g_friendlyFireHumans", "1", CVAR_ARCHIVE, 0, qtrue)
 G_CVAR(g_retribution, "g_retribution", "0", CVAR_ARCHIVE, 0, qtrue)
-G_CVAR(g_friendlyBuildableFire, "g_friendlyBuildableFire", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue)
+G_CVAR(g_friendlyBuildableFire, "g_friendlyBuildableFire", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue)
 G_CVAR(g_friendlyFireMovementAttacks, "g_friendlyFireMovementAttacks", "1", CVAR_ARCHIVE, 0, qtrue)
 G_CVAR(g_devmapNoGod, "g_devmapNoGod", "0", CVAR_ARCHIVE, 0, qtrue)
 G_CVAR(g_devmapNoStructDmg, "g_devmapNoStructDmg", "0", CVAR_ARCHIVE, 0, qtrue)
@@ -44,7 +44,7 @@ G_CVAR(g_devmapNoStructDmg, "g_devmapNoStructDmg", "0", CVAR_ARCHIVE, 0, qtrue)
 G_CVAR(g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE, 0, qtrue)
 G_CVAR(g_teamForceBalance, "g_teamForceBalance", "1", CVAR_ARCHIVE, 0, qtrue)
 
-G_CVAR(g_warmup, "g_warmup", "10", CVAR_ARCHIVE, 0, qtrue)
+G_CVAR(g_warmup, "g_warmup", "0", CVAR_ARCHIVE, 0, qtrue)
 G_CVAR(g_warmupMode, "g_warmupMode", "1", CVAR_ARCHIVE, 0, qtrue)
 G_CVAR(g_doWarmup, "g_doWarmup", "1", CVAR_ARCHIVE, 0, qtrue)
 G_CVAR(g_logFile, "g_logFile", "games.log", CVAR_ARCHIVE, 0, qfalse)
