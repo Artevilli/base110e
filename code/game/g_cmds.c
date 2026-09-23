@@ -422,11 +422,8 @@ void Cmd_Give_f( gentity_t *ent )
 
   if( give_all || Q_stricmp( name, "health" ) == 0 )
   {
-    if(!g_devmapNoGod.integer)
-    {
-     ent->health = ent->client->ps.stats[ STAT_MAX_HEALTH ];
-     BG_AddUpgradeToInventory( UP_MEDKIT, ent->client->ps.stats );
-    }
+    ent->health = ent->client->ps.stats[ STAT_MAX_HEALTH ];
+    BG_AddUpgradeToInventory( UP_MEDKIT, ent->client->ps.stats );
   }
 
   if( give_all || Q_stricmpn( name, "funds", 5 ) == 0 )
@@ -477,19 +474,12 @@ void Cmd_God_f( gentity_t *ent )
 {
   char  *msg;
 
- if( !g_devmapNoGod.integer )
- {
   ent->flags ^= FL_GODMODE;
 
   if( !( ent->flags & FL_GODMODE ) )
     msg = "godmode OFF\n";
   else
     msg = "godmode ON\n";
- }
- else
- {
-  msg = "Godmode has been disabled.\n";
- }
 
   trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
@@ -508,19 +498,12 @@ void Cmd_Notarget_f( gentity_t *ent )
 {
   char  *msg;
 
- if( !g_devmapNoGod.integer )
- {
   ent->flags ^= FL_NOTARGET;
 
   if( !( ent->flags & FL_NOTARGET ) )
     msg = "notarget OFF\n";
   else
     msg = "notarget ON\n";
- }
- else
- {
-  msg = "Godmode has been disabled.\n";
- }
 
   trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
@@ -537,19 +520,12 @@ void Cmd_Noclip_f( gentity_t *ent )
 {
   char  *msg;
 
- if( !g_devmapNoGod.integer )
- {
   if( ent->client->noclip )
     msg = "noclip OFF\n";
   else
     msg = "noclip ON\n";
 
   ent->client->noclip = !ent->client->noclip;
- } 
- else
- {
-  msg = "Godmode has been disabled.\n";
- }
 
   trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
@@ -1460,6 +1436,12 @@ void Cmd_CallVote_f( gentity_t *ent )
     return;
   }
 
+  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
+  {
+    trap_SendServerCommand( ent-g_entities, "print \"Not allowed to call a vote as spectator\n\"" );
+    return;
+  }
+
   if( level.voteTime )
   {
     trap_SendServerCommand( ent-g_entities, "print \"A vote is already in progress\n\"" );
@@ -1910,24 +1892,7 @@ void Cmd_Vote_f( gentity_t *ent )
   char msg[ 64 ];
 
   if( !level.voteTime )
-  { 
-    if( ent->client->pers.teamSelection != PTE_NONE )
-    {
-      // If there is a teamvote going on but no global vote, forward this vote on as a teamvote
-      // (ugly hack for 1.1 cgames + noobs who can't figure out how to use any command that isn't bound by default)
-      int     cs_offset = 0;
-      if( ent->client->pers.teamSelection == PTE_ALIENS )
-        cs_offset = 1;
-    
-      if( level.teamVoteTime[ cs_offset ] )
-      {
-         if( !(ent->client->ps.eFlags & EF_TEAMVOTED ) )
-        {
-          Cmd_TeamVote_f(ent); 
-          return;
-        }
-      }
-    }
+  {
     trap_SendServerCommand( ent-g_entities, "print \"No vote in progress\n\"" );
     return;
   }
@@ -1935,6 +1900,12 @@ void Cmd_Vote_f( gentity_t *ent )
   if( ent->client->ps.eFlags & EF_VOTED )
   {
     trap_SendServerCommand( ent-g_entities, "print \"Vote already cast\n\"" );
+    return;
+  }
+
+  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
+  {
+    trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote as spectator\n\"" );
     return;
   }
 
@@ -2341,6 +2312,12 @@ void Cmd_TeamVote_f( gentity_t *ent )
   if( ent->client->ps.eFlags & EF_TEAMVOTED )
   {
     trap_SendServerCommand( ent-g_entities, "print \"Team vote already cast\n\"" );
+    return;
+  }
+
+  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
+  {
+    trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote as spectator\n\"" );
     return;
   }
 

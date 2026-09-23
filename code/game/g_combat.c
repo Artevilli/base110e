@@ -1048,7 +1048,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
   if( client )
   {
-    if( client->noclip && !g_devmapNoGod.integer)
+    if( client->noclip )
       return;
   }
 
@@ -1117,74 +1117,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     // if the attacker was on the same team
     if( targ != attacker && OnSameTeam( targ, attacker ) )
     {
-      if( g_dretchPunt.integer &&
-        targ->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_LEVEL0 )
-      {
-        vec3_t dir, push;
-
-        VectorSubtract( targ->r.currentOrigin, attacker->r.currentOrigin, dir );
-        VectorNormalizeFast( dir );
-        VectorScale( dir, ( damage * 10.0f ), push );
-        push[2] = 64.0f;
-        VectorAdd( targ->client->ps.velocity, push, targ->client->ps.velocity );
+      if( !g_friendlyFire.integer )
         return;
-      } 
-      else if(mod == MOD_LEVEL4_CHARGE || mod == MOD_LEVEL3_POUNCE )
-      { // don't do friendly fire on movement attacks
-        if( g_friendlyFireMovementAttacks.value <= 0 || ( g_friendlyFire.value<=0 && g_friendlyFireAliens.value<=0 ) )
-          return;
-        else if( g_friendlyFireMovementAttacks.value > 0 && g_friendlyFireMovementAttacks.value < 1 )
-         damage =(int)(0.5 + g_friendlyFireMovementAttacks.value * (float) damage);
-      }
-      else if( g_friendlyFire.value <=0)
-      {
-        if( targ->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-        {
-          if(g_friendlyFireHumans.value<=0)
-            return;
-          else if( g_friendlyFireHumans.value > 0 && g_friendlyFireHumans.value < 1 )
-            damage =(int)(0.5 + g_friendlyFireHumans.value * (float) damage);       
-        }
-        if( targ->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-        {
-          if(g_friendlyFireAliens.value==0)
-            return;
-          else if( g_friendlyFireAliens.value > 0 && g_friendlyFireAliens.value < 1 )
-           damage =(int)(0.5 + g_friendlyFireAliens.value * (float) damage);
-        }
-      }
-      else if( g_friendlyFire.value > 0 && g_friendlyFire.value < 1 )
-      {
-        damage =(int)(0.5 + g_friendlyFire.value * (float) damage);
-      }
-    }
-
-    // If target is buildable on the same team as the attacking client
-    if( targ->s.eType == ET_BUILDABLE && attacker->client &&
-        targ->biteam == attacker->client->pers.teamSelection )
-    {
-      if(mod == MOD_LEVEL4_CHARGE || mod == MOD_LEVEL3_POUNCE ) 
-      {
-         if(g_friendlyFireMovementAttacks.value <= 0)
-           return;
-         else if(g_friendlyFireMovementAttacks.value > 0 && g_friendlyFireMovementAttacks.value < 1)
-           damage =(int)(0.5 + g_friendlyFireMovementAttacks.value * (float) damage);
-      }
-      if( g_friendlyBuildableFire.value <= 0 )
-      {
-        return;
-      }
-      else if( g_friendlyBuildableFire.value > 0 && g_friendlyBuildableFire.value < 1 )
-      {
-         damage =(int)(0.5 + g_friendlyBuildableFire.value * (float) damage);
-      }
     }
 
     // check for godmode
-    if ( targ->flags & FL_GODMODE && !g_devmapNoGod.integer)
-      return;
-    
-    if(targ->s.eType == ET_BUILDABLE && g_cheats.integer && g_devmapNoStructDmg.integer)
+    if ( targ->flags & FL_GODMODE )
       return;
   }
 
@@ -1234,8 +1172,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     //if boosted poison every attack
     if( attacker->client && attacker->client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
     {
-      if( targ->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
-          !( targ->client->ps.stats[ STAT_STATE ] & SS_POISONED ) &&
+      if( !( targ->client->ps.stats[ STAT_STATE ] & SS_POISONED ) &&
+          !BG_InventoryContainsUpgrade( UP_BATTLESUIT, targ->client->ps.stats ) &&
           mod != MOD_LEVEL2_ZAP &&
           targ->client->poisonImmunityTime < level.time )
       {

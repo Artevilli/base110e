@@ -280,6 +280,8 @@ CG_AddNotifyText
 void CG_AddNotifyText( void )
 {
   char buffer[ BIG_INFO_STRING ];
+  int bufferLen;
+  int textLen;
 
   trap_LiteralArgs( buffer, BIG_INFO_STRING );
 
@@ -290,12 +292,21 @@ void CG_AddNotifyText( void )
     return;
   }
 
+  bufferLen = (int)strlen(buffer);
+  textLen = (int)strlen(cg.consoleText);
+
+  //ignore console messages that were just printed
+  if (!cg_printDuplicate.integer && textLen >= bufferLen && !strcmp(cg.consoleText + textLen - bufferLen, buffer))
+  {
+    return;
+  }
+
   if( cg.numConsoleLines == MAX_CONSOLE_LINES )
     CG_RemoveNotifyLine( );
 
   Q_strcat( cg.consoleText, MAX_CONSOLE_TEXT, buffer );
   cg.consoleLines[ cg.numConsoleLines ].time = cg.time;
-  cg.consoleLines[ cg.numConsoleLines ].length = strlen( buffer );
+  cg.consoleLines[ cg.numConsoleLines ].length = bufferLen;
   cg.numConsoleLines++;
 }
 

@@ -1331,8 +1331,6 @@ and team change.
 void CalculateRanks( void )
 {
   int       i;
-  char      P[ MAX_CLIENTS + 1 ] = {""};
-  int       ff = 0;
 
   level.numConnectedClients = 0;
   level.numNonSpectatorClients = 0;
@@ -1345,12 +1343,10 @@ void CalculateRanks( void )
 
   for( i = 0; i < level.maxclients; i++ )
   {
-    P[ i ] = '-';
     if ( level.clients[ i ].pers.connected != CON_DISCONNECTED )
     {
       level.sortedClients[ level.numConnectedClients ] = i;
       level.numConnectedClients++;
-      P[ i ] = (char)'0' + level.clients[ i ].pers.teamSelection;
 
       if( level.clients[ i ].pers.connected != CON_CONNECTED )
         continue;
@@ -1379,18 +1375,6 @@ void CalculateRanks( void )
   }
   level.numteamVotingClients[ 0 ] = level.numHumanClients;
   level.numteamVotingClients[ 1 ] = level.numAlienClients;
-  P[ i ] = '\0';
-  trap_Cvar_Set( "P", P );
-
-  if( g_friendlyFire.value>0 )
-    ff |= ( FFF_HUMANS | FFF_ALIENS );
-  if( g_friendlyFireHumans.value>0  )
-    ff |=  FFF_HUMANS;
-  if( g_friendlyFireAliens.value>0  )
-    ff |=  FFF_ALIENS;
-  if( g_friendlyBuildableFire.value>0  )
-    ff |=  FFF_BUILDABLES;
-  trap_Cvar_Set( "ff", va( "%i", ff ) );
 
   qsort( level.sortedClients, level.numConnectedClients,
     sizeof( level.sortedClients[ 0 ] ), SortRanks );

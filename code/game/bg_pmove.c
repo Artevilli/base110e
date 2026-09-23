@@ -527,17 +527,27 @@ static qbool PM_CheckPounce( void )
       pm->ps->weapon != WP_ALEVEL3_UPG )
     return qfalse;
 
-  // we were pouncing, but we've landed  
-  if( pm->ps->groundEntityNum != ENTITYNUM_NONE
-    && ( pm->ps->pm_flags & PMF_CHARGE ) )
+  if (!pm->pounceChomp)
   {
-    pm->ps->weaponTime += LEVEL3_POUNCE_TIME;
-    pm->ps->pm_flags &= ~PMF_CHARGE;
+    // we were pouncing, but we've landed
+    if( pm->ps->groundEntityNum != ENTITYNUM_NONE
+      && ( pm->ps->pm_flags & PMF_CHARGE ) )
+    {
+      pm->ps->weaponTime += LEVEL3_POUNCE_TIME;
+      pm->ps->pm_flags &= ~PMF_CHARGE;
+    }
   }
 
   // we're building up for a pounce
-  if( pm->cmd.buttons & BUTTON_ATTACK2 )
+  if (pm->cmd.buttons & BUTTON_ATTACK2)
+  {
+    if (pm->pounceChomp)
+    {
+      pm->ps->pm_flags &= ~PMF_CHARGE;
+    }
+
     return qfalse;
+  }
 
   // already a pounce in progress
   if( pm->ps->pm_flags & PMF_CHARGE )
@@ -2845,13 +2855,15 @@ static void PM_Weapon( void )
     return;
   }
 
-  
-  // no bite during pounce
-  if( ( pm->ps->weapon == WP_ALEVEL3 || pm->ps->weapon == WP_ALEVEL3_UPG ) 
-    && ( pm->cmd.buttons & BUTTON_ATTACK )
-    && ( pm->ps->pm_flags & PMF_CHARGE ) )
+  if (!pm->pounceChomp)
   {
-    return;
+    // no bite during pounce
+    if( ( pm->ps->weapon == WP_ALEVEL3 || pm->ps->weapon == WP_ALEVEL3_UPG ) 
+      && ( pm->cmd.buttons & BUTTON_ATTACK )
+      && ( pm->ps->pm_flags & PMF_CHARGE ) )
+    {
+      return;
+    }
   }
 
   if( pm->ps->weaponTime > 0 )
@@ -3665,14 +3677,7 @@ void PmoveSingle( pmove_t *pmove )
   else
   {
     //snap some parts of playerstate to save network bandwidth
-    if (pm->korxPmove)
-    {
-      SnapVector(pm->ps->velocity);
-    }
-    else
-    {
-      trap_SnapVector(pm->ps->velocity);
-    }
+    trap_SnapVector(pm->ps->velocity);
   }
 }
 

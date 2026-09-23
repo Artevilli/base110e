@@ -32,21 +32,15 @@ G_CVAR(g_suddenDeath, "g_suddenDeath", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0,
 
 G_CVAR(g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse)
 
-G_CVAR(g_friendlyFire, "g_friendlyFire", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue)
-G_CVAR(g_friendlyFireAliens, "g_friendlyFireAliens", "1", CVAR_ARCHIVE, 0, qtrue)
-G_CVAR(g_friendlyFireHumans, "g_friendlyFireHumans", "1", CVAR_ARCHIVE, 0, qtrue)
+G_CVAR(g_friendlyFire, "g_friendlyFire", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue)
 G_CVAR(g_retribution, "g_retribution", "0", CVAR_ARCHIVE, 0, qtrue)
-G_CVAR(g_friendlyBuildableFire, "g_friendlyBuildableFire", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue)
-G_CVAR(g_friendlyFireMovementAttacks, "g_friendlyFireMovementAttacks", "1", CVAR_ARCHIVE, 0, qtrue)
-G_CVAR(g_devmapNoGod, "g_devmapNoGod", "0", CVAR_ARCHIVE, 0, qtrue)
-G_CVAR(g_devmapNoStructDmg, "g_devmapNoStructDmg", "0", CVAR_ARCHIVE, 0, qtrue)
 
 G_CVAR(g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE, 0, qtrue)
-G_CVAR(g_teamForceBalance, "g_teamForceBalance", "1", CVAR_ARCHIVE, 0, qtrue)
+G_CVAR(g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE, 0, qtrue)
 
-G_CVAR(g_warmup, "g_warmup", "0", CVAR_ARCHIVE, 0, qtrue)
+G_CVAR(g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue)
 G_CVAR(g_warmupMode, "g_warmupMode", "1", CVAR_ARCHIVE, 0, qtrue)
-G_CVAR(g_doWarmup, "g_doWarmup", "1", CVAR_ARCHIVE, 0, qtrue)
+G_CVAR(g_doWarmup, "g_doWarmup", "0", CVAR_ARCHIVE, 0, qtrue)
 G_CVAR(g_logFile, "g_logFile", "games.log", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_logFileSync, "g_logFileSync", "0", CVAR_ARCHIVE, 0, qfalse)
 
@@ -105,8 +99,8 @@ G_CVAR(pm_fixedPmove, "pm_fixedPmove", "0", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_airControl, "pm_airControl", "0", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_fastWeaponSwitches, "pm_fastWeaponSwitches", "0", CVAR_SYSTEMINFO, 0, qfalse)
-G_CVAR(pm_korxPmove, "pm_korxPmove", "0", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_noStamina, "pm_noStamina", "0", CVAR_SYSTEMINFO, 0, qfalse)
+G_CVAR(pm_pounceChomp, "pm_pounceChomp", "1", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_rampJumps, "pm_rampJumps", "0", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_reloadFix, "pm_reloadFix", "1", CVAR_SYSTEMINFO, 0, qfalse)
 

@@ -1406,8 +1406,8 @@ typedef struct
   int pm_fixedPmoveFPS;
   qbool pm_airControl;
   qbool pm_fastWeaponSwitches;
-  qbool pm_korxPmove;
   qbool pm_noStamina;
+  qbool pm_pounceChomp;
   qbool pm_rampJumps;
   qbool pm_reloadFix;
 

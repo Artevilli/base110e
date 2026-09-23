@@ -190,8 +190,8 @@ typedef struct
   int fixedPmoveFPS;
   int airControl;
   int fastWeaponSwitches;
-  int korxPmove;
   int noStamina;
+  int pounceChomp;
   int rampJumps;
   int reloadFix;
 
