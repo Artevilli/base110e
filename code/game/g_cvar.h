@@ -159,7 +159,7 @@ G_CVAR(g_adminMaxBan, "g_adminMaxBan", "2w", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_adminMapLog, "g_adminMapLog", "", CVAR_ROM, 0, qfalse)
 G_CVAR(g_minLevelToJoinTeam, "g_minLevelToJoinTeam", "0", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_forceAutoSelect, "g_forceAutoSelect", "0", CVAR_ARCHIVE, 0, qtrue) 
- 
+
 G_CVAR(g_privateMessages, "g_privateMessages", "1", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_decolourLogfiles, "g_decolourLogfiles", "0", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_buildLogMaxLength, "g_buildLogMaxLength", "50", CVAR_ARCHIVE, 0, qfalse)
@@ -167,16 +167,14 @@ G_CVAR(g_myStats, "g_myStats", "1", CVAR_ARCHIVE, 0, qtrue)
 G_CVAR(g_publicSayadmins, "g_publicSayadmins", "1", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_minLevelToSpecMM1, "g_minLevelToSpecMM1", "0", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_antiSpawnBlock, "g_antiSpawnBlock", "0", CVAR_ARCHIVE, 0, qfalse)
- 
+
 G_CVAR(g_devmapKillerHP, "g_devmapKillerHP", "0", CVAR_ARCHIVE, 0, qtrue)
- 
+
 G_CVAR(g_tag, "g_tag", "main", CVAR_INIT, 0, qfalse)
- 
-G_CVAR(g_dretchPunt, "g_dretchPunt", "1", CVAR_ARCHIVE, 0, qfalse)
- 
+
 G_CVAR(g_msg, "g_msg", "", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_msgTime, "g_msgTime", "0", CVAR_ARCHIVE, 0, qfalse)
- 
+
 G_CVAR(g_rankings, "g_rankings", "0", 0, 0, qfalse)
 G_CVAR(g_allowShare, "g_allowShare", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse)
 G_CVAR(g_banNotice, "g_banNotice", "", CVAR_ARCHIVE, 0, qfalse)

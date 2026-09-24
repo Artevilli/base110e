@@ -422,6 +422,60 @@ void CG_PainEvent( centity_t *cent, int health )
   cent->pe.painDirection ^= 1;
 }
 
+
+/*
+==============
+CG_FootstepEvent
+==============
+*/
+static void
+CG_FootstepEvent(int clientNum, int surfaceFlags, qbool customFootstep, qbool metal)
+{
+  static int buffer[MAX_CLIENTS];
+  int randstep;
+  clientInfo_t *ci;
+
+  if (!cg_footsteps.integer)
+  {
+    return;
+  }
+
+  if ((unsigned)clientNum >= MAX_CLIENTS)
+  {
+    clientNum = 0;
+  }
+
+  ci = &cgs.clientinfo[clientNum];
+
+  if (ci->footsteps == FOOTSTEP_NONE)
+  {
+    return;
+  }
+
+  do
+  {
+    randstep = (int)(random() * 4.0f);
+  }
+  while(randstep == buffer[clientNum]);
+
+  buffer[clientNum] = randstep;
+
+  if (customFootstep)
+  {
+    if (!metal)
+    {
+      trap_S_StartSound(NULL, clientNum, CHAN_BODY, ci->customFootsteps[randstep]);
+      return;
+    }
+
+    trap_S_StartSound(NULL, clientNum, CHAN_BODY, ci->customMetalFootsteps[randstep]);
+    return;
+  }
+
+  trap_S_StartSound(NULL, clientNum, CHAN_BODY, cgs.media.footsteps[surfaceFlags][randstep]);
+}
+
+
 /*
 ==============
 CG_EntityEvent
@@ -440,6 +494,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position, int entityNum )
   int           clientNum;
   clientInfo_t  *ci;
   int           steptime;
+  qbool         customFootstep;
 
   if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
     steptime = 200;
@@ -464,6 +519,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position, int entityNum )
 
   ci = &cgs.clientinfo[ clientNum ];
 
+  customFootstep = (qbool)(ci->footsteps == FOOTSTEP_CUSTOM);
+
   switch( event )
   {
     //
@@ -471,64 +528,32 @@ void CG_EntityEvent( centity_t *cent, vec3_t position, int entityNum )
     //
     case EV_FOOTSTEP:
       DEBUGNAME( "EV_FOOTSTEP" );
-      if( cg_footsteps.integer && ci->footsteps != FOOTSTEP_NONE )
-      {
-        if( ci->footsteps == FOOTSTEP_CUSTOM )
-          trap_S_StartSound( NULL, es->number, CHAN_BODY,
-            ci->customFootsteps[ rand( ) & 3 ] );
-        else
-          trap_S_StartSound( NULL, es->number, CHAN_BODY,
-            cgs.media.footsteps[ ci->footsteps ][ rand( ) & 3 ] );
-      }
+      CG_FootstepEvent(es->number, ci->footsteps, customFootstep, qfalse);
       break;
 
     case EV_FOOTSTEP_METAL:
       DEBUGNAME( "EV_FOOTSTEP_METAL" );
-      if( cg_footsteps.integer && ci->footsteps != FOOTSTEP_NONE )
-      {
-        if( ci->footsteps == FOOTSTEP_CUSTOM )
-          trap_S_StartSound( NULL, es->number, CHAN_BODY,
-            ci->customMetalFootsteps[ rand( ) & 3 ] );
-        else
-          trap_S_StartSound( NULL, es->number, CHAN_BODY,
-            cgs.media.footsteps[ FOOTSTEP_METAL ][ rand( ) & 3 ] );
-      }
+      CG_FootstepEvent(es->number, FOOTSTEP_METAL, customFootstep, qtrue);
       break;
 
     case EV_FOOTSTEP_SQUELCH:
       DEBUGNAME( "EV_FOOTSTEP_SQUELCH" );
-      if( cg_footsteps.integer && ci->footsteps != FOOTSTEP_NONE )
-      {
-        trap_S_StartSound( NULL, es->number, CHAN_BODY,
-          cgs.media.footsteps[ FOOTSTEP_FLESH ][ rand( ) & 3 ] );
-      }
+      CG_FootstepEvent(es->number, FOOTSTEP_FLESH, qfalse, qfalse);
       break;
 
     case EV_FOOTSPLASH:
       DEBUGNAME( "EV_FOOTSPLASH" );
-      if( cg_footsteps.integer && ci->footsteps != FOOTSTEP_NONE )
-      {
-        trap_S_StartSound( NULL, es->number, CHAN_BODY,
-          cgs.media.footsteps[ FOOTSTEP_SPLASH ][ rand( ) & 3 ] );
-      }
+      CG_FootstepEvent(es->number, FOOTSTEP_SPLASH, qfalse, qfalse);
       break;
 
     case EV_FOOTWADE:
       DEBUGNAME( "EV_FOOTWADE" );
-      if( cg_footsteps.integer && ci->footsteps != FOOTSTEP_NONE )
-      {
-        trap_S_StartSound( NULL, es->number, CHAN_BODY,
-          cgs.media.footsteps[ FOOTSTEP_SPLASH ][ rand( ) & 3 ] );
-      }
+      CG_FootstepEvent(es->number, FOOTSTEP_SPLASH, qfalse, qfalse);
       break;
 
     case EV_SWIM:
       DEBUGNAME( "EV_SWIM" );
-      if( cg_footsteps.integer && ci->footsteps != FOOTSTEP_NONE )
-      {
-        trap_S_StartSound( NULL, es->number, CHAN_BODY,
-          cgs.media.footsteps[ FOOTSTEP_SPLASH ][ rand( ) & 3 ] );
-      }
+      CG_FootstepEvent(es->number, FOOTSTEP_SPLASH, qfalse, qfalse);
       break;
 
 
