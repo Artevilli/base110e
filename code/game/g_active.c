@@ -649,8 +649,23 @@ void ClientTimerActions( gentity_t *ent, int msec )
 
       if( !( ucmd->buttons & BUTTON_ATTACK2 ) )
       {
-        if( client->pmext.pouncePayload > 0 )
-          client->allowedToPounce = qtrue;
+        if (pm_pounceChomp.integer)
+        {
+          if (client->ps.stats[STAT_MISC] > 0)
+          {
+            client->allowedToPounce = qtrue;
+            client->pouncePayload = client->ps.stats[STAT_MISC];
+          }
+
+          client->ps.stats[STAT_MISC] = 0;
+        }
+        else
+        {
+          if (client->pmext.pouncePayload > 0)
+          {
+            client->allowedToPounce = qtrue;
+          }
+        }
       }
 
       if( client->ps.stats[ STAT_MISC ] > pounceSpeed )

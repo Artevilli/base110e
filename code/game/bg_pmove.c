@@ -541,11 +541,7 @@ static qbool PM_CheckPounce( void )
   // we're building up for a pounce
   if (pm->cmd.buttons & BUTTON_ATTACK2)
   {
-    if (pm->pounceChomp)
-    {
-      pm->ps->pm_flags &= ~PMF_CHARGE;
-    }
-
+    pm->ps->pm_flags &= ~PMF_CHARGE;
     return qfalse;
   }
 
@@ -586,8 +582,11 @@ static qbool PM_CheckPounce( void )
     pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
   }
 
-  pm->pmext->pouncePayload = pm->ps->stats[ STAT_MISC ];
-  pm->ps->stats[ STAT_MISC ] = 0;
+  if (!pm->pounceChomp)
+  {
+    pm->pmext->pouncePayload = pm->ps->stats[ STAT_MISC ];
+    pm->ps->stats[ STAT_MISC ] = 0;
+  }
 
   return qtrue;
 }

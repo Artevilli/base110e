@@ -1457,14 +1457,33 @@ qbool CheckPounceAttack( gentity_t *ent )
   gentity_t *traceEnt;
   int       damage;
 
+  if (pm_pounceChomp.integer)
+  {
+    if (!ent->client->allowedToPounce)
+    {
+      return qfalse;
+    }
+  }
+
   if( ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
   {
     ent->client->allowedToPounce = qfalse;
+
+    if (pm_pounceChomp.integer)
+    {
+      return qfalse;
+    }
+
     ent->client->pmext.pouncePayload = 0;
   }
 
-  if( !ent->client->allowedToPounce )
-    return qfalse;
+  if (!pm_pounceChomp.integer)
+  {
+    if (!ent->client->allowedToPounce)
+    {
+      return qfalse;
+    }
+  }
 
   if( ent->client->ps.weaponTime )
     return qfalse;
@@ -1487,13 +1506,23 @@ qbool CheckPounceAttack( gentity_t *ent )
   if( !traceEnt->takedamage )
     return qfalse;
 
-  damage = (int)( ( (float)ent->client->pmext.pouncePayload
-    / (float)LEVEL3_POUNCE_SPEED ) * LEVEL3_POUNCE_DMG );
-
-  ent->client->pmext.pouncePayload = 0;
+  if (!pm_pounceChomp.integer)
+  {
+    damage = (int)(((float)ent->client->pmext.pouncePayload / (float)LEVEL3_POUNCE_SPEED) * LEVEL3_POUNCE_DMG);
+    ent->client->pmext.pouncePayload = 0;
+  }
+  else
+  {
+    damage = (int)(((float)ent->client->pouncePayload / (float)LEVEL3_POUNCE_SPEED) * LEVEL3_POUNCE_DMG);
+  }
 
   G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage,
       DAMAGE_NO_KNOCKBACK|DAMAGE_NO_LOCDAMAGE, MOD_LEVEL3_POUNCE );
+
+  if (pm_pounceChomp.integer)
+  {
+    ent->client->ps.weaponTime += LEVEL3_POUNCE_TIME;
+  }
 
   ent->client->allowedToPounce = qfalse;
 

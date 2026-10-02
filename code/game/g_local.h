@@ -527,6 +527,7 @@ struct gclient_s
   int                 medKitIncrementTime;
   int                 lastCreepSlowTime;    // time until creep can be removed
 
+  int                 pouncePayload;    //TA: amount of damage pounce attack will do
   qbool            allowedToPounce;
 
   qbool            charging;
