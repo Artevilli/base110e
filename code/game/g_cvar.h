@@ -100,7 +100,7 @@ G_CVAR(pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_airControl, "pm_airControl", "0", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_fastWeaponSwitches, "pm_fastWeaponSwitches", "0", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_noStamina, "pm_noStamina", "0", CVAR_SYSTEMINFO, 0, qfalse)
-G_CVAR(pm_pounceChomp, "pm_pounceChomp", "1", CVAR_SYSTEMINFO, 0, qfalse)
+G_CVAR(pm_pounceChomp, "pm_pounceChomp", "0", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_rampJumps, "pm_rampJumps", "0", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_reloadFix, "pm_reloadFix", "1", CVAR_SYSTEMINFO, 0, qfalse)
 
