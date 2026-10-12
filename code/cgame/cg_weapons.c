@@ -1205,7 +1205,7 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
     {
       int ammo, clips;
   
-      BG_UnpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips );
+      BG_UnpackAmmoArray( i, cg.predictedPlayerState.ammo, cg.snap->ps.powerups, &ammo, &clips );
   
       if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) )
         colinfo[ numItems ] = 1;

@@ -2518,6 +2518,16 @@ static void CG_ScanForCrosshairEntity( void )
   if( trace.entityNum >= MAX_CLIENTS )
     return;
 
+  //`CG_Trace` might trace based on a very old entity's position
+  //(`cg_solidEntities` is built from next snap,
+  //but `CG_ClipMoveToEntities` checks `currentState`),
+  //so we hack around it here.
+  //See https://github.com/ioquake/ioq3/issues/732
+  if (!cg_entities[trace.entityNum].currentValid)
+  {
+    return;
+  }
+
   // if the player is in fog, don't show it
   content = trap_CM_PointContents( trace.endpos, 0 );
   if( content & CONTENTS_FOG )

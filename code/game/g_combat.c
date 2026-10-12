@@ -60,7 +60,7 @@ void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker )
     VectorSubtract( inflictor->s.pos.trBase, self->s.pos.trBase, dir );
   else
   {
-    self->client->ps.stats[ STAT_VIEWLOCK ] = self->s.angles[ YAW ];
+    self->client->ps.stats[ STAT_VIEWLOCK ] = self->client->ps.viewangles[ YAW ];
     return;
   }
 
@@ -467,7 +467,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->s.angles[ YAW ] = self->s.apos.trBase[ YAW ];
   LookAtKiller( self, inflictor, attacker );
 
-  VectorCopy( self->s.angles, self->client->ps.viewangles );
+  self->client->ps.viewangles[PITCH] = 0;
+  self->client->ps.viewangles[ROLL] = 0;
+  //VectorCopy( self->s.angles, self->client->ps.viewangles );
 
   self->s.loopSound = 0;
 
