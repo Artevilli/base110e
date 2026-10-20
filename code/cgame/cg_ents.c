@@ -843,6 +843,16 @@ static void CG_Lev2ZapChain( centity_t *cent )
       CG_SetAttachmentCent( &cent->level2ZapTS[ i ]->backAttachment, target );
       CG_AttachToCent( &cent->level2ZapTS[ i ]->frontAttachment );
       CG_AttachToCent( &cent->level2ZapTS[ i ]->backAttachment );
+
+      if (cg_maraTrailRadius.integer && linearLight)
+      {
+        vec3_t start;
+        vec3_t end;
+
+        CG_AttachmentPoint(&cent->level2ZapTS[i]->frontAttachment, start);
+        CG_AttachmentPoint(&cent->level2ZapTS[i]->backAttachment, end);
+        trap_R_AddLinearLightToScene(start, end, cg_maraTrailRadius.value, 0.6f, 0.6f, 1.0f);
+      }
     }
   }
 }
