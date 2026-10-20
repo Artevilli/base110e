@@ -207,6 +207,7 @@ void CG_SetEntitySoundPosition( centity_t *cent )
     trap_S_UpdateEntityPosition( cent->currentState.number, cent->lerpOrigin );
 }
 
+
 /*
 ==================
 CG_EntityEffects
@@ -214,44 +215,45 @@ CG_EntityEffects
 Add continuous entity effects, like local entity emission and lighting
 ==================
 */
-static void CG_EntityEffects( centity_t *cent )
+static void
+CG_EntityEffects(centity_t *cent)
 {
-  // update sound origins
+  const entityState_t *es = &cent->currentState;
+
+  //update sound origins
   CG_SetEntitySoundPosition( cent );
 
-  // add loop sound
-  if( cent->currentState.loopSound )
+  //add loop sound
+  if (cent->currentState.loopSound)
   {
-    if( cent->currentState.eType != ET_SPEAKER )
+    if (es->eType != ET_SPEAKER)
     {
-      trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
-                              cgs.gameSounds[ cent->currentState.loopSound ] );
+      trap_S_AddLoopingSound(es->number, cent->lerpOrigin, vec3_origin, cgs.gameSounds[es->loopSound]);
     }
     else
     {
-      trap_S_AddRealLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
-                                  cgs.gameSounds[ cent->currentState.loopSound ] );
+      trap_S_AddRealLoopingSound(es->number, cent->lerpOrigin, vec3_origin, cgs.gameSounds[es->loopSound]);
     }
   }
 
 
-  // constant light glow
-  if ( cent->currentState.constantLight )
+  //constant light glow
+  if (es->constantLight)
   {
-    int   cl;
-    int   i, r, g, b;
+    int cl;
+    int i, r, g, b;
 
     cl = cent->currentState.constantLight;
     r = cl & 255;
-    g = ( cl >> 8 ) & 255;
-    b = ( cl >> 16 ) & 255;
-    i = ( ( cl >> 24 ) & 255 ) * 4;
+    g = (cl >> 8) & 255;
+    b = (cl >> 16) & 255;
+    i = ((cl >> 24) & 255) * 4;
 
     if (cg_maraZapLight.integer)
     {
       trap_R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
     }
-    else if (cent->currentState.eType != ET_LEV2_ZAP_CHAIN)
+    else if (es->eType != ET_LEV2_ZAP_CHAIN)
     {
       trap_R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
     }
@@ -259,29 +261,45 @@ static void CG_EntityEffects( centity_t *cent )
 
   if (CG_IsTrailSystemValid(&cent->muzzleTS))
   {
-    //FIXME hack to prevent tesla trails reaching too far
-    if (cent->currentState.eType == ET_BUILDABLE)
+    if (es->modelindex == BA_H_TESLAGEN)
     {
-      vec3_t  front, back;
+      vec3_t front, back;
 
       CG_AttachmentPoint(&cent->muzzleTS->frontAttachment, front);
       CG_AttachmentPoint(&cent->muzzleTS->backAttachment, back);
 
-      if (Distance(front, back) > (TESLAGEN_RANGE * M_ROOT3))
+      if (linearLight && cg_teslaTrailRadius.integer)
+      {
+        trap_R_AddLinearLightToScene(front, back, cg_teslaTrailRadius.value, 0.6f, 0.6f, 1.0f);
+      }
+
+      if (Distance(front, back) > (TESLAGEN_RANGE * 1.1f))
       {
         CG_DestroyTrailSystem(&cent->muzzleTS);
       }
-      else
+    }
+    else if (es->modelindex == BA_H_REACTOR)
+    {
+      vec3_t front, back;
+
+      CG_AttachmentPoint(&cent->muzzleTS->frontAttachment, front);
+      CG_AttachmentPoint(&cent->muzzleTS->backAttachment, back);
+
+      if (linearLight && cg_reactorTrailRadius.integer)
       {
-        if (linearLight && cg_teslaTrailRadius.integer)
-        {
-          trap_R_AddLinearLightToScene(front, back, cg_teslaTrailRadius.value, 0.6f, 0.6f, 1.0f);
-        }
+        trap_R_AddLinearLightToScene(front, back, cg_reactorTrailRadius.value, 0.6f, 0.6f, 1.0f);
+      }
+
+      if (Distance(front, back) > (REACTOR_ATTACK_RANGE * M_ROOT3))
+      {
+        CG_DestroyTrailSystem(&cent->muzzleTS);
       }
     }
 
-    if( cg.time > cent->muzzleTSDeathTime && CG_IsTrailSystemValid( &cent->muzzleTS ) )
-      CG_DestroyTrailSystem( &cent->muzzleTS );
+    if (cg.time - cent->muzzleTSDeathTime > 0 && CG_IsTrailSystemValid(&cent->muzzleTS))
+    {
+      CG_DestroyTrailSystem(&cent->muzzleTS);
+    }
   }
 }
 
