@@ -826,7 +826,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position, int entityNum )
             CG_AttachToCent( &source->muzzleTS->backAttachment );
             CG_SetAttachmentOffset( &source->muzzleTS->frontAttachment, sourceOffset );
 
-            source->muzzleTSDeathTime = cg.time + cg_teslaTrailTime.integer;
+            source->muzzleTSDeathTime = cg.time;
           }
         }
       }

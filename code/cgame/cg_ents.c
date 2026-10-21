@@ -261,42 +261,28 @@ CG_EntityEffects(centity_t *cent)
 
   if (CG_IsTrailSystemValid(&cent->muzzleTS))
   {
-    if (es->modelindex == BA_H_TESLAGEN)
+    if (linearLight)
     {
-      vec3_t front, back;
-
-      CG_AttachmentPoint(&cent->muzzleTS->frontAttachment, front);
-      CG_AttachmentPoint(&cent->muzzleTS->backAttachment, back);
-
-      if (linearLight && cg_teslaTrailRadius.integer)
+      if (es->modelindex == BA_H_TESLAGEN && cg_teslaTrailRadius.integer)
       {
+        vec3_t front, back;
+
+        CG_AttachmentPoint(&cent->muzzleTS->frontAttachment, front);
+        CG_AttachmentPoint(&cent->muzzleTS->backAttachment, back);
         trap_R_AddLinearLightToScene(front, back, cg_teslaTrailRadius.value, 0.6f, 0.6f, 1.0f);
       }
 
-      if (Distance(front, back) > (TESLAGEN_RANGE * 1.1f))
+      if (es->modelindex == BA_H_REACTOR && cg_reactorTrailRadius.integer)
       {
-        CG_DestroyTrailSystem(&cent->muzzleTS);
-      }
-    }
-    else if (es->modelindex == BA_H_REACTOR)
-    {
-      vec3_t front, back;
+        vec3_t front, back;
 
-      CG_AttachmentPoint(&cent->muzzleTS->frontAttachment, front);
-      CG_AttachmentPoint(&cent->muzzleTS->backAttachment, back);
-
-      if (linearLight && cg_reactorTrailRadius.integer)
-      {
+        CG_AttachmentPoint(&cent->muzzleTS->frontAttachment, front);
+        CG_AttachmentPoint(&cent->muzzleTS->backAttachment, back);
         trap_R_AddLinearLightToScene(front, back, cg_reactorTrailRadius.value, 0.6f, 0.6f, 1.0f);
       }
-
-      if (Distance(front, back) > (REACTOR_ATTACK_RANGE * M_ROOT3))
-      {
-        CG_DestroyTrailSystem(&cent->muzzleTS);
-      }
     }
 
-    if (cg.time - cent->muzzleTSDeathTime > 0 && CG_IsTrailSystemValid(&cent->muzzleTS))
+    if (cg.time - cent->muzzleTSDeathTime > cg_teslaTrailTime.integer && CG_IsTrailSystemValid(&cent->muzzleTS))
     {
       CG_DestroyTrailSystem(&cent->muzzleTS);
     }
