@@ -1459,7 +1459,7 @@ void        CG_EventHandling( int type );
 void        CG_SetScoreSelection( void *menu );
 void        CG_BuildSpectatorString( void );
 
-qbool    CG_FileExists( char *filename );
+qbool    CG_FileExists( const char *file );
 void        CG_RemoveNotifyLine( void );
 void        CG_AddNotifyText( void );
 

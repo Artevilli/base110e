@@ -931,8 +931,7 @@ void Cmd_Team_f( gentity_t *ent )
      else
        Com_sprintf( buf, sizeof( buf ), "%s^7 left the aliens.", ent->client->pers.netname );
    }
-   trap_SendServerCommand( -1, va( "print \"%s\n\"", buf ) );
-   G_LogOnlyPrintf("ClientTeam: %s\n",buf);
+   G_BroadcastServerCommand( ent - g_entities, va( "print \"%s\n\"", buf ) );
 }
 
 
@@ -1857,11 +1856,11 @@ void Cmd_CallVote_f( gentity_t *ent )
   if ( reason[0]!='\0' )
     Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " Reason: '%s^7'", reason ) );
 
-  trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
+  G_BroadcastServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
          " called a vote: %s" S_COLOR_WHITE "\n\"", ent->client->pers.netname, level.voteDisplayString ) );
 
   //for players who are blind
-  trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " has called a vote\n^2F1 ^7(Yes) - ^1F2 ^7(No)\"", ent->client->pers.netname));
+  G_BroadcastServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " has called a vote\n^2F1 ^7(Yes) - ^1F2 ^7(No)\"", ent->client->pers.netname));
   
   Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " Called by: '%s^7'", ent->client->pers.netname ) );
 
@@ -2532,7 +2531,6 @@ void Cmd_Class_f( gentity_t *ent )
         return;
       }
       // spawn from a telenode
-      G_LogOnlyPrintf("ClientTeamClass: %i human %s\n", clientNum, s);
       if( G_PushSpawnQueue( &level.humanSpawnQueue, clientNum ) )
       {
         ent->client->pers.classSelection = PCL_HUMAN;
@@ -2611,8 +2609,6 @@ void Cmd_Class_f( gentity_t *ent )
             BG_FindStagesForClass( newClass, g_alienStage.integer ) &&
             BG_ClassIsAllowed( newClass ) )
         {
-          G_LogOnlyPrintf("ClientTeamClass: %i alien %s\n", clientNum, s);
-
           ent->client->pers.evolveHealthFraction = (float)ent->client->ps.stats[ STAT_HEALTH ] /
             (float)BG_FindHealthForClass( currentClass );
 
@@ -2668,8 +2664,6 @@ void Cmd_Class_f( gentity_t *ent )
       trap_SendServerCommand( ent-g_entities, va( "print \"Unknown starting item\n\"" ) );
       return;
     }
-
-    G_LogOnlyPrintf("ClientTeamClass: %i human %s\n", clientNum, s);
 
     G_PushSpawnQueue( &level.humanSpawnQueue, clientNum );
   }
@@ -3514,7 +3508,7 @@ void Cmd_Protect_f( gentity_t *ent )
    }
  
    ent->client->pers.designatedBuilder = qfalse;
-   trap_SendServerCommand( -1, va(
+   G_BroadcastServerCommand( -1, va(
      "print \"%s" S_COLOR_WHITE " has resigned\n\"",
      ent->client->pers.netname ) );
    G_CheckDBProtection( );

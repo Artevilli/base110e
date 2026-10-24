@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _G_ADMIN_H
 #define _G_ADMIN_H
 
-#define AP(x) trap_SendServerCommand(-1, x)
+#define AP(x) G_BroadcastServerCommand(-1, x)
 #define CP(x) trap_SendServerCommand(ent-g_entities, x)
 #define CPx(x, y) trap_SendServerCommand(x, y)
 #define ADMP(x) G_admin_print(ent, x)

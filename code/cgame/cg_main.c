@@ -383,19 +383,27 @@ CG_FileExists
 Test if a specific file exists or not
 =================
 */
-qbool CG_FileExists( char *filename )
+qbool
+CG_FileExists(const char *file)
 {
-  fileHandle_t  f;
+  fileHandle_t f;
 
-  if( trap_FS_FOpenFile( filename, &f, FS_READ ) > 0 )
+  if (!file || !file[0])
   {
-    //file exists so close it
-    trap_FS_FCloseFile( f );
+    return qfalse;
+  }
 
-    return qtrue;
+  trap_FS_FOpenFile(file, &f, FS_READ);
+
+  if (f == FS_INVALID_HANDLE)
+  {
+    return qfalse;
   }
   else
-    return qfalse;
+  {
+    trap_FS_FCloseFile(f);
+    return qtrue;
+  }
 }
 
 /*

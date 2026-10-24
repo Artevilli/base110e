@@ -139,13 +139,13 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     killerName = "<world>";
   }
 
-  if( killer < 0 || killer >= MAX_CLIENTS )
+  if( (unsigned)killer >= MAX_CLIENTS )
   {
     killer = ENTITYNUM_WORLD;
     killerName = "<world>";
   }
 
-  if( meansOfDeath < 0 || meansOfDeath >= sizeof( modNames ) / sizeof( modNames[0] ) )
+  if( (unsigned)meansOfDeath >= sizeof( modNames ) / sizeof( modNames[0] ) )
     obit = "<bad obituary>";
   else
     obit = modNames[ meansOfDeath ];
@@ -174,13 +174,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   {
     // tjw: obviously this is a hack and belongs in the client, but
     //      this works as a temporary fix.
-    trap_SendServerCommand( -1,
+    G_BroadcastServerCommand( -1,
       va( "print \"%s^7 was killed by ^1TEAMMATE^7 %s^7 (Did %d damage to %d max)\n\"",
       self->client->pers.netname, attacker->client->pers.netname, self->client->tkcredits[ attacker->s.number ], self->client->ps.stats[ STAT_MAX_HEALTH ] ) );
     trap_SendServerCommand( attacker - g_entities,
       va( "cp \"You killed ^1TEAMMATE^7 %s\"", self->client->pers.netname ) );
-    G_LogOnlyPrintf("%s^7 was killed by ^1TEAMMATE^7 %s^7 (Did %d damage to %d max)\n",
-      self->client->pers.netname, attacker->client->pers.netname, self->client->tkcredits[ attacker->s.number ], self->client->ps.stats[ STAT_MAX_HEALTH ] );
   }
 
   self->enemy = attacker;

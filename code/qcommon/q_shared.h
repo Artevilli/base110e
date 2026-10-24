@@ -139,6 +139,10 @@ typedef int		clipHandle_t;
 #define NULL ((void *)0)
 #endif
 
+#ifndef FS_INVALID_HANDLE
+#define FS_INVALID_HANDLE 0
+#endif
+
 #define	MAX_QINT			0x7fffffff
 #define	MIN_QINT			(-MAX_QINT-1)
 

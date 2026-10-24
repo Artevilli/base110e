@@ -761,7 +761,7 @@ char *GetMenuBuffer(const char *filename) {
   static char buf[MAX_MENUFILE];
 
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
-  if ( !f ) {
+  if ( f == FS_INVALID_HANDLE ) {
     trap_Print( va( S_COLOR_RED "menu file not found: %s, using default\n", filename ) );
     return defaultMenu;
   }
@@ -772,7 +772,7 @@ char *GetMenuBuffer(const char *filename) {
   }
 
   trap_FS_Read( buf, len, f );
-  buf[len] = 0;
+  buf[len] = '\0';
   trap_FS_FCloseFile( f );
   //COM_Compress(buf);
   return buf;
@@ -4066,7 +4066,7 @@ static void UI_RunMenuScript(char **args) {
       if( len > 0 && ( len < sizeof( text ) - 1 ) )
       {
         trap_FS_Read( text, len, f );
-        text[ len ] = 0;
+        text[ len ] = '\0';
         trap_FS_FCloseFile( f );
 
         Com_sprintf( command, 32, "ptrcrestore %s", text );

@@ -109,8 +109,17 @@ static qbool CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
 
   // load the file
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
-  if( len <= 0 )
+
+  if (f == FS_INVALID_HANDLE)
+  {
     return qfalse;
+  }
+
+  if( len <= 0 )
+  {
+    trap_FS_FCloseFile(f);
+    return qfalse;
+  }
 
   if( len >= sizeof( text ) - 1 )
   {
@@ -120,7 +129,7 @@ static qbool CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
   }
 
   trap_FS_Read( text, len, f );
-  text[ len ] = 0;
+  text[ len ] = '\0';
   trap_FS_FCloseFile( f );
 
   // parse the text

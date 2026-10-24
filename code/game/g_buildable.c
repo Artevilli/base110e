@@ -673,9 +673,6 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
           BG_FindHumanNameForBuildable( self->s.modelindex ), 
           attacker->client->pers.netname ) );
-      G_LogOnlyPrintf("%s ^3DESTROYED^7 by teammate %s^7\n",
-          BG_FindHumanNameForBuildable( self->s.modelindex ), 
-          attacker->client->pers.netname ); 
     }
     G_LogPrintf( "Decon: %i %i %i: %s^7 destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
@@ -974,9 +971,6 @@ void ABarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
           BG_FindHumanNameForBuildable( self->s.modelindex ), 
           attacker->client->pers.netname ) );
-      G_LogOnlyPrintf("%s ^3DESTROYED^7 by teammate %s^7\n",
-          BG_FindHumanNameForBuildable( self->s.modelindex ), 
-          attacker->client->pers.netname ); 
     }
     G_LogPrintf( "Decon: %i %i %i: %s^7 destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
@@ -1455,9 +1449,6 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
           BG_FindHumanNameForBuildable( self->s.modelindex ), 
           attacker->client->pers.netname ) );
-      G_LogOnlyPrintf("%s ^3DESTROYED^7 by teammate %s^7\n",
-          BG_FindHumanNameForBuildable( self->s.modelindex ), 
-          attacker->client->pers.netname ); 
     }
     G_LogPrintf( "Decon: %i %i %i: %s^7 destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
@@ -2467,9 +2458,6 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
           BG_FindHumanNameForBuildable( self->s.modelindex ), 
           attacker->client->pers.netname ) );
-      G_LogOnlyPrintf("%s ^3DESTROYED^7 by teammate %s^7\n",
-          BG_FindHumanNameForBuildable( self->s.modelindex ), 
-          attacker->client->pers.netname ); 
     }
     G_LogPrintf( "Decon: %i %i %i: %s^7 destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,

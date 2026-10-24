@@ -100,24 +100,24 @@ int UI_ParseInfos( char *buf, int max, char *infos[] ) {
 UI_LoadArenasFromFile
 ===============
 */
-static void UI_LoadArenasFromFile( char *filename ) {
+static void UI_LoadArenasFromFile( const char *filename ) {
   int       len;
   fileHandle_t  f;
   char      buf[MAX_ARENAS_TEXT];
 
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
-  if ( !f ) {
+  if ( f == FS_INVALID_HANDLE ) {
     trap_Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
     return;
   }
-  if ( len >= MAX_ARENAS_TEXT ) {
-    trap_Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_ARENAS_TEXT ) );
+  if ( len >= sizeof( buf ) ) {
+    trap_Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, sizeof( buf ) ) );
     trap_FS_FCloseFile( f );
     return;
   }
 
   trap_FS_Read( buf, len, f );
-  buf[len] = 0;
+  buf[len] = '\0';
   trap_FS_FCloseFile( f );
 
   ui_numArenas += UI_ParseInfos( buf, MAX_ARENAS - ui_numArenas, &ui_arenaInfos[ui_numArenas] );
@@ -198,13 +198,13 @@ void UI_LoadArenas( void ) {
 UI_LoadBotsFromFile
 ===============
 */
-static void UI_LoadBotsFromFile( char *filename ) {
+static void UI_LoadBotsFromFile( const char *filename ) {
   int       len;
   fileHandle_t  f;
   char      buf[MAX_BOTS_TEXT];
 
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
-  if ( !f ) {
+  if ( f == FS_INVALID_HANDLE ) {
     trap_Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
     return;
   }
@@ -215,7 +215,7 @@ static void UI_LoadBotsFromFile( char *filename ) {
   }
 
   trap_FS_Read( buf, len, f );
-  buf[len] = 0;
+  buf[len] = '\0';
   trap_FS_FCloseFile( f );
 
   COM_Compress(buf);

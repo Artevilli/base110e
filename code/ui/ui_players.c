@@ -1025,7 +1025,14 @@ static qbool UI_ParseAnimationFile( const char *filename, animation_t *animation
 
   // load the file
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
+
+  if (f == FS_INVALID_HANDLE)
+  {
+    return qfalse;
+  }
+
   if ( len <= 0 ) {
+    trap_FS_FCloseFile( f );
     return qfalse;
   }
   if ( len >= ( sizeof( text ) - 1 ) ) {
@@ -1034,7 +1041,7 @@ static qbool UI_ParseAnimationFile( const char *filename, animation_t *animation
     return qfalse;
   }
   trap_FS_Read( text, len, f );
-  text[len] = 0;
+  text[len] = '\0';
   trap_FS_FCloseFile( f );
 
   COM_Compress(text);

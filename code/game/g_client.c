@@ -1022,15 +1022,12 @@ void ClientUserinfoChanged( int clientNum, qbool forceName )
   ent = g_entities + clientNum;
   client = ent->client;
 
-  trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+  trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
 
   // check for malformed or illegal info strings
-  if( !Info_Validate(userinfo) )
+  if (!Info_Validate(userinfo))
   {
-    trap_SendServerCommand( ent - g_entities,
-        "disconnect \"illegal or malformed userinfo\n\"" );
-    trap_DropClient( ent - g_entities, 
-        "dropped: illegal or malformed userinfo");
+    trap_DropClient(ent - g_entities, "dropped: illegal or malformed userinfo");
   }
 
 
@@ -1074,8 +1071,7 @@ void ClientUserinfoChanged( int clientNum, qbool forceName )
     {
       if( client->pers.muted )
       {
-        trap_SendServerCommand( ent - g_entities,
-            "print \"You cannot change your name while you are muted\n\"" );
+        trap_SendServerCommand(ent - g_entities, "print \"You cannot change your name while you are muted\n\"");
         revertName = qtrue;
       }
       else if( client->pers.nameChangeTime &&
@@ -1134,7 +1130,7 @@ void ClientUserinfoChanged( int clientNum, qbool forceName )
   {
     if( strcmp( oldname, client->pers.netname ) )
     {
-      trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
+      G_BroadcastServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
         " renamed to %s^7\n\"", oldname, client->pers.netname ) );
       if( g_decolourLogfiles.integer)
       {
@@ -1143,7 +1139,7 @@ void ClientUserinfoChanged( int clientNum, qbool forceName )
     {
       Com_sprintf( decoloured, sizeof(decoloured), " (\"%s^7\" -> \"%s^7\")", oldname, client->pers.netname );
       G_DecolorString( decoloured, decoloured );
-          G_LogPrintfColoured( "ClientRename: %i [%s] (%s) \"%s^7\" -> \"%s^7\"%s\n", clientNum,
+          G_LogPrintf( "ClientRename: %i [%s] (%s) \"%s^7\" -> \"%s^7\"%s\n", clientNum,
              client->pers.ip, client->pers.guid, oldname, client->pers.netname, decoloured );
     }
     else
@@ -1379,7 +1375,7 @@ char *ClientConnect( int clientNum, qbool firstTime )
    {
      Com_sprintf( decoloured, sizeof(decoloured), " (\"%s^7\")", client->pers.netname );
      G_DecolorString( decoloured, decoloured );
-     G_LogPrintfColoured( "ClientConnect: %i [%s] (%s) \"%s^7\"%s\n", clientNum,
+     G_LogPrintf( "ClientConnect: %i [%s] (%s) \"%s^7\"%s\n", clientNum,
         client->pers.ip, client->pers.guid, client->pers.netname, decoloured );
    }
    else
@@ -1400,8 +1396,17 @@ char *ClientConnect( int clientNum, qbool firstTime )
   }
 
   // don't do the "xxx connected" messages if they were caried over from previous level
-  if( firstTime )
-    trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );
+  if (firstTime)
+  {
+    G_BroadcastServerCommand(-1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname));
+
+    //mute all prints until completely in game
+    client->pers.inGame = qfalse;
+  }
+  else
+  {
+    client->pers.inGame = qtrue; //FIXME: read from session data?
+  }
 
   // count current clients and rank for scoreboard
   CalculateRanks( );
@@ -1469,7 +1474,12 @@ void ClientBegin( int clientNum )
 
   ClientSpawn( ent, NULL, NULL, NULL );
 
-  trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
+  if (!client->pers.inGame)
+  {
+    G_BroadcastServerCommand(-1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname));
+  }
+
+  client->pers.inGame = qtrue;
 
   // name can change between ClientConnect() and ClientBegin()
   G_admin_namelog_update( client, qfalse );
@@ -1478,26 +1488,6 @@ void ClientBegin( int clientNum )
   trap_SendServerCommand( ent - g_entities, "ptrcrequest" );
 
   G_LogPrintf( "ClientBegin: %i\n", clientNum );
-
-  if( g_clientUpgradeNotice.integer )
-  {
-    if( !Q_stricmp( ent->client->pers.guid, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" ) )
-    {
-      trap_SendServerCommand( client->ps.clientNum, va( "print \"^1Your client is out of date. Updating your client will allow you to "
-        "become an admin on servers and download maps much more quickly. Please replace your client executable with the one "
-        "at ^2http://trem.tjw.org/backport/^1 and reconnect. \n\"" ) );
-    }
-  }
-
-  // unlagged
-  if (g_unlaggedProjectiles.integer > 0)
-  {
-    trap_SendServerCommand(clientNum, va("print \"Lag compensation: hitscan %s^7, projectiles ^2ON ^7(up to %ims)\n\"", g_unlagged.integer ? "^2ON^7":"^1OFF^7", g_unlaggedProjectiles.integer));
-  }
-  else
-  {
-    trap_SendServerCommand(clientNum, va("print \"Lag compensation: hitscan %s^7, projectiles ^1OFF\n\"", g_unlagged.integer ? "^2ON^7":"^1OFF^7"));
-  }
 
   // count current clients and rank for scoreboard
   CalculateRanks( );

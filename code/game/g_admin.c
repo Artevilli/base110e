@@ -3925,7 +3925,7 @@ qbool G_admin_pause( gentity_t *ent, int skiparg )
     {
       AP( va( "print \"^3!pause: ^7%s^7 paused the game.\n\"", ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );
       level.paused = qtrue;
-      trap_SendServerCommand( -1, "cp \"The game has been paused. Please wait.\"" );
+      G_BroadcastServerCommand( -1, "cp \"The game has been paused. Please wait.\"" );
     }
     else
     {
@@ -3933,7 +3933,7 @@ qbool G_admin_pause( gentity_t *ent, int skiparg )
       if( level.pausedTime < 1000 ) return qfalse;
 
       AP( va( "print \"^3!pause: ^7%s^7 unpaused the game (Paused for %d msec) \n\"", ( ent ) ? G_admin_adminPrintName( ent ) : "console",level.pausedTime ) );
-      trap_SendServerCommand( -1, "cp \"The game has been unpaused!\"" );
+      G_BroadcastServerCommand( -1, "cp \"The game has been unpaused!\"" );
       level.paused = qfalse;
     }
     return qtrue;

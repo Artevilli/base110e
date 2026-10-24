@@ -260,12 +260,12 @@ void CheckTeamStatus( void )
 	  level.lastTeamUnbalancedTime = level.time;
 	  if (level.numAlienSpawns > 0 && level.numHumanClients - level.numAlienClients > 2)
 	  {
-		  trap_SendServerCommand (-1, "print \"Teams are unbalanced. Humans have more players.\n Humans will keep their points when switching teams.\n\"");
+		  G_BroadcastServerCommand (-1, "print \"Teams are unbalanced. Humans have more players.\n Humans will keep their points when switching teams.\n\"");
 		  level.numTeamWarnings++;
 	  }
 	  else if (level.numHumanSpawns > 0 && level.numAlienClients - level.numHumanClients > 2)
 	  {
-		  trap_SendServerCommand (-1, "print \"Teams are unbalanced. Aliens have more players.\n Aliens will keep their points when switching teams.\n\"");
+		  G_BroadcastServerCommand (-1, "print \"Teams are unbalanced. Aliens have more players.\n Aliens will keep their points when switching teams.\n\"");
 		  level.numTeamWarnings++;
 	  }
 	  else

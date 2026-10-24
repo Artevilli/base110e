@@ -427,6 +427,8 @@ typedef struct
   qbool            firstConnect;        // This is the first map since connect
   qbool            useUnlagged;
   statsCounters_t     statscounters;
+
+  qbool inGame;
 } clientPersistant_t;
 
 // unlagged
@@ -1096,18 +1098,15 @@ void CalculateRanks( void );
 void FindIntermissionPoint( void );
 void G_RunThink( gentity_t *ent );
 void QDECL G_LogPrintf( const char *fmt, ... );
-void QDECL G_LogPrintfColoured( const char *fmt, ... );
-void QDECL G_LogOnlyPrintf( const char *fmt, ... );
 void QDECL G_AdminsPrintf( const char *fmt, ... );
-void QDECL G_LogOnlyPrintf( const char *fmt, ... );
 void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
+void G_BroadcastServerCommand( int ignoreClient, const char *command );
 void CheckVote( void );
 void CheckTeamVote( int teamnum );
 void LogExit( const char *string );
 int  G_TimeTilSuddenDeath( void );
-void CheckMsgTimer( void );
 qbool G_Flood_Limited( gentity_t *ent );
 
 //

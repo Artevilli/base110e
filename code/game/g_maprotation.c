@@ -313,7 +313,7 @@ static qbool G_ParseMapRotationFile( const char *fileName )
   if( len < 0 )
     return qfalse;
 
-  if( len == 0 || len >= sizeof( text ) - 1 )
+  if( len == FS_INVALID_HANDLE || len >= sizeof( text ) - 1 )
   {
     trap_FS_FCloseFile( f );
     G_Printf( S_COLOR_RED "ERROR: map rotation file %s is %s\n", fileName,
@@ -322,7 +322,7 @@ static qbool G_ParseMapRotationFile( const char *fileName )
   }
 
   trap_FS_Read( text, len, f );
-  text[ len ] = 0;
+  text[ len ] = '\0';
   trap_FS_FCloseFile( f );
 
   // parse the text
