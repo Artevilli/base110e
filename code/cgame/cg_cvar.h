@@ -11,6 +11,7 @@
 #endif
 
 CG_CVAR(cg_ignore, "cg_ignore", "0", 0, NULL) //used for debugging
+CG_CVAR(cg_ambient, "cg_ambient", "1", CVAR_ARCHIVE | CVAR_LATCH, NULL)
 CG_CVAR(cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE, NULL)
 CG_CVAR(cg_chatBeep, "cg_chatBeep", "1", CVAR_ARCHIVE, NULL)
 CG_CVAR(cg_teamChatBeep, "cg_teamChatBeep", "1", CVAR_ARCHIVE, NULL)

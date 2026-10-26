@@ -221,10 +221,10 @@ CG_EntityEffects(centity_t *cent)
   const entityState_t *es = &cent->currentState;
 
   //update sound origins
-  CG_SetEntitySoundPosition( cent );
+  CG_SetEntitySoundPosition(cent);
 
   //add loop sound
-  if (cent->currentState.loopSound)
+  if (cg_ambient.integer && cent->currentState.loopSound)
   {
     if (es->eType != ET_SPEAKER)
     {
@@ -337,21 +337,30 @@ CG_Speaker
 Speaker entities can automatically play sounds
 ==================
 */
-static void CG_Speaker( centity_t *cent )
+static void
+CG_Speaker(centity_t *cent)
 {
-  if( ! cent->currentState.clientNum )
-  { // FIXME: use something other than clientNum...
-    return;   // not auto triggering
+  if (!cg_ambient.integer)
+  {
+    return;
   }
 
-  if( cg.time < cent->miscTime )
-    return;
+  //FIXME: use something other than clientNum...
+  if (!cent->currentState.clientNum)
+  {
+    return; //not auto triggering
+  }
 
-  trap_S_StartSound( NULL, cent->currentState.number, CHAN_ITEM, cgs.gameSounds[ cent->currentState.eventParm ] );
+  if (cg.time < cent->miscTime)
+  {
+    return;
+  }
+
+  trap_S_StartSound(NULL, cent->currentState.number, CHAN_ITEM, cgs.gameSounds[cent->currentState.eventParm]);
 
   //  ent->s.frame = ent->wait * 10;
   //  ent->s.clientNum = ent->random * 10;
-  cent->miscTime = cg.time + cent->currentState.frame * 100 + cent->currentState.clientNum * 100 * crandom( );
+  cent->miscTime = cg.time + cent->currentState.frame * 100 + cent->currentState.clientNum * 100 * crandom();
 }
 
 
