@@ -26,15 +26,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-static  vec3_t  forward, right, up;
-static  vec3_t  muzzle;
+static vec3_t forward, right, up;
+static vec3_t muzzle;
+static vec3_t muzzle_origin; //for hitscan weapon trace
+
+
+/*
+===============
+CalcMuzzlePointOrigin
+===============
+*/
+void
+CalcMuzzlePointOrigin(const gentity_t *ent, vec3_t origin, const vec3_t forward, const vec3_t right, const vec3_t up, vec3_t muzzlePoint)
+{
+  VectorCopy(ent->client->ps.origin, origin);
+  origin[2] += ent->client->ps.viewheight;
+  VectorMA(origin, 14.0, forward, muzzlePoint);
+  //snap to integer coordinates for more efficient network bandwidth usage
+  //SnapVector(muzzlePoint);
+}
+
 
 /*
 ================
 G_ForceWeaponChange
 ================
 */
-void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
+void
+G_ForceWeaponChange(gentity_t *ent, weapon_t weapon)
 {
   int i;
 
@@ -180,25 +199,25 @@ static void G_WideTrace( trace_t *tr, gentity_t *ent, float range, float width, 
 
   // Set aiming directions
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
-  CalcMuzzlePoint( ent, forward, right, up, muzzle );
-  VectorMA( muzzle, range, forward, end );
+  CalcMuzzlePointOrigin( ent, muzzle_origin, forward, right, up, muzzle );
+  VectorMA( muzzle_origin, range, forward, end );
 
   // unlagged
   G_DoTimeShiftFor( ent );
 
   // Trace against entities
-  trap_Trace( tr, muzzle, mins, maxs, end, passent, CONTENTS_BODY );
+  trap_Trace( tr, muzzle_origin, mins, maxs, end, passent, CONTENTS_BODY );
   if( tr->entityNum != ENTITYNUM_NONE )
   {
     *target = &g_entities[ tr->entityNum ];
 
     // Set range to the trace length plus the width, so that the end of the
     // LOS trace is close to the exterior of the target's bounding box
-    range = Distance( muzzle, tr->endpos ) + width;
-    VectorMA( muzzle, range, forward, end );
+    range = Distance( muzzle_origin, tr->endpos ) + width;
+    VectorMA( muzzle_origin, range, forward, end );
 
     // Trace for line of sight against the world
-    trap_Trace( tr, muzzle, NULL, NULL, end, 0, CONTENTS_SOLID );
+    trap_Trace( tr, muzzle_origin, NULL, NULL, end, 0, CONTENTS_SOLID );
     if( tr->fraction < 1.0f )
       *target = NULL;
   }
@@ -253,14 +272,14 @@ void meleeAttack( gentity_t *ent, float range, float width, int damage, meansOfD
   // set aiming directions
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
 
-  CalcMuzzlePoint( ent, forward, right, up, muzzle );
+  CalcMuzzlePointOrigin( ent, muzzle_origin, forward, right, up, muzzle );
 
-  VectorMA( muzzle, range, forward, end );
+  VectorMA( muzzle_origin, range, forward, end );
 
   // unlagged
   G_DoTimeShiftFor( ent );
 
-  trap_Trace( &tr, muzzle, mins, maxs, end, passent, MASK_SHOT );
+  trap_Trace( &tr, muzzle_origin, mins, maxs, end, passent, MASK_SHOT );
 
   // unlagged
   G_UndoTimeShiftFor( ent );
@@ -305,7 +324,7 @@ void bulletFire( gentity_t *ent, float spread, int damage, int mod )
   r = random( ) * M_PI * 2.0f;
   u = sin( r ) * crandom( ) * spread * 16;
   r = cos( r ) * crandom( ) * spread * 16;
-  VectorMA( muzzle, 8192 * 16, forward, end );
+  VectorMA( muzzle_origin, (8192.0 * 16.0), forward, end );
   VectorMA( end, r, right, end );
   VectorMA( end, u, up, end );
 
@@ -319,13 +338,13 @@ void bulletFire( gentity_t *ent, float spread, int damage, int mod )
       // unlagged
       G_DoTimeShiftFor( ent );
 
-      trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
+      trap_Trace( &tr, muzzle_origin, NULL, NULL, end, passent, MASK_SHOT );
 
       // unlagged
       G_UndoTimeShiftFor( ent );
     }
     else
-      trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
+      trap_Trace( &tr, muzzle_origin, NULL, NULL, end, passent, MASK_SHOT );
 
     if( tr.surfaceFlags & SURF_NOIMPACT )
       return;
@@ -333,7 +352,7 @@ void bulletFire( gentity_t *ent, float spread, int damage, int mod )
     traceEnt = &g_entities[ tr.entityNum ];
 
     // snap the endpos to integers, but nudged towards the line
-    SnapVectorTowards( tr.endpos, muzzle );
+    SnapVectorTowards( tr.endpos, muzzle_origin );
 
     // send bullet impact
     if( traceEnt->takedamage && traceEnt->client )
@@ -366,7 +385,7 @@ SHOTGUN
 */
 
 // this should match CG_ShotgunPattern
-void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent )
+static void ShotgunPattern( const vec3_t origin, const vec3_t origin2, int seed, gentity_t *ent )
 {
   int        i;
   float      r, u;
@@ -392,7 +411,7 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent )
   {
     r = Q_crandom( &seed ) * SHOTGUN_SPREAD * 16;
     u = Q_crandom( &seed ) * SHOTGUN_SPREAD * 16;
-    VectorMA( origin, 8192 * 16, forward, end );
+    VectorMA( origin, (8192.0 * 16.0), forward, end );
     VectorMA( end, r, right, end );
     VectorMA( end, u, up, end );
 
@@ -412,7 +431,7 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent )
 }
 
 
-void shotgunFire( gentity_t *ent )
+static void shotgunFire( gentity_t *ent )
 {
   gentity_t    *tent;
   int          passent;
@@ -421,12 +440,12 @@ void shotgunFire( gentity_t *ent )
 
   // send shotgun blast
   tent = G_TempEntity( muzzle, EV_SHOTGUN );
-  VectorScale( forward, 4096, tent->s.origin2 );
+  VectorScale( forward, 4096.0, tent->s.origin2 );
   SnapVector( tent->s.origin2 );
   tent->s.eventParm = rand() & 255;    // seed for spread pattern
   tent->s.otherEntityNum = passent;
 
-  ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent );
+  ShotgunPattern( muzzle_origin, tent->s.origin2, tent->s.eventParm, ent );
 }
 
 /*
@@ -447,12 +466,12 @@ void massDriverFire( gentity_t *ent )
 
   passent = ent->s.number;
 
-  VectorMA( muzzle, 8192 * 16, forward, end );
+  VectorMA( muzzle_origin, (8192.0 * 16.0), forward, end );
 
   // unlagged
   G_DoTimeShiftFor( ent );
 
-  trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
+  trap_Trace( &tr, muzzle_origin, NULL, NULL, end, passent, MASK_SHOT );
 
   // unlagged
   G_UndoTimeShiftFor( ent );
@@ -463,7 +482,7 @@ void massDriverFire( gentity_t *ent )
   traceEnt = &g_entities[ tr.entityNum ];
 
   // snap the endpos to integers, but nudged towards the line
-  SnapVectorTowards( tr.endpos, muzzle );
+  SnapVectorTowards( tr.endpos, muzzle_origin );
 
   // send impact
   if( traceEnt->takedamage && traceEnt->client )
@@ -501,7 +520,7 @@ void lockBlobLauncherFire( gentity_t *ent )
 {
   gentity_t *m;
 
-  m = fire_lockblob( ent, muzzle, forward );
+  m = fire_lockblob( ent, muzzle_origin, forward );
 
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
@@ -518,7 +537,7 @@ void hiveFire( gentity_t *ent )
 {
   gentity_t *m;
 
-  m = fire_hive( ent, muzzle, forward );
+  m = fire_hive( ent, muzzle_origin, forward );
 
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
@@ -610,12 +629,12 @@ void lasGunFire( gentity_t *ent )
 
   passent = ent->s.number;
 
-  VectorMA( muzzle, 8192 * 16, forward, end );
+  VectorMA( muzzle_origin, (8192.0 * 16.0), forward, end );
 
   // unlagged
   G_DoTimeShiftFor( ent );
 
-  trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
+  trap_Trace( &tr, muzzle_origin, NULL, NULL, end, passent, MASK_SHOT );
 
   //unlagged
   G_UndoTimeShiftFor( ent );
@@ -626,7 +645,7 @@ void lasGunFire( gentity_t *ent )
   traceEnt = &g_entities[ tr.entityNum ];
 
   // snap the endpos to integers, but nudged towards the line
-  SnapVectorTowards( tr.endpos, muzzle );
+  SnapVectorTowards( tr.endpos, muzzle_origin );
 
   // send impact
   if( traceEnt->takedamage && traceEnt->client )
@@ -670,14 +689,14 @@ void painSawFire( gentity_t *ent )
   // set aiming directions
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
 
-  CalcMuzzlePoint( ent, forward, right, up, muzzle );
+  CalcMuzzlePointOrigin( ent, muzzle_origin, forward, right, up, muzzle );
 
-  VectorMA( muzzle, PAINSAW_RANGE, forward, end );
+  VectorMA( muzzle_origin, PAINSAW_RANGE, forward, end );
 
   // unlagged
   G_DoTimeShiftFor( ent );
 
-  trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
+  trap_Trace( &tr, muzzle_origin, NULL, NULL, end, passent, MASK_SHOT );
 
   // unlagged
   G_UndoTimeShiftFor( ent );
@@ -760,9 +779,9 @@ void teslaFire( gentity_t *ent )
   vec3_t    end;
   gentity_t *traceEnt, *tent;
 
-  VectorMA( muzzle, TESLAGEN_RANGE, forward, end );
+  VectorMA( muzzle_origin, TESLAGEN_RANGE, forward, end );
 
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  trap_Trace( &tr, muzzle_origin, NULL, NULL, end, ent->s.number, MASK_SHOT );
 
   if( tr.entityNum == ENTITYNUM_NONE )
     return;
@@ -785,18 +804,20 @@ void teslaFire( gentity_t *ent )
   }
 
   // snap the endpos to integers to save net bandwidth, but nudged towards the line
-  SnapVectorTowards( tr.endpos, muzzle );
+  SnapVectorTowards( tr.endpos, muzzle_origin );
 
   // send railgun beam effect
   tent = G_TempEntity( tr.endpos, EV_TESLATRAIL );
 
-  VectorCopy( muzzle, tent->s.origin2 );
+  VectorCopy( muzzle_origin, tent->s.origin2 );
 
   tent->s.generic1 = ent->s.number; //src
   tent->s.clientNum = traceEnt->s.number; //dest
 
   // move origin a bit to come closer to the drawn gun muzzle
   VectorMA( tent->s.origin2, 28, up, tent->s.origin2 );
+
+  SnapVector(tent->s.origin2);
 }
 
 
@@ -894,7 +915,7 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
         ent->client->ps.stats[ STAT_MISC ] +=
           BG_FindBuildDelayForWeapon( ent->s.weapon ) * 2;
       }
-      else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS && !G_IsPowered( muzzle ) &&
+      else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS && !G_IsPowered( muzzle_origin ) &&
           ( ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) != BA_H_REPEATER ) //hack
       {
         ent->client->ps.stats[ STAT_MISC ] +=
@@ -957,14 +978,14 @@ qbool CheckVenomAttack( gentity_t *ent )
   // set aiming directions
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
 
-  CalcMuzzlePoint( ent, forward, right, up, muzzle );
+  CalcMuzzlePointOrigin( ent, muzzle_origin, forward, right, up, muzzle );
 
-  VectorMA( muzzle, LEVEL0_BITE_RANGE, forward, end );
+  VectorMA( muzzle_origin, LEVEL0_BITE_RANGE, forward, end );
 
   // unlagged
   G_DoTimeShiftFor( ent );
 
-  trap_Trace( &tr, muzzle, mins, maxs, end, passent, MASK_SHOT );
+  trap_Trace( &tr, muzzle_origin, mins, maxs, end, passent, MASK_SHOT );
 
   // unlagged
   G_UndoTimeShiftFor( ent );
@@ -1039,14 +1060,14 @@ void CheckGrabAttack( gentity_t *ent )
   // set aiming directions
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
 
-  CalcMuzzlePoint( ent, forward, right, up, muzzle );
+  CalcMuzzlePointOrigin( ent, muzzle_origin, forward, right, up, muzzle );
 
-  VectorMA( muzzle, LEVEL1_GRAB_RANGE, forward, end );
+  VectorMA( muzzle_origin, LEVEL1_GRAB_RANGE, forward, end );
 
   // unlagged
   G_DoTimeShiftFor( ent );
 
-  trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
+  trap_Trace( &tr, muzzle_origin, NULL, NULL, end, passent, MASK_SHOT );
 
   // unlagged
   G_UndoTimeShiftFor( ent );
@@ -1127,7 +1148,7 @@ void poisonCloud( gentity_t *ent )
       if( BG_InventoryContainsUpgrade( UP_BATTLESUIT, humanPlayer->client->ps.stats ) )
         continue;
 
-      trap_Trace( &tr, muzzle, NULL, NULL, humanPlayer->s.origin, humanPlayer->s.number, MASK_SHOT );
+      trap_Trace( &tr, muzzle_origin, NULL, NULL, humanPlayer->s.origin, humanPlayer->s.number, MASK_SHOT );
 
       //can't see target from here
       if( tr.entityNum == ENTITYNUM_WORLD )
@@ -1193,7 +1214,7 @@ static gentity_t *G_FindNewZapTarget( gentity_t *ent )
     {
       qbool foundOldTarget = qfalse;
 
-      trap_Trace( &tr, muzzle, NULL, NULL, enemy->s.origin, passent, MASK_SHOT );
+      trap_Trace( &tr, muzzle_origin, NULL, NULL, enemy->s.origin, passent, MASK_SHOT );
 
       //can't see target from here
       if( tr.entityNum == ENTITYNUM_WORLD )
@@ -1411,14 +1432,14 @@ void areaZapFire( gentity_t *ent )
   // set aiming directions
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
 
-  CalcMuzzlePoint( ent, forward, right, up, muzzle );
+  CalcMuzzlePointOrigin( ent, muzzle_origin, forward, right, up, muzzle );
 
-  VectorMA( muzzle, LEVEL2_AREAZAP_RANGE, forward, end );
+  VectorMA( muzzle_origin, LEVEL2_AREAZAP_RANGE, forward, end );
 
   // unlagged
   G_DoTimeShiftFor( ent );
 
-  trap_Trace( &tr, muzzle, mins, maxs, end, passent, MASK_SHOT );
+  trap_Trace( &tr, muzzle_origin, mins, maxs, end, passent, MASK_SHOT );
 
   // unlagged
   G_UndoTimeShiftFor( ent );
@@ -1586,22 +1607,6 @@ void ChargeAttack( gentity_t *ent, gentity_t *victim )
 
 //======================================================================
 
-/*
-===============
-CalcMuzzlePoint
-
-set muzzle location relative to pivoting eye
-===============
-*/
-void CalcMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint )
-{
-  VectorCopy( ent->s.pos.trBase, muzzlePoint );
-  muzzlePoint[ 2 ] += ent->client->ps.viewheight;
-  VectorMA( muzzlePoint, 1, forward, muzzlePoint );
-  VectorMA( muzzlePoint, 1, right, muzzlePoint );
-  // snap to integer coordinates for more efficient network bandwidth usage
-  SnapVector( muzzlePoint );
-}
 
 /*
 ===============
@@ -1614,12 +1619,12 @@ void FireWeapon3( gentity_t *ent )
   {
     // set aiming directions
     AngleVectors( ent->client->ps.viewangles, forward, right, up );
-    CalcMuzzlePoint( ent, forward, right, up, muzzle );
+    CalcMuzzlePointOrigin( ent, muzzle_origin, forward, right, up, muzzle );
   }
   else
   {
     AngleVectors( ent->s.angles2, forward, right, up );
-    VectorCopy( ent->s.pos.trBase, muzzle );
+    VectorCopy( ent->s.pos.trBase, muzzle_origin );
   }
 
   // fire the specific weapon
@@ -1649,12 +1654,12 @@ void FireWeapon2( gentity_t *ent )
   {
     // set aiming directions
     AngleVectors( ent->client->ps.viewangles, forward, right, up );
-    CalcMuzzlePoint( ent, forward, right, up, muzzle );
+    CalcMuzzlePointOrigin( ent, muzzle_origin, forward, right, up, muzzle );
   }
   else
   {
     AngleVectors( ent->s.angles2, forward, right, up );
-    VectorCopy( ent->s.pos.trBase, muzzle );
+    VectorCopy( ent->s.pos.trBase, muzzle_origin );
   }
 
   // fire the specific weapon
@@ -1693,12 +1698,12 @@ void FireWeapon( gentity_t *ent )
   {
     // set aiming directions
     AngleVectors( ent->client->ps.viewangles, forward, right, up );
-    CalcMuzzlePoint( ent, forward, right, up, muzzle );
+    CalcMuzzlePointOrigin( ent, muzzle_origin, forward, right, up, muzzle );
   }
   else
   {
     AngleVectors( ent->turretAim, forward, right, up );
-    VectorCopy( ent->s.pos.trBase, muzzle );
+    VectorCopy( ent->s.pos.trBase, muzzle_origin );
   }
 
   // fire the specific weapon

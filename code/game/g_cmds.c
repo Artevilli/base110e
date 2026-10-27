@@ -4440,7 +4440,6 @@ commands_t cmds[ ] = {
   { "donate", CMD_TEAM, Cmd_Donate_f },
   { "protect", CMD_TEAM|CMD_LIVING, Cmd_Protect_f },
   { "resign", CMD_TEAM, Cmd_Resign_f },
-  { "builder", 0, Cmd_Builder_f }
 };
 static int numCmds = sizeof( cmds ) / sizeof( cmds[ 0 ] );
 
@@ -4872,54 +4871,6 @@ void G_PrivateMessage( gentity_t *ent )
     ADMP( va( "%s\n", str ) );
   }
 }
-
- /*
- =================
- Cmd_Builder_f
- =================
- */
- void Cmd_Builder_f( gentity_t *ent )
- {
-   vec3_t      forward, right, up;
-   vec3_t      start, end;
-   trace_t     tr;
-   gentity_t   *traceEnt;
-   char bdnumbchr[21];
- 
-   AngleVectors( ent->client->ps.viewangles, forward, right, up );
-   if( ent->client->pers.teamSelection != PTE_NONE )
-     CalcMuzzlePoint( ent, forward, right, up, start );
-   else
-     VectorCopy( ent->client->ps.origin, start );
-   VectorMA( start, 1000, forward, end );
- 
-   trap_Trace( &tr, start, NULL, NULL, end, ent->s.number, MASK_PLAYERSOLID );
-   traceEnt = &g_entities[ tr.entityNum ];
- 
-   Com_sprintf( bdnumbchr, sizeof(bdnumbchr), "%i", traceEnt->bdnumb );
- 
-   if( tr.fraction < 1.0f && ( traceEnt->s.eType == ET_BUILDABLE ) )
-   {
-     if( G_admin_permission( ent, "buildlog" ) ) {
-      trap_SendServerCommand( ent-g_entities, va(
-        "print \"^5/builder:^7 ^3Building:^7 %s ^3Built By:^7 %s^7 ^3Buildlog Number:^7 %s^7\n\"",
-        BG_FindHumanNameForBuildable( traceEnt->s.modelindex ),
-        (traceEnt->bdnumb != -1) ? G_FindBuildLogName( traceEnt->bdnumb ) : "<world>",
-        (traceEnt->bdnumb != -1) ? bdnumbchr : "none" ) );
-     }
-     else
-     {
-      trap_SendServerCommand( ent-g_entities, va(
-        "print \"^5/builder:^7 ^3Building:^7 %s ^3Built By:^7 %s^7\n\"",
-         BG_FindHumanNameForBuildable( traceEnt->s.modelindex ),     
-        (traceEnt->bdnumb != -1) ? G_FindBuildLogName( traceEnt->bdnumb ) : "<world>" ) );
-     }
-   }
-   else
-   {
-      trap_SendServerCommand( ent-g_entities, "print \"^5/builder:^7 No structure found in your crosshair. Please face a structure and try again.\n\"" );
-   }
- }
 
 void G_CP( gentity_t *ent )
  { 
