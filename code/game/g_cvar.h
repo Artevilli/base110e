@@ -94,6 +94,8 @@ G_CVAR(g_newbieNamePrefix, "g_newbieNamePrefix", "Newbie#", CVAR_ARCHIVE, 0, qfa
 G_CVAR(g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse)
 G_CVAR(g_allowUnnamed, "g_allowUnnamed", "1", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_fallDamage, "g_fallDamage", "1", CVAR_ARCHIVE, 0, qfalse)
+G_CVAR(pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse)
+G_CVAR(pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_fixedPmove, "pm_fixedPmove", "0", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", CVAR_SYSTEMINFO, 0, qfalse)
 G_CVAR(pm_airControl, "pm_airControl", "0", CVAR_SYSTEMINFO, 0, qfalse)

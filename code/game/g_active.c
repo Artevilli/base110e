@@ -1204,14 +1204,40 @@ void ClientThink_real( gentity_t *ent )
   }
   //unlagged - true ping
 
+  if (pmove_msec.integer < 8)
+  {
+    trap_Cvar_Set("pmove_msec", "8");
+    trap_Cvar_Update(&pmove_msec);
+  }
+  else if (pmove_msec.integer > 33)
+  {
+    trap_Cvar_Set("pmove_msec", "33");
+    trap_Cvar_Update(&pmove_msec);
+  }
+
+  if (pmove_fixed.integer)
+  {
+    ucmd->serverTime = ((ucmd->serverTime + pmove_msec.integer - 1) / pmove_msec.integer) * pmove_msec.integer;
+
+    //if (ucmd->serverTime - client->ps.commandTime <= 0)
+    //{
+      //return;
+    //}
+  }
+
   msec = ucmd->serverTime - client->ps.commandTime;
+
   // following others may result in bad times, but we still want
   // to check for follow toggles
-  if( msec < 1 && client->sess.spectatorState != SPECTATOR_FOLLOW )
+  if (msec < 1 && client->sess.spectatorState != SPECTATOR_FOLLOW)
+  {
     return;
+  }
 
-  if( msec > 200 )
+  if (msec > 200)
+  {
     msec = 200;
+  }
 
   //
   // check for exiting intermission
@@ -1400,6 +1426,9 @@ void ClientThink_real( gentity_t *ent )
   pm.trace = trap_Trace;
   pm.pointcontents = trap_PointContents;
   pm.debugLevel = g_debugMove.integer;
+
+  pm.pmove_fixed = pmove_fixed.integer;
+  pm.pmove_msec = pmove_msec.integer;
 
   if (pm_fixedPmoveFPS.integer < 60)
   {
