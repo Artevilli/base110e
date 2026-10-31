@@ -2,9 +2,9 @@ QA_SRC = \
  g_main $(QADIR)/g_syscalls.asm \
  bg_misc bg_lib bg_pmove bg_slidemove \
  q_math q_shared \
- g_active g_admin g_buildable g_client g_cmds g_combat g_maprotation \
- g_mem g_misc g_missile g_mover g_physics g_ptr g_session g_spawn g_svcmds \
- g_target g_team g_trigger g_unlagged g_utils g_weapon \
+ g_active g_admin g_buildable g_client g_cmds g_combat \
+ g_mem g_misc g_missile g_mover g_physics g_ptr g_rotation g_session \
+ g_spawn g_svcmds g_target g_team g_trigger g_unlagged g_utils g_weapon \
 
 CG_SRC = \
  cg_main $(CGDIR)/cg_syscalls.asm \

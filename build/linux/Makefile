@@ -384,13 +384,13 @@ QAOBJ_ = \
   $(B)/$(MOD)/game/g_client.o \
   $(B)/$(MOD)/game/g_cmds.o \
   $(B)/$(MOD)/game/g_combat.o \
-  $(B)/$(MOD)/game/g_maprotation.o \
   $(B)/$(MOD)/game/g_mem.o \
   $(B)/$(MOD)/game/g_misc.o \
   $(B)/$(MOD)/game/g_missile.o \
   $(B)/$(MOD)/game/g_mover.o \
   $(B)/$(MOD)/game/g_physics.o \
   $(B)/$(MOD)/game/g_ptr.o \
+  $(B)/$(MOD)/game/g_rotation.o \
   $(B)/$(MOD)/game/g_session.o \
   $(B)/$(MOD)/game/g_spawn.o \
   $(B)/$(MOD)/game/g_svcmds.o \

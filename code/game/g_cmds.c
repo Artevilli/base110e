@@ -1670,7 +1670,7 @@ void Cmd_CallVote_f( gentity_t *ent )
        return;
     }
   
-    if( !G_MapExists( arg2 ) )
+    if( !G_MapExist( arg2 ) )
     {
       trap_SendServerCommand( ent - g_entities, va( "print \"callvote: "
         "'maps/%s.bsp' could not be found on the server\n\"", arg2 ) );
@@ -1691,7 +1691,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   }
   else if( !Q_stricmp( arg1, "nextmap" ) )
   {
-    if( G_MapExists( g_nextMap.string ) )
+    if( G_MapExist( g_nextMap.string ) )
     {
       trap_SendServerCommand( ent - g_entities, va( "print \"callvote: "
         "the next map is already set to '%s^7'\n\"", g_nextMap.string ) );
@@ -1705,7 +1705,7 @@ void Cmd_CallVote_f( gentity_t *ent )
       return;
     }
 
-    if( !G_MapExists( arg2 ) )
+    if( !G_MapExist( arg2 ) )
     {
       trap_SendServerCommand( ent - g_entities, va( "print \"callvote: "
         "'maps/%s^7.bsp' could not be found on the server\n\"", arg2 ) );
@@ -1828,7 +1828,7 @@ void Cmd_CallVote_f( gentity_t *ent )
       }
       else
       {
-        if (G_MapExists(g_nextMap.string))
+        if (G_MapExist(g_nextMap.string))
         {
           trap_SendServerCommand(ent - g_entities, va("print \"callvote: the next map is already set to '%s^7'\n\"", g_nextMap.string));
           return;

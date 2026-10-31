@@ -662,8 +662,8 @@ void SP_worldspawn( void )
   g_entities[ ENTITYNUM_WORLD ].s.number = ENTITYNUM_WORLD;
   g_entities[ ENTITYNUM_WORLD ].classname = "worldspawn";
 
-  if( g_restarted.integer )
-    trap_Cvar_Set( "g_restarted", "0" );
+  //if( g_restarted.integer )
+    //trap_Cvar_Set( "g_restarted", "0" );
 
 }
 

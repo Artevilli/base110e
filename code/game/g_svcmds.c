@@ -475,6 +475,38 @@ void  Svcmd_ForceTeam_f( void )
   //FIXME: tremulise this
 }
 
+void
+Svcmd_Rotate_f(void)
+{
+  char str[MAX_TOKEN_CHARS];
+
+  if (trap_Argc() >= 2)
+  {
+    trap_Argv(1, str, sizeof(str));
+
+    if (atoi(str) > 0)
+    {
+      trap_Cvar_Set(SV_ROTATION, str);
+    }
+  }
+
+  if (!ParseMapRotation())
+  {
+    char val[MAX_CVAR_VALUE_STRING];
+
+    trap_Cvar_VariableStringBuffer("nextmap", val, sizeof(val));
+
+    if (!val[0] || !Q_stricmpn(val, "map_restart ", 12))
+    {
+      G_LoadMap(NULL);
+    }
+    else
+    {
+      trap_SendConsoleCommand(EXEC_APPEND, "vstr nextmap\n");
+    }
+  }
+}
+
 /*
 ===================
 Svcmd_LayoutSave_f
@@ -624,27 +656,9 @@ qbool  ConsoleCommand( void )
     return qtrue;
   }
 
-  if( Q_stricmp( cmd, "mapRotation" ) == 0 )
+  if (Q_stricmp(cmd, "rotate") == 0)
   {
-    char *rotationName = ConcatArgs( 1 );
-
-    if( !G_StartMapRotation( rotationName, qfalse ) )
-      G_Printf( "Can't find map rotation %s\n", rotationName );
-
-    return qtrue;
-  }
-
-  if( Q_stricmp( cmd, "stopMapRotation" ) == 0 )
-  {
-    G_StopMapRotation( );
-
-    return qtrue;
-  }
-
-  if( Q_stricmp( cmd, "advanceMapRotation" ) == 0 )
-  {
-    G_AdvanceMapRotation( );
-
+    Svcmd_Rotate_f();
     return qtrue;
   }
 

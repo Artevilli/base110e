@@ -17,7 +17,7 @@ G_CVAR(sv_fps, "sv_fps", "20", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(sv_running, "sv_running", "0", CVAR_ARCHIVE, 0, qfalse)
 
 //noset vars
-G_CVAR(g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse)
+//G_CVAR(g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse)
 G_CVAR(g_lockTeamsAtStart, "g_lockTeamsAtStart", "0", CVAR_ROM, 0, qfalse)
 
 //latched vars
@@ -50,6 +50,10 @@ G_CVAR(g_banIPs, "g_banIPs", "", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_filterBan, "g_filterBan", "1", CVAR_ARCHIVE, 0, qfalse)
 
 G_CVAR(g_needpass, "g_needpass", "0", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse)
+
+G_CVAR(g_mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse)
+
+G_CVAR(g_rotation, "g_rotation", "", CVAR_ARCHIVE, 0, qfalse)
 
 G_CVAR(g_dedicated, "dedicated", "0", 0, 0, qfalse)
 

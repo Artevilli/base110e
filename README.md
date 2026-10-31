@@ -9,6 +9,7 @@ Unofficial Tremulous 1.1.0 gamecode patch
  * unlagged weapons
  * improved prediction
  * weapon reload fix
+ * simplified map rotation system
  * field of view automatically adjusts to your screen resolution rather than stretching or adding black borders (`cg_fovAdjust`)
  * field of view is optionally customizable to a fixed value (`cg_fovCustom`)
  * option for better pmove (`pm_fixedPmove`/`pm_fixedPmoveFPS`) while maintaining low bandwidth usage

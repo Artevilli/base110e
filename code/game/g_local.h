@@ -710,7 +710,6 @@ typedef struct
                                                   // frag can be watched.  Disable future
                                                   // kills during this delay
   int               intermissiontime;             // time the intermission was started
-  char              *changemap;
   qbool          readyToExit;                  // at least one client wants to exit
   int               exitTime;
   vec3_t            intermission_origin;          // also used for spectator spawns
@@ -784,6 +783,8 @@ typedef struct
   
   statsCounters_level alienStatsCounters;
   statsCounters_level humanStatsCounters;
+
+  qbool denyMapRestart;
 
   // unlagged
   int               frameStartTime;
@@ -1234,15 +1235,6 @@ typedef struct mapRotations_s
   int             numRotations;
 } mapRotations_t;
 
-void      G_PrintRotations( void );
-qbool  G_AdvanceMapRotation( void );
-qbool  G_StartMapRotation( char *name, qbool changeMap );
-void      G_StopMapRotation( void );
-qbool  G_MapRotationActive( void );
-void      G_InitMapRotations( void );
-qbool  G_MapExists( char *name );
-int       G_GetCurrentMap( int rotation );
-
 //
 // g_ptr.c
 //
@@ -1254,6 +1246,15 @@ connectionRecord_t  *G_FindConnectionForCode( int code );
 
 //some maxs
 #define MAX_FILEPATH      144
+
+//g_rotation.c
+#define SV_ROTATION "sessionMapIndex"
+qbool
+ParseMapRotation(void);
+void
+G_LoadMap(const char *map);
+qbool
+G_MapExist(const char *map);
 
 extern  level_locals_t  level;
 extern  gentity_t       g_entities[ MAX_GENTITIES ];

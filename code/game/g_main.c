@@ -61,10 +61,10 @@ static cvarTable_t gameCvarTable[] =
 static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[ 0 ] );
 
 
-void G_InitGame( int levelTime, int randomSeed, int restart );
-void G_RunFrame( int levelTime );
-void G_ShutdownGame( int restart );
-void CheckExitRules( void );
+static void G_InitGame( int levelTime, int randomSeed, int restart );
+static void G_RunFrame( int levelTime );
+static void G_ShutdownGame( int restart );
+static void CheckExitRules( void );
 #if !defined(OLD_CHECK_EXIT_RULES)
 static void
 CheckExitRulesLater(void);
@@ -422,7 +422,7 @@ G_InitGame
 
 ============
 */
-void G_InitGame( int levelTime, int randomSeed, int restart )
+static void G_InitGame( int levelTime, int randomSeed, int restart )
 {
   char value[MAX_CVAR_VALUE_STRING];
   int i;
@@ -462,7 +462,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   // set some level globals
   memset( &level, 0, sizeof( level ) );
   level.time = levelTime;
+
   level.startTime = levelTime;
+
   level.alienStage2Time = level.alienStage3Time =
     level.humanStage2Time = level.humanStage3Time = level.startTime;
 
@@ -559,12 +561,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   BG_InitClassOverrides( );
   BG_InitBuildableOverrides( );
   G_InitDamageLocations( );
-  G_InitMapRotations( );
   G_InitSpawnQueue( &level.alienSpawnQueue );
   G_InitSpawnQueue( &level.humanSpawnQueue );
-
-  if( g_debugMapRotation.integer )
-    G_PrintRotations( );
 
   //reset stages
   trap_Cvar_Set( "g_alienStage", va( "%d", S1 ) );
@@ -577,6 +575,17 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_Printf( "-----------------------------------\n" );
 
   G_RemapTeamShaders( );
+
+  //don't forget to reset items
+  trap_SetConfigstring(CS_INTERMISSION, "");
+
+  //launch rotation system on first map load
+  if (trap_Cvar_VariableIntegerValue(SV_ROTATION) == 0)
+  {
+    trap_Cvar_Set(SV_ROTATION, "1");
+    level.denyMapRestart = qtrue;
+    ParseMapRotation();
+  }
 
   // reset extendvote, just in case
   trap_Cvar_Set( "g_extendVote", "0" );
@@ -619,7 +628,7 @@ static void G_ClearVotes( void )
 G_ShutdownGame
 =================
 */
-void G_ShutdownGame( int restart )
+static void G_ShutdownGame( int restart )
 {
   // in case of a map_restart
   G_ClearVotes( );
@@ -1622,17 +1631,6 @@ void ExitLevel( void )
     }
   }
 
-  if ( G_MapExists( g_nextMap.string ) )
-    trap_SendConsoleCommand( EXEC_APPEND, va("!map %s\n", g_nextMap.string ) );
-  else if( G_MapRotationActive( ) )
-    G_AdvanceMapRotation( );
-  else
-    trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
-
-  trap_Cvar_Set( "g_nextMap", "" );
-
-  level.restarted = qtrue;
-  level.changemap = NULL;
   level.intermissiontime = 0;
 
   // reset all the scores so we don't enter the intermission again
@@ -1656,7 +1654,24 @@ void ExitLevel( void )
       level.clients[ i ].pers.connected = CON_CONNECTING;
   }
 
+  if (!ParseMapRotation())
+  {
+    char val[MAX_CVAR_VALUE_STRING];
+
+    trap_Cvar_VariableStringBuffer("nextmap", val, sizeof(val));
+
+    if (!val[0] || !Q_stricmpn(val, "map_restart ", 12))
+    {
+      G_LoadMap(NULL);
+    }
+    else
+    {
+      trap_SendConsoleCommand(EXEC_APPEND, "vstr nextmap\n");
+    }
+  }
 }
+
+
 /*
 =================
 G_AdminsPrintf
@@ -1997,7 +2012,7 @@ and the time everyone is moved to the intermission spot, so you
 can see the last frag.
 =================
 */
-void
+static void
 CheckExitRules(void)
 {
 #if !defined(OLD_CHECK_EXIT_RULES)
@@ -2401,11 +2416,11 @@ void CheckCvars( void )
   static int lastMarkDeconModCount  = -1;
   static int lastSDTimeModCount = -1;
 
-  if( g_password.modificationCount != lastPasswordModCount )
+  if( lastPasswordModCount != g_password.modificationCount )
   {
     lastPasswordModCount = g_password.modificationCount;
 
-    if( *g_password.string && Q_stricmp( g_password.string, "none" ) )
+    if( g_password.string[0] && Q_stricmp( g_password.string, "none" ) != 0 )
       trap_Cvar_Set( "g_needpass", "1" );
     else
       trap_Cvar_Set( "g_needpass", "0" );
@@ -2462,8 +2477,8 @@ void G_RunThink( gentity_t *ent )
   ent->nextthink = 0;
   if( !ent->think )
     G_Error( "NULL ent->think" );
-
-  ent->think( ent );
+  else
+    ent->think(ent);
 }
 
 /*
@@ -2495,7 +2510,7 @@ G_RunFrame
 Advances the non-player objects in the world
 ================
 */
-void G_RunFrame( int levelTime )
+static void G_RunFrame( int levelTime )
 {
   int       i;
   gentity_t *ent;

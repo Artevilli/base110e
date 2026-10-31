@@ -650,7 +650,7 @@ vec_t DistanceBetweenLineSegments(
 float Com_Clamp( float min, float max, float value );
 
 char	*COM_SkipPath( char *pathname );
-void	COM_StripExtension(const char *in, char *out, int destsize);
+void	COM_StripExtension( const char *in, char *out, int destsize );
 void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
 
 void	COM_BeginParseSession( const char *name );
@@ -658,9 +658,13 @@ int		COM_GetCurrentParseLine( void );
 char	*COM_Parse( char **data_p );
 char	*COM_ParseExt( char **data_p, qbool allowLineBreak );
 int		COM_Compress( char *data_p );
-void	COM_ParseError( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
-void	COM_ParseWarning( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
-//int		COM_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] );
+void	COM_ParseError( char *format, ... );
+void	COM_ParseWarning( char *format, ... );
+
+void	SkipTillSeparators( char **data );
+void	Com_InitSeparators( void );
+char	*COM_ParseSep( char **data_p, qbool allowLineBreaks );
+int		Com_Split( char *in, char **out, int outsz, int delim );
 
 #define MAX_TOKENLENGTH		1024
 

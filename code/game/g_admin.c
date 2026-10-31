@@ -259,12 +259,6 @@ g_admin_cmd_t g_admin_cmds[] =
   },
 
   {
-    "rotation", G_admin_listrotation, "rotation",
-    "display a list of maps that are in the active map rotation",
-    ""
-  },
-
-  {
     "setlevel", G_admin_setlevel, "setlevel",
     "sets the admin level of a player",
     "[^3name|slot#|admin#^7] [^3level^7]"
@@ -3368,68 +3362,6 @@ qbool G_admin_listmaps( gentity_t *ent, int skiparg )
 
   ADMBP_end();
 
-  return qtrue;
-}
-
-qbool G_admin_listrotation( gentity_t *ent, int skiparg )
-{
-  int i, j, statusColor;
-  char *status = '\0';
-
-  extern mapRotations_t mapRotations;
-
-  // Check for an active map rotation
-  if ( !G_MapRotationActive() ||
-       g_currentMapRotation.integer == NOT_ROTATING )
-  {
-    trap_SendServerCommand( ent-g_entities, "print \"^3!rotation: ^7There is no active map rotation on this server\n\"" );
-    return qfalse;
-  }
-
-  // Locate the active map rotation and output its contents
-  for( i = 0; i < mapRotations.numRotations; i++ )
-  {
-    if ( i == g_currentMapRotation.integer )
-    {
-      ADMBP_begin();
-      ADMBP( va( "^3!rotation: ^7%s\n", mapRotations.rotations[ i ].name ) );
-
-      for( j = 0; j < mapRotations.rotations[ i ].numMaps; j++ )
-      {
-        if ( G_GetCurrentMap( i ) == j )
-        {
-          statusColor = 3;
-          status = "current slot";
-        }
-        else if ( !G_MapExists( mapRotations.rotations[ i ].maps[ j ].name ) )
-        {
-          statusColor = 1;
-          status = "missing";
-        }
-        else
-        {
-          statusColor = 7;
-          status = "";
-        }
-        ADMBP( va( "^%i%3i %-20s ^%i%s\n", statusColor, j + 1, mapRotations.rotations[ i ].maps[ j ].name, statusColor, status ) );
-      }
-
-      ADMBP_end();
-
-      // No maps were found in the active map rotation
-      if ( mapRotations.rotations[ i ].numMaps < 1 )
-      {
-        trap_SendServerCommand( ent-g_entities, "print \"  - ^7Empty!\n\"" );
-        return qfalse;
-      }
-    }
-  }
-
-  if( g_nextMap.string[0] )
-  {
-    ADMP( va ("^5 Next map overriden by g_nextMap to: %s\n", g_nextMap.string ) );
-  }
-  
   return qtrue;
 }
 
