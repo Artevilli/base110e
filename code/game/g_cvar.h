@@ -143,11 +143,8 @@ G_CVAR(g_floodMinTime, "g_floodMinTime", "2000", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_markDeconstruct, "g_markDeconstruct", "0", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_deconDead, "g_deconDead", "0", CVAR_ARCHIVE, 0, qtrue)
 
-G_CVAR(g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse)
-G_CVAR(g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse) //-1 = NOT_ROTATING
 G_CVAR(g_currentMap, "g_currentMap", "0", 0, 0, qfalse)
 G_CVAR(g_nextMap, "g_nextMap", "", 0 , 0, qtrue)
-G_CVAR(g_initialMapRotation, "g_initialMapRotation", "", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_shove, "g_shove", "15", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_mapConfigs, "g_mapConfigs", "", CVAR_ARCHIVE, 0, qfalse)
 
