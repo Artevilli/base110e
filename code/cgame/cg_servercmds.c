@@ -218,8 +218,8 @@ void CG_ShaderStateChanged( void )
   char        originalShader[ MAX_QPATH ];
   char        newShader[ MAX_QPATH ];
   char        timeOffset[ 16 ];
-  const char  *o;
-  char        *n, *t;
+  const char  *o, *n;
+  char        *t;
 
   o = CG_ConfigString( CS_SHADERSTATE );
 

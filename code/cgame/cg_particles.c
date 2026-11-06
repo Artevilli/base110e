@@ -1085,7 +1085,7 @@ static qbool CG_ParseParticle( baseParticle_t *bp, char **text_p )
       randFrac = 0;
       token = COM_ParseExt(text_p, qfalse);
 
-      if (token != '\0')
+      if (*token != '\0')
       {
         CG_ParseValueAndVariance(token, NULL, &randFrac, qtrue);
       }
