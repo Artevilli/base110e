@@ -1408,6 +1408,7 @@ typedef struct
   qbool pm_fastWeaponSwitches;
   qbool pm_noStamina;
   qbool pm_pounceChomp;
+  qbool pm_pounceFix;
   qbool pm_rampJumps;
   qbool pm_reloadFix;
 

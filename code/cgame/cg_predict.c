@@ -1063,6 +1063,7 @@ void CG_PredictPlayerState( void )
     cg_pmove.fastWeaponSwitches = cgs.pm_fastWeaponSwitches;
     cg_pmove.noStamina = cgs.pm_noStamina;
     cg_pmove.pounceChomp = cgs.pm_pounceChomp;
+    cg_pmove.pounceFix = cgs.pm_pounceFix;
     cg_pmove.rampJumps = cgs.pm_rampJumps;
     cg_pmove.reloadFix = cgs.pm_reloadFix;
 

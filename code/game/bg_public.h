@@ -192,6 +192,7 @@ typedef struct
   int fastWeaponSwitches;
   int noStamina;
   int pounceChomp;
+  int pounceFix;
   int rampJumps;
   int reloadFix;
 

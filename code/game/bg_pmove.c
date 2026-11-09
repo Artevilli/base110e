@@ -2865,6 +2865,21 @@ static void PM_Weapon( void )
     }
   }
 
+  if (!pm->pounceChomp && pm->pounceFix)
+  {
+    if (pm->ps->weapon == WP_ALEVEL3 || pm->ps->weapon == WP_ALEVEL3_UPG)
+    {
+      if (!(pm->cmd.buttons & BUTTON_ATTACK2))
+      {
+        if (pm->ps->groundEntityNum != ENTITYNUM_NONE)
+        {
+          pm->ps->stats[STAT_MISC] = 0;
+          pm->pmext->pouncePayload = 0;
+        }
+      }
+    }
+  }
+
   if( pm->ps->weaponTime > 0 )
     pm->ps->weaponTime -= pml.msec;
 

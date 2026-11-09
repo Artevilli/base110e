@@ -1445,6 +1445,7 @@ void ClientThink_real( gentity_t *ent )
   pm.fastWeaponSwitches = pm_fastWeaponSwitches.integer;
   pm.noStamina = pm_noStamina.integer;
   pm.pounceChomp = pm_pounceChomp.integer;
+  pm.pounceFix = pm_pounceFix.integer;
   pm.rampJumps = pm_rampJumps.integer;
   pm.reloadFix = pm_reloadFix.integer;
 
