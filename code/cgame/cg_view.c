@@ -551,25 +551,41 @@ static void CG_OffsetFirstPersonView( void )
 #define LEVEL3_FEEDBACK  20.0f
 
   //provide some feedback for pouncing
-  if( cg.predictedPlayerState.weapon == WP_ALEVEL3 ||
-      cg.predictedPlayerState.weapon == WP_ALEVEL3_UPG )
+  if (cg.predictedPlayerState.weapon == WP_ALEVEL3 || cg.predictedPlayerState.weapon == WP_ALEVEL3_UPG)
   {
-    if( cg.predictedPlayerState.stats[ STAT_MISC ] > 0 )
+    usercmd_t cmd;
+    int cmdNum;
+    float time;
+    static int startTime = 0;
+
+    cmdNum = trap_GetCurrentCmdNumber();
+    trap_GetUserCmd(cmdNum, &cmd);
+
+    if (!(cmd.buttons & BUTTON_ATTACK2))
     {
-      float   fraction1, fraction2;
-      vec3_t  forward;
+      startTime = cg.time;
+    }
 
-      AngleVectors( angles, forward, NULL, NULL );
-      VectorNormalize( forward );
+    time = (float)(cg.time - startTime);
 
-      fraction1 = (float)( cg.time - cg.weapon2Time ) / (float)LEVEL3_POUNCE_CHARGE_TIME;
+    if (time > 0.0f)
+    {
+      float fraction1, fraction2;
+      vec3_t forward;
 
-      if( fraction1 > 1.0f )
+      AngleVectors(angles, forward, NULL, NULL);
+      VectorNormalize(forward);
+
+      fraction1 = time / (float)LEVEL3_POUNCE_CHARGE_TIME;
+
+      if (fraction1 > 1.0f)
+      {
         fraction1 = 1.0f;
+      }
 
-      fraction2 = -sin( fraction1 * M_PI / 2 );
+      fraction2 = -sin(fraction1 * M_PI / 2);
 
-      VectorMA( origin, LEVEL3_FEEDBACK * fraction2, forward, origin );
+      VectorMA(origin, LEVEL3_FEEDBACK * fraction2, forward, origin);
     }
   }
 
