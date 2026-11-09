@@ -2871,9 +2871,10 @@ static void PM_Weapon( void )
     {
       if (!(pm->cmd.buttons & BUTTON_ATTACK2))
       {
+        pm->ps->stats[STAT_MISC] = 0;
+
         if (pm->ps->groundEntityNum != ENTITYNUM_NONE)
         {
-          pm->ps->stats[STAT_MISC] = 0;
           pm->pmext->pouncePayload = 0;
         }
       }
