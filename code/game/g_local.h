@@ -1178,7 +1178,7 @@ connectionRecord_t  *G_FindConnectionForCode( int code );
 //g_rotation.c
 #define SV_ROTATION "sessionMapIndex"
 qbool
-ParseMapRotation(void);
+ParseMapRotation(qbool nextMapSet);
 void
 G_LoadMap(const char *map);
 qbool

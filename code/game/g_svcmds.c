@@ -490,7 +490,7 @@ Svcmd_Rotate_f(void)
     }
   }
 
-  if (!ParseMapRotation())
+  if (!ParseMapRotation(qfalse))
   {
     char val[MAX_CVAR_VALUE_STRING];
 

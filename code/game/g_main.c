@@ -584,7 +584,7 @@ static void G_InitGame( int levelTime, int randomSeed, int restart )
   {
     trap_Cvar_Set(SV_ROTATION, "1");
     level.denyMapRestart = qtrue;
-    ParseMapRotation();
+    ParseMapRotation(qfalse);
   }
 
   // reset extendvote, just in case
@@ -1654,7 +1654,13 @@ void ExitLevel( void )
       level.clients[ i ].pers.connected = CON_CONNECTING;
   }
 
-  if (!ParseMapRotation())
+  if (G_MapExist(g_nextMap.string))
+  {
+    ParseMapRotation(qtrue);
+    trap_SendConsoleCommand(EXEC_APPEND, va("map %s\n", g_nextMap.string));
+    trap_Cvar_Set("g_nextMap", "");
+  }
+  else if (!ParseMapRotation(qfalse))
   {
     char val[MAX_CVAR_VALUE_STRING];
 
