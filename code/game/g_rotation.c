@@ -60,7 +60,7 @@ G_LoadMap(const char *map)
 
 
 qbool
-ParseMapRotation(qbool nextMapSet)
+ParseMapRotation(void)
 {
   char buf[4096];
   char cvar[256];
@@ -216,12 +216,9 @@ __rescan:
     reqIndex = 1;
   }
 
-  if (nextMapSet == qfalse)
-  {
-    trap_Cvar_Set(SV_ROTATION, va("%i", reqIndex));
-    //trap_Cvar_Set("g_restarted", "1");
-    G_LoadMap(map);
-  }
+  trap_Cvar_Set(SV_ROTATION, va("%i", reqIndex));
+  //trap_Cvar_Set("g_restarted", "1");
+  G_LoadMap(map);
 
   return qtrue;
 }

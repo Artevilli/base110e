@@ -309,7 +309,8 @@ typedef struct
   clientList_t      ignoreList;
 } clientSession_t;
 
-#define MAX_NETNAME       36
+#define MAX_NETNAME 36
+#define	MAX_VOTE_COUNT 3
 
 //unlagged - true ping
 #define NUM_PING_SAMPLES 64
@@ -389,6 +390,7 @@ typedef struct
   int                 enterTime;          // level.time the client entered the game
   playerTeamState_t   teamState;          // status in teamplay games
   int                 voteCount;          // to prevent people from constantly calling votes
+  int                 teamVoteCount;      //to prevent people from constantly calling votes
   qbool            teamInfo;           // send team overlay updates?
 
   pClass_t            classSelection;     // player class (copied to ent->client->ps.stats[ STAT_PCLASS ] once spawned)
@@ -427,6 +429,8 @@ typedef struct
   qbool            firstConnect;        // This is the first map since connect
   qbool            useUnlagged;
   statsCounters_t     statscounters;
+  int voted;
+  int teamVoted;
 
   qbool inGame;
 } clientPersistant_t;
@@ -1178,7 +1182,7 @@ connectionRecord_t  *G_FindConnectionForCode( int code );
 //g_rotation.c
 #define SV_ROTATION "sessionMapIndex"
 qbool
-ParseMapRotation(qbool nextMapSet);
+ParseMapRotation(void);
 void
 G_LoadMap(const char *map);
 qbool

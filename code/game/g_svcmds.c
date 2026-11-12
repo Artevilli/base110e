@@ -490,7 +490,7 @@ Svcmd_Rotate_f(void)
     }
   }
 
-  if (!ParseMapRotation(qfalse))
+  if (!ParseMapRotation())
   {
     char val[MAX_CVAR_VALUE_STRING];
 
@@ -506,6 +506,40 @@ Svcmd_Rotate_f(void)
     }
   }
 }
+
+
+void
+Svcmd_RandomMap_f(void)
+{
+  //load maps into a nice big array, like listmaps
+  char fileList[20 * 1024] = {""};
+  char *fileSort[1024];
+  int numFiles;
+  int i;
+  int fileLen = 0;
+  int count = 0;
+  char *filePtr;
+
+  numFiles = trap_FS_GetFileList("maps/", ".bsp", fileList, sizeof(fileList));
+  filePtr = fileList;
+
+  for(i = 0;i < numFiles && count < 1024;i++, filePtr += fileLen + 1)
+  {
+    fileLen = strlen(filePtr);
+
+    if (fileLen < 5)
+    {
+      continue;
+    }
+
+    filePtr[fileLen - 4] = '\0';
+
+    fileSort[count++] = filePtr;
+  }
+
+  trap_SendConsoleCommand(EXEC_APPEND, va("map %s", fileSort[rand() % count]));
+}
+
 
 /*
 ===================
@@ -659,6 +693,12 @@ qbool  ConsoleCommand( void )
   if (Q_stricmp(cmd, "rotate") == 0)
   {
     Svcmd_Rotate_f();
+    return qtrue;
+  }
+
+  if (Q_stricmp(cmd, "random_map") == 0)
+  {
+    Svcmd_RandomMap_f();
     return qtrue;
   }
 

@@ -569,7 +569,6 @@ static void G_InitGame( int levelTime, int randomSeed, int restart )
   trap_Cvar_Set( "g_humanStage", va( "%d", S1 ) );
   trap_Cvar_Set( "g_alienKills", 0 );
   trap_Cvar_Set( "g_humanKills", 0 );
-  trap_Cvar_Set( "g_suddenDeath", 0 );
   level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
 
   G_Printf( "-----------------------------------\n" );
@@ -584,7 +583,7 @@ static void G_InitGame( int levelTime, int randomSeed, int restart )
   {
     trap_Cvar_Set(SV_ROTATION, "1");
     level.denyMapRestart = qtrue;
-    ParseMapRotation(qfalse);
+    ParseMapRotation();
   }
 
   // reset extendvote, just in case
@@ -1013,12 +1012,15 @@ void G_CountSpawns( void )
 G_TimeTilSuddenDeath
 ============
 */
-int G_TimeTilSuddenDeath( void )
+int
+G_TimeTilSuddenDeath(void)
 {
-  if( (!g_suddenDeathTime.integer && level.suddenDeathBeginTime==0 ) || level.suddenDeathBeginTime<0 )
+  if (level.suddenDeathBeginTime < 0)
+  {
     return 999999999; // Always some time away
+  }
 
-  return ( ( level.suddenDeathBeginTime ) - ( level.time - level.startTime ) );
+  return (level.suddenDeathBeginTime - (level.time - level.startTime));
 }
 
 
@@ -1035,124 +1037,94 @@ void
 G_CalculateBuildPoints(void)
 {
   int i;
+  const int suddenDeathTime = g_suddenDeathTime.integer;
+  const int timeTilSuddenDeath = G_TimeTilSuddenDeath();
   buildable_t buildable;
   gentity_t *ent;
   int localHTP = g_humanBuildPoints.integer;
   int localATP = g_alienBuildPoints.integer;
-
-  //g_suddenDeath sets what state we want it to be.  
+ 
   //level.suddenDeath says whether we've calculated BPs at the 'start' of SD or not
 
-  //Extend votes
-  if (g_extendVote.integer)
+  if (suddenDeathTime > 0)
   {
-    if (!g_suddenDeath.integer && g_suddenDeathTime.integer)
-    {
-      g_suddenDeathTime.integer += g_extendVoteTime.integer;
-      G_BroadcastServerCommand(-1, va("print \"^7Sudden Death is now at %d\n\"", g_suddenDeathTime.integer));
-    }
-
-    g_timelimit.integer += g_extendVoteTime.integer;
-    G_BroadcastServerCommand(-1, va("print \"^7The time limit is now at %d\n\"", g_timelimit.integer));
-
-    trap_Cvar_Set("g_extendVote", "0");
+    level.suddenDeathBeginTime = suddenDeathTime * 60000;
   }
-
-  // reset if SD was on, but now it's off
-  if (!g_suddenDeath.integer && level.suddenDeath) 
+  else
   {
-    level.suddenDeath = qfalse;
-    level.suddenDeathWarning = TW_NOT;
     level.suddenDeathBeginTime = -1;
-
-    if ((level.time - level.startTime) < (g_suddenDeathTime.integer * 60000))
-    {
-      level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
-    }
-    else
-    {
-      level.suddenDeathBeginTime = -1;
-    }
   }
 
-  //Check if sudden death time has been changed by hand
-  if (level.suddenDeathBeginTime != g_suddenDeathTime.integer * 60000)
+  if (timeTilSuddenDeath <= 0) //Conditions to enter SD
   {
-    level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
-  }
-
-  if (!level.suddenDeath)
-  {
-    if (g_suddenDeath.integer || G_TimeTilSuddenDeath() <= 0) //Conditions to enter SD
+    //begin sudden death
+    if (level.suddenDeathWarning < TW_PASSED)
     {
-      //begin sudden death
-      if (level.suddenDeathWarning < TW_PASSED)
+      G_BroadcastServerCommand(-1, "cp \"Sudden Death!\"");
+      G_LogPrintf("Beginning Sudden Death (Mode %d)\n", g_suddenDeathMode.integer);
+      localHTP = 0;
+      localATP = 0;
+
+      if (g_suddenDeathMode.integer == SDMODE_SELECTIVE)
       {
-        G_BroadcastServerCommand(-1, "cp \"Sudden Death!\"");
-        G_LogPrintf("Beginning Sudden Death (Mode %d)\n", g_suddenDeathMode.integer);
-        localHTP = 0;
-        localATP = 0;
-
-        if (g_suddenDeathMode.integer == SDMODE_SELECTIVE)
+        for(i = 1, ent = g_entities + i;i < level.num_entities;i++, ent++)
         {
-          for(i = 1, ent = g_entities + i;i < level.num_entities;i++, ent++)
+          if (ent->s.eType != ET_BUILDABLE)
           {
-            if (ent->s.eType != ET_BUILDABLE)
+            continue;
+          }
+        
+          if (BG_FindReplaceableTestForBuildable(ent->s.modelindex))
+          {
+            const int t = BG_FindTeamForBuildable(ent->s.modelindex);
+
+            if (t == BIT_HUMANS)
             {
-              continue;
+              localHTP += BG_FindBuildPointsForBuildable(ent->s.modelindex);
             }
-        
-            if (BG_FindReplaceableTestForBuildable(ent->s.modelindex))
+            else if (t == BIT_ALIENS)
             {
-              const int t = BG_FindTeamForBuildable(ent->s.modelindex);
-        
-              if (t == BIT_HUMANS)
-              {
-                localHTP += BG_FindBuildPointsForBuildable(ent->s.modelindex);
-              }
-              else if (t == BIT_ALIENS)
-              {
-                localATP += BG_FindBuildPointsForBuildable(ent->s.modelindex);
-              }
+              localATP += BG_FindBuildPointsForBuildable(ent->s.modelindex);
             }
           }
         }
-
-        level.suddenDeathHBuildPoints = localHTP;
-        level.suddenDeathABuildPoints = localATP;
-        level.suddenDeathBeginTime = level.time;
-        level.suddenDeath = qtrue;
-        trap_Cvar_Set("g_suddenDeath", "1");
-
-        level.suddenDeathWarning = TW_PASSED;
       }
-    }  
-    else 
+
+      level.suddenDeathHBuildPoints = localHTP;
+      level.suddenDeathABuildPoints = localATP;
+      level.suddenDeathBeginTime = level.time;
+      level.suddenDeath = qtrue;
+
+      level.suddenDeathWarning = TW_PASSED;
+    }
+  }
+  else 
+  {
+    level.suddenDeath = qfalse;
+
+    //warn about sudden death when 5 minutes are left
+    if (timeTilSuddenDeath <= 300000 && level.suddenDeathWarning < TW_CLOSE)
     {
-      //warn about sudden death when 5 minutes are left
-      if (G_TimeTilSuddenDeath() <= 300000 && level.suddenDeathWarning < TW_CLOSE)
-      {
-        G_BroadcastServerCommand(-1, va("cp \"Sudden Death in 5 minutes!\""));
-        level.suddenDeathWarning = TW_CLOSE;
-      }
+      G_BroadcastServerCommand(-1, va("cp \"Sudden Death in 5 minutes!\""));
+      level.suddenDeathWarning = TW_CLOSE;
+    }
 
-      //warn about sudden death
-      if ((G_TimeTilSuddenDeath() <= 60000) && (level.suddenDeathWarning < TW_IMMINENT))
-      {
-        G_BroadcastServerCommand(-1, va("cp \"Sudden Death in 1 minute!\""));
-        level.suddenDeathWarning = TW_IMMINENT;
-      }
+    //warn about sudden death
+    if (timeTilSuddenDeath <= 60000 && level.suddenDeathWarning < TW_IMMINENT)
+    {
+      G_BroadcastServerCommand(-1, va("cp \"Sudden Death in 1 minute!\""));
+      level.suddenDeathWarning = TW_IMMINENT;
+    }
 
-      //reset warning if changed
-      if ((G_TimeTilSuddenDeath() > 300000) && level.suddenDeathWarning != TW_NOT)
-      {
-        level.suddenDeathWarning = TW_NOT;
-      }
+    //reset warning if changed
+    if (timeTilSuddenDeath > 300000 && level.suddenDeathWarning != TW_NOT)
+    {
+      level.suddenDeathWarning = TW_NOT;
     }
   }
   
   //set BP at each cycle
-  if (g_suddenDeath.integer)
+  if (timeTilSuddenDeath <= 0)
   {
     localHTP = level.suddenDeathHBuildPoints;
     localATP = level.suddenDeathABuildPoints;
@@ -1195,7 +1167,7 @@ G_CalculateBuildPoints(void)
         level.overmindPresent = qtrue;
       }
 
-      if (!g_suddenDeath.integer || BG_FindReplaceableTestForBuildable(buildable))
+      if (timeTilSuddenDeath > 0 || BG_FindReplaceableTestForBuildable(buildable))
       {
         if (BG_FindTeamForBuildable(buildable) == BIT_HUMANS)
         {
@@ -1654,13 +1626,7 @@ void ExitLevel( void )
       level.clients[ i ].pers.connected = CON_CONNECTING;
   }
 
-  if (G_MapExist(g_nextMap.string))
-  {
-    ParseMapRotation(qtrue);
-    trap_SendConsoleCommand(EXEC_APPEND, va("map %s\n", g_nextMap.string));
-    trap_Cvar_Set("g_nextMap", "");
-  }
-  else if (!ParseMapRotation(qfalse))
+  if (!ParseMapRotation())
   {
     char val[MAX_CVAR_VALUE_STRING];
 
@@ -2119,58 +2085,15 @@ CheckVote
 void
 CheckVote(void)
 {
-  int votePassThreshold=level.votePassThreshold;
-  int voteYesPercent;
-
-  if (level.voteExecuteTime && level.voteExecuteTime < level.time)
+  if (level.voteExecuteTime)
   {
-    level.voteExecuteTime = 0;
-
-    if (!Q_stricmp(level.voteString, "map_restart"))
+    if (level.voteExecuteTime < level.time)
     {
-      G_admin_maplog_result("r");
-    }
-    else if (!Q_stricmpn(level.voteString, "map", 3))
-    {
-      G_admin_maplog_result("m");
-    }
-
-
-    if (!Q_stricmp(level.voteString, "suddendeath"))
-    {
-      level.suddenDeathBeginTime = level.time + (1000 * g_suddenDeathVoteDelay.integer) - level.startTime;
-
-      level.voteString[0] = '\0';
-
-      if (G_TimeTilSuddenDeath() <= 60000)
-      {
-        level.suddenDeathWarning = TW_IMMINENT;
-      }
-      else if (G_TimeTilSuddenDeath() <= 300000)
-      {
-        level.suddenDeathWarning = TW_CLOSE;
-      }
-      //reset warning if changed
-      else if (G_TimeTilSuddenDeath() > 300000)
-      {
-        level.suddenDeathWarning = TW_NOT;
-      }
-
-      if (g_suddenDeathVoteDelay.integer)
-      {
-        G_BroadcastServerCommand(-1, va("cp \"Sudden Death will begin in %d seconds\n\"", g_suddenDeathVoteDelay.integer));
-      }
-    }
-
-    if (level.voteString[0])
-    {
+      level.voteExecuteTime = 0;
       trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
     }
 
-    if (!Q_stricmp(level.voteString, "map_restart") || !Q_stricmpn(level.voteString, "map", 3))
-    {
-      level.restarted = qtrue;
-    }
+    return;
   }
 
   if (!level.voteTime)
@@ -2178,67 +2101,33 @@ CheckVote(void)
     return;
   }
 
-  if (level.voteYes + level.voteNo > 0)
+  if (level.time - level.voteTime >= VOTE_TIME)
   {
-    voteYesPercent = (int)(100 * (level.voteYes) / (level.voteYes + level.voteNo));
+    G_BroadcastServerCommand(-1, "print \"Vote failed.\n\"");
   }
   else
   {
-    voteYesPercent = 0; 
-  }
-  
-  if ((level.time - level.voteTime >= VOTE_TIME) || (level.voteYes + level.voteNo >= level.numVotingClients))
-  {
-    if (voteYesPercent > votePassThreshold || level.voteNo == 0)
+    //ATVI Q3 1.32 Patch #9, WNF
+    if (level.voteYes > level.numVotingClients / 2)
     {
       //execute the command, then remove the vote
-      G_BroadcastServerCommand(-1, va("print \"^2Vote Passed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
+      G_BroadcastServerCommand(-1, "print \"Vote passed.\n\"");
       level.voteExecuteTime = level.time + 3000;
-      G_LogPrintf("global pass %i %i %i\n", level.voteYes, level.voteNo, level.numVotingClients);
     }
-    else if (voteYesPercent <= votePassThreshold)
+    else if (level.voteNo >= level.numVotingClients / 2)
     {
       //same behavior as a timeout
-      G_BroadcastServerCommand(-1, va("print \"^1Vote Failed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
-      G_LogPrintf( "Vote: Vote failed (%d - %d)\n", level.voteYes, level.voteNo );
+      G_BroadcastServerCommand(-1, "print \"Vote failed.\n\"");
     }
     else
     {
-      //no one voted or idencisive
-      G_BroadcastServerCommand(-1, va("print \"^1Vote Failed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
-      G_LogPrintf("global fail %i %i %i\n", level.voteYes, level.voteNo, level.numVotingClients);
-    }
-  }
-  else if (Q_stricmpn(level.voteDisplayString, "[Poll]", 6))
-  {
-    if (level.voteYes > (level.numVotingClients * votePassThreshold / 100) && voteYesPercent > votePassThreshold)
-    {
-      //execute the command, then remove the vote
-      G_BroadcastServerCommand(-1, va("print \"^2Vote Passed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
-      level.voteExecuteTime = level.time + 3000;
-      G_LogPrintf("global pass %i %i %i\n", level.voteYes, level.voteNo, level.numVotingClients);
-    }
-    else if (level.voteNo >= ceil((float)level.numVotingClients * votePassThreshold / 100) && voteYesPercent <= votePassThreshold)
-    {
-      //same behavior as a timeout
-      G_BroadcastServerCommand(-1, va("print \"^1Vote Failed ^7(^2Y:^7%i ^1N:^7%i, %i percent)\n\"", level.voteYes, level.voteNo, voteYesPercent));
-      G_LogPrintf("global fail %i %i %i\n", level.voteYes, level.voteNo, level.numVotingClients);
-    }
-    else
-    {
-      //waiting for a majority
+      //still waiting for a majority
       return;
     }
-  }
-  else
-  {
-    //still waiting for a majority
-    return;
   }
 
   level.voteTime = 0;
   trap_SetConfigstring(CS_VOTE_TIME, "");
-  trap_SetConfigstring(CS_VOTE_STRING, "");
 }
 
 
@@ -2250,21 +2139,15 @@ CheckTeamVote
 void
 CheckTeamVote(int team)
 {
-  int cs_offset, voteYesPercent, nays, yays;
-  int votePassThreshold = 50, tp = 0; //for now
-  char teamt[10];
+  int cs_offset;
 
-  if (team == PTE_HUMANS)
-  {
-    cs_offset = 0;
-    Q_strncpyz(teamt, "human", sizeof(teamt));
-    tp = level.numHumanClients;
-  }
-  else if (team == PTE_ALIENS)
+  if (team == PTE_ALIENS)
   {
     cs_offset = 1;
-    Q_strncpyz(teamt, "alien", sizeof(teamt));
-    tp = level.numAlienClients;
+  }
+  else if (team == PTE_HUMANS)
+  {
+    cs_offset = 0;
   }
   else
   {
@@ -2276,45 +2159,22 @@ CheckTeamVote(int team)
     return;
   }
 
-  yays = level.teamVoteYes[cs_offset];
-  nays = level.teamVoteNo[cs_offset];
-
-  if (yays + nays > 0)
+  if (level.time - level.teamVoteTime[cs_offset] >= VOTE_TIME)
   {
-    voteYesPercent = (int)(100 * yays / (yays + nays));
+    G_BroadcastServerCommand(-1, "print \"Team vote failed.\n\"");
   }
   else
   {
-    voteYesPercent = 0;
-  }
-
-  if (level.time - level.teamVoteTime[cs_offset] >= VOTE_TIME)
-  {
-    if (voteYesPercent > votePassThreshold)
-    {
-      G_TeamCommand(team, va("print \"^2Team Vote Passed^7 (^2Y:^7%i, ^1N:^7%i, %i percent)\n\"", yays, nays, voteYesPercent));
-      trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset]));
-      G_LogPrintf("%s pass %i %i %i\n", teamt, yays, nays, tp);
-    }
-    else
-    {
-      G_TeamCommand(team, va("print \"^1Team Vote Failed^7 (^2Y^7:%i, ^1N^7:%i, %i percent)\n\"", yays, nays, voteYesPercent));
-      G_LogPrintf("%s fail %i %i %i\n", teamt, yays, nays, tp);
-    }
-  }
-  else if (yays + nays > 0)
-  {
-    if (yays > level.numteamVotingClients[cs_offset] / 2)
+    if (level.teamVoteYes[cs_offset] > level.numteamVotingClients[cs_offset] / 2)
     {
       //execute the command, then remove the vote
-      G_TeamCommand(team, va("print \"^2Team Vote Passed^7 (^2Y^7:%i, ^1N^7:%i, %i percent)\n\"", yays, nays, voteYesPercent));
+      G_BroadcastServerCommand(-1, "print \"Team vote passed.\n\"");
       trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset]));
-      G_LogPrintf("%s pass %i %i %i\n", teamt, yays, nays, tp);
     }
-    else if (nays >= level.numteamVotingClients[cs_offset] / 2)
+    else if (level.teamVoteNo[cs_offset] >= level.numteamVotingClients[cs_offset] / 2)
     {
-      G_TeamCommand(team, va("print \"^1Team Vote Failed^7 (^2Y^7:%i, ^1N^7:%i, %i percent)\n\"", yays, nays, voteYesPercent));
-      G_LogPrintf("%s fail %i %i %i\n", teamt, yays, nays, tp);
+      //same behavior as a timeout
+      G_BroadcastServerCommand(-1, "print \"Team vote failed.\n\"");
     }
     else
     {
@@ -2322,15 +2182,9 @@ CheckTeamVote(int team)
       return;
     }
   }
-  else
-  {
-    //still waiting for a vote
-    return;
-  }
 
   level.teamVoteTime[cs_offset] = 0;
   trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, "");
-  trap_SetConfigstring(CS_TEAMVOTE_STRING + cs_offset, "");
 }
 
 

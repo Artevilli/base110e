@@ -28,7 +28,6 @@ G_CVAR(g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_ARCHIVE
 G_CVAR(g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue)
 G_CVAR(g_suddenDeathTime, "g_suddenDeathTime", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue)
 G_CVAR(g_suddenDeathMode, "g_suddenDeathMode", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue)
-G_CVAR(g_suddenDeath, "g_suddenDeath", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qtrue)
 
 G_CVAR(g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse)
 
@@ -74,18 +73,6 @@ G_CVAR(g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse)
 G_CVAR(g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse)
 
 G_CVAR(g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse)
-G_CVAR(g_requireVoteReasons, "g_requireVoteReasons", "0", CVAR_ARCHIVE, 0, qfalse)
-G_CVAR(g_voteLimit, "g_voteLimit", "5", CVAR_ARCHIVE, 0, qfalse)
-G_CVAR(g_voteMinTime, "g_voteMinTime", "120", CVAR_ARCHIVE, 0, qfalse)
-G_CVAR(g_mapvoteMaxTime, "g_mapvoteMaxTime", "240", CVAR_ARCHIVE, 0, qfalse)
-G_CVAR(g_extendVote, "g_extendVote", "0", CVAR_ARCHIVE, 0, qfalse)
-G_CVAR(g_extendVotePercent, "g_extendVotePercent", "65", CVAR_ARCHIVE, 0, qfalse)
-G_CVAR(g_extendVoteTime, "g_extendVoteTime", "5", CVAR_ARCHIVE, 0, qfalse)
-G_CVAR(g_randomMapPercent, "g_randomMapPercent", "65", CVAR_ARCHIVE, 0, qfalse)
-G_CVAR(g_votableMaps, "g_votableMaps", "", CVAR_ARCHIVE, 0, qtrue)
-G_CVAR(g_suddenDeathVotePercent, "g_suddenDeathVotePercent", "74", CVAR_ARCHIVE, 0, qfalse)
-G_CVAR(g_suddenDeathVoteDelay, "g_suddenDeathVoteDelay", "180", CVAR_ARCHIVE, 0, qfalse)
-G_CVAR(g_mapVotesPercent, "g_mapVotesPercent", "50", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_designateVotes, "g_designateVotes", "0", CVAR_ARCHIVE, 0, qfalse)
 
 G_CVAR(g_listEntity, "g_listEntity", "0", 0, 0, qfalse)
@@ -145,7 +132,6 @@ G_CVAR(g_markDeconstruct, "g_markDeconstruct", "0", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_deconDead, "g_deconDead", "0", CVAR_ARCHIVE, 0, qtrue)
 
 G_CVAR(g_currentMap, "g_currentMap", "0", 0, 0, qfalse)
-G_CVAR(g_nextMap, "g_nextMap", "", 0 , 0, qtrue)
 G_CVAR(g_shove, "g_shove", "15", CVAR_ARCHIVE, 0, qfalse)
 G_CVAR(g_mapConfigs, "g_mapConfigs", "", CVAR_ARCHIVE, 0, qfalse)
 
