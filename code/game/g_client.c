@@ -1288,6 +1288,7 @@ ClientBegin(int clientNum)
   gentity_t *ent;
   gclient_t *client;
   int flags;
+  int spawns;
 
   ent = g_entities + clientNum;
 
@@ -1307,6 +1308,7 @@ ClientBegin(int clientNum)
   client->pers.enterTime = level.time;
   client->pers.teamState.state = TEAM_BEGIN;
   client->pers.classSelection = PCL_NONE;
+  spawns = client->ps.persistant[PERS_SPAWN_COUNT];
 
   //save eflags around this, because changing teams will
   //cause this to happen with a valid entity, and we
@@ -1317,6 +1319,7 @@ ClientBegin(int clientNum)
   memset(&client->ps, 0, sizeof(client->ps));
   memset(&client->pmext, 0, sizeof(client->pmext));
   client->ps.eFlags = flags;
+  client->ps.persistant[PERS_SPAWN_COUNT] = spawns;
 
   // locate ent at a spawn point
   ClientSpawn(ent, NULL, NULL, NULL);
@@ -1349,143 +1352,183 @@ after the first ClientBegin, and after each respawn
 Initializes all non-persistant parts of playerState
 ============
 */
-void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles )
+void
+ClientSpawn(gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles)
 {
-  int                 index;
-  vec3_t              spawn_origin, spawn_angles;
-  gclient_t           *client;
-  int                 i, vh;
-  clientPersistant_t  saved;
-  clientSession_t     savedSess;
-  int                 persistant[ MAX_PERSISTANT ];
-  gentity_t           *spawnPoint = NULL;
-  int                 flags;
-  int                 savedPing;
-  int                 teamLocal;
-  int                 eventSequence;
-  char                userinfo[ MAX_INFO_STRING ];
-  vec3_t              up = { 0.0f, 0.0f, 1.0f };
-  int                 maxAmmo, maxClips;
-  weapon_t            weapon;
+  int index;
+  vec3_t spawn_origin, spawn_angles;
+  gclient_t *client;
+  int i, vh;
+  int PCvh;
+  clientPersistant_t saved;
+  clientSession_t savedSess;
+  int persistant[MAX_PERSISTANT];
+  gentity_t *spawnPoint = NULL;
+  int flags;
+  int savedPing;
+  int teamLocal;
+  int eventSequence;
+  char userinfo[MAX_INFO_STRING];
+  qbool isSpectator;
+  vec3_t up = {0.0f, 0.0f, 1.0f};
+  int maxAmmo, maxClips;
+  weapon_t weapon;
 
 
   index = ent - g_entities;
   client = ent->client;
 
+  trap_UnlinkEntity(ent);
+
   teamLocal = client->pers.teamSelection;
 
   //TA: only start client if chosen a class and joined a team
-  if( client->pers.classSelection == PCL_NONE && teamLocal == PTE_NONE )
+  if (client->pers.classSelection == PCL_NONE && teamLocal == PTE_NONE)
   {
     client->sess.sessionTeam = TEAM_SPECTATOR;
     client->sess.spectatorState = SPECTATOR_FREE;
   }
-  else if( client->pers.classSelection == PCL_NONE )
+  else if (client->pers.classSelection == PCL_NONE)
   {
     client->sess.sessionTeam = TEAM_SPECTATOR;
     client->sess.spectatorState = SPECTATOR_LOCKED;
   }
+
+  isSpectator = client->sess.sessionTeam == TEAM_SPECTATOR;
   
   //if client is dead and following teammate, stop following before spawning
-  if(ent->client->sess.spectatorClient!=-1)
+  if (client->sess.spectatorClient != -1)
   {
-    ent->client->sess.spectatorClient = -1;
-    ent->client->sess.spectatorState = SPECTATOR_FREE;
+    client->sess.spectatorClient = -1;
+    client->sess.spectatorState = SPECTATOR_FREE;
   }
 
-  if( origin != NULL )
-    VectorCopy( origin, spawn_origin );
+  if (origin != NULL)
+  {
+    VectorCopy(origin, spawn_origin);
+  }
 
-  if( angles != NULL )
-    VectorCopy( angles, spawn_angles );
+  if (angles != NULL)
+  {
+    VectorCopy(angles, spawn_angles);
+  }
 
   // find a spawn point
   // do it before setting health back up, so farthest
   // ranging doesn't count this client
-  if( client->sess.sessionTeam == TEAM_SPECTATOR )
+  if (isSpectator)
   {
-    if( teamLocal == PTE_NONE )
-      spawnPoint = G_SelectSpectatorSpawnPoint( spawn_origin, spawn_angles );
-    else if( teamLocal == PTE_ALIENS )
-      spawnPoint = G_SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
-    else if( teamLocal == PTE_HUMANS )
-      spawnPoint = G_SelectHumanLockSpawnPoint( spawn_origin, spawn_angles );
+    if (teamLocal == PTE_NONE)
+    {
+      spawnPoint = G_SelectSpectatorSpawnPoint(spawn_origin, spawn_angles);
+    }
+    else if (teamLocal == PTE_ALIENS)
+    {
+      spawnPoint = G_SelectAlienLockSpawnPoint(spawn_origin, spawn_angles);
+    }
+    else if (teamLocal == PTE_HUMANS)
+    {
+      spawnPoint = G_SelectHumanLockSpawnPoint(spawn_origin, spawn_angles);
+    }
   }
   else
   {
-    if( spawn == NULL )
+    if (spawn == NULL)
     {
-      G_Error( "ClientSpawn: spawn is NULL\n" );
+      G_Error("ClientSpawn: spawn is NULL\n");
       return;
     }
 
     spawnPoint = spawn;
 
-    if( ent != spawn )
+    if (ent != spawn)
     {
       //start spawn animation on spawnPoint
-      G_SetBuildableAnim( spawnPoint, BANIM_SPAWN1, qtrue );
+      G_SetBuildableAnim(spawnPoint, BANIM_SPAWN1, qtrue);
 
-      if( spawnPoint->biteam == PTE_ALIENS )
+      if (spawnPoint->biteam == PTE_ALIENS)
+      {
         spawnPoint->clientSpawnTime = ALIEN_SPAWN_REPEAT_TIME;
-      else if( spawnPoint->biteam == PTE_HUMANS )
+      }
+      else if (spawnPoint->biteam == PTE_HUMANS)
+      {
         spawnPoint->clientSpawnTime = HUMAN_SPAWN_REPEAT_TIME;
+      }
     }
   }
+
   client->pers.teamState.state = TEAM_ACTIVE;
 
-  // toggle the teleport bit so the client knows to not lerp
-  flags = ent->client->ps.eFlags & ( EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED );
+  //toggle the teleport bit so the client knows to not lerp
+  flags = client->ps.eFlags & (EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED);
   flags ^= EF_TELEPORT_BIT;
 
-  // unlagged
-  G_ResetHistory( ent );
+  //unlagged
+  G_ResetHistory(ent);
   client->saved.leveltime = 0;
 
-  // clear everything but the persistant data
+  //clear everything but the persistant data
 
   saved = client->pers;
   savedSess = client->sess;
   savedPing = client->ps.ping;
 
-  for( i = 0; i < MAX_PERSISTANT; i++ )
-    persistant[ i ] = client->ps.persistant[ i ];
+  for(i = 0;i < MAX_PERSISTANT;i++)
+  {
+    persistant[i] = client->ps.persistant[i];
+  }
 
   eventSequence = client->ps.eventSequence;
-  memset( client, 0, sizeof( *client ) );
+
+  Com_Memset(client, 0, sizeof(*client));
 
   client->pers = saved;
   client->sess = savedSess;
   client->ps.ping = savedPing;
   client->lastkilled_client = -1;
 
-  for( i = 0; i < MAX_PERSISTANT; i++ )
-    client->ps.persistant[ i ] = persistant[ i ];
+  for(i = 0;i < MAX_PERSISTANT;i++)
+  {
+    client->ps.persistant[i] = persistant[i];
+  }
 
   client->ps.eventSequence = eventSequence;
 
-  // increment the spawncount so the client will detect the respawn
-  client->ps.persistant[ PERS_SPAWN_COUNT ]++;
-  client->ps.persistant[ PERS_TEAM ] = client->sess.sessionTeam;
+  //increment the spawncount so the client will detect the respawn
+  client->ps.persistant[PERS_SPAWN_COUNT]++;
+  client->ps.persistant[PERS_TEAM] = client->sess.sessionTeam;
 
-  // restore really persistant things
-  client->ps.persistant[ PERS_SCORE ] = client->pers.score;
-  client->ps.persistant[ PERS_CREDIT ] = client->pers.credit;
+  //restore really persistant things
+  client->ps.persistant[PERS_SCORE] = client->pers.score;
+  client->ps.persistant[PERS_CREDIT] = client->pers.credit;
 
   client->airOutTime = level.time + 12000;
 
-  trap_GetUserinfo( index, userinfo, sizeof( userinfo ) );
+  trap_GetUserinfo(index, userinfo, sizeof(userinfo));
   client->ps.eFlags = flags;
 
-  //Com_Printf( "ent->client->pers->pclass = %i\n", ent->client->pers.classSelection );
+  //Com_Printf("client->pers->pclass = %i\n", client->pers.classSelection);
 
   ent->s.groundEntityNum = ENTITYNUM_NONE;
-  ent->client = &level.clients[ index ];
+  client = &level.clients[index];
   ent->takedamage = qtrue;
   ent->inuse = qtrue;
   ent->classname = "player";
-  ent->r.contents = CONTENTS_BODY;
-  ent->clipmask = MASK_PLAYERSOLID;
+
+  if (isSpectator)
+  {
+    ent->takedamage = qfalse;
+    ent->r.contents = 0;
+    ent->clipmask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
+    client->ps.pm_type = PM_SPECTATOR;
+  }
+  else
+  {
+    ent->takedamage = qtrue;
+    ent->r.contents = CONTENTS_BODY;
+    ent->clipmask = MASK_PLAYERSOLID;
+  }
+
   ent->die = player_die;
   ent->waterlevel = 0;
   ent->watertype = 0;
@@ -1494,122 +1537,131 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   //TA: calculate each client's acceleration
   ent->evaluateAcceleration = qtrue;
 
-  client->ps.stats[ STAT_WEAPONS ] = 0;
-  client->ps.stats[ STAT_WEAPONS2 ] = 0;
-  client->ps.stats[ STAT_SLOTS ] = 0;
+  client->ps.stats[STAT_WEAPONS] = 0;
+  client->ps.stats[STAT_WEAPONS2] = 0;
+  client->ps.stats[STAT_SLOTS] = 0;
 
   client->ps.eFlags = flags;
   client->ps.clientNum = index;
 
-  BG_FindBBoxForClass( ent->client->pers.classSelection, ent->r.mins, ent->r.maxs, NULL, NULL, NULL );
+  BG_FindBBoxForClass(client->pers.classSelection, ent->r.mins, ent->r.maxs, NULL, NULL, NULL);
 
-  if( client->sess.sessionTeam != TEAM_SPECTATOR )
-    client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] =
-      BG_FindHealthForClass( ent->client->pers.classSelection );
-  else
-    client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] = 100;
-
-  // clear entity values
-  if( ent->client->pers.classSelection == PCL_HUMAN )
+  if (client->sess.sessionTeam != TEAM_SPECTATOR)
   {
-    BG_AddWeaponToInventory( WP_BLASTER, client->ps.stats );
-    BG_AddUpgradeToInventory( UP_MEDKIT, client->ps.stats );
+    client->pers.maxHealth = client->ps.stats[STAT_MAX_HEALTH] = BG_FindHealthForClass(client->pers.classSelection);
+  }
+  else
+  {
+    client->pers.maxHealth = client->ps.stats[STAT_MAX_HEALTH] = 100;
+  }
+
+  //clear entity values
+  if (client->pers.classSelection == PCL_HUMAN)
+  {
+    BG_AddWeaponToInventory(WP_BLASTER, client->ps.stats);
+    BG_AddUpgradeToInventory(UP_MEDKIT, client->ps.stats);
     weapon = client->pers.humanItemSelection;
   }
-  else if( client->sess.sessionTeam != TEAM_SPECTATOR )
-    weapon = BG_FindStartWeaponForClass( ent->client->pers.classSelection );
+  else if (client->sess.sessionTeam != TEAM_SPECTATOR)
+  {
+    weapon = BG_FindStartWeaponForClass(client->pers.classSelection);
+  }
   else
+  {
     weapon = WP_NONE;
+  }
 
-  BG_FindAmmoForWeapon( weapon, &maxAmmo, &maxClips );
-  BG_AddWeaponToInventory( weapon, client->ps.stats );
-  BG_PackAmmoArray( weapon, client->ps.ammo, client->ps.powerups, maxAmmo, maxClips );
+  BG_FindAmmoForWeapon(weapon, &maxAmmo, &maxClips);
+  BG_AddWeaponToInventory(weapon, client->ps.stats);
+  BG_PackAmmoArray(weapon, client->ps.ammo, client->ps.powerups, maxAmmo, maxClips);
 
-  ent->client->ps.stats[ STAT_PCLASS ] = ent->client->pers.classSelection;
-  ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.teamSelection;
+  client->ps.stats[STAT_PCLASS] = client->pers.classSelection;
+  client->ps.stats[STAT_PTEAM] = client->pers.teamSelection;
 
-  ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
-  ent->client->ps.stats[ STAT_STATE ] = 0;
-  VectorSet( ent->client->ps.grapplePoint, 0.0f, 0.0f, 1.0f );
+  client->ps.stats[STAT_BUILDABLE] = BA_NONE;
+  client->ps.stats[STAT_STATE] = 0;
+  VectorSet(client->ps.grapplePoint, 0.0f, 0.0f, 1.0f);
 
-  // health will count down towards max_health
-  ent->health = client->ps.stats[ STAT_HEALTH ] = client->ps.stats[ STAT_MAX_HEALTH ]; //* 1.25;
+  //health will count down towards max_health
+  ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH]; //* 1.25;
 
   //if evolving scale health
-  if( ent == spawn )
+  if (ent == spawn)
   {
-    ent->health *= ent->client->pers.evolveHealthFraction;
-    client->ps.stats[ STAT_HEALTH ] *= ent->client->pers.evolveHealthFraction;
+    ent->health *= client->pers.evolveHealthFraction;
+    client->ps.stats[STAT_HEALTH] *= client->pers.evolveHealthFraction;
   }
 
   //clear the credits array
-  for( i = 0; i < MAX_CLIENTS; i++ )
-    ent->credits[ i ] = 0;
+  for(i = 0;i < MAX_CLIENTS;i++)
+  {
+    ent->credits[i] = 0;
+  }
 
-  client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
+  client->ps.stats[STAT_STAMINA] = MAX_STAMINA;
 
-  G_SetOrigin( ent, spawn_origin );
-  VectorCopy( spawn_origin, client->ps.origin );
+  G_SetOrigin(ent, spawn_origin);
+  VectorCopy(spawn_origin, client->ps.origin);
 
-#define UP_VEL  150.0f
-#define F_VEL   50.0f
+#define UP_VEL 150.0f
+#define F_VEL 50.0f
 
   //give aliens some spawn velocity
-  if( client->sess.sessionTeam != TEAM_SPECTATOR &&
-      client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  if (client->sess.sessionTeam != TEAM_SPECTATOR && client->ps.stats[STAT_PTEAM] == PTE_ALIENS)
   {
-    if( ent == spawn )
+    if (ent == spawn)
     {
       //evolution particle system
-      G_AddPredictableEvent( ent, EV_ALIEN_EVOLVE, DirToByte( up ) );
+      G_AddPredictableEvent(ent, EV_ALIEN_EVOLVE, DirToByte(up));
     }
     else
     {
-      spawn_angles[ YAW ] += 180.0f;
-      AngleNormalize360( spawn_angles[ YAW ] );
+      spawn_angles[YAW] += 180.0f;
+      AngleNormalize360(spawn_angles[YAW]);
 
-      if( spawnPoint->s.origin2[ 2 ] > 0.0f )
+      if (spawnPoint->s.origin2[2] > 0.0f)
       {
-        vec3_t  forward, dir;
+        vec3_t forward, dir;
 
-        AngleVectors( spawn_angles, forward, NULL, NULL );
-        VectorScale( forward, F_VEL, forward );
-        VectorAdd( spawnPoint->s.origin2, forward, dir );
-        VectorNormalize( dir );
+        AngleVectors(spawn_angles, forward, NULL, NULL);
+        VectorScale(forward, F_VEL, forward);
+        VectorAdd(spawnPoint->s.origin2, forward, dir);
+        VectorNormalize(dir);
 
-        VectorScale( dir, UP_VEL, client->ps.velocity );
+        VectorScale(dir, UP_VEL, client->ps.velocity);
       }
 
-      G_AddPredictableEvent( ent, EV_PLAYER_RESPAWN, 0 );
+      G_AddPredictableEvent(ent, EV_PLAYER_RESPAWN, 0);
     }
   }
-  else if( client->sess.sessionTeam != TEAM_SPECTATOR &&
-           client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  else if (client->sess.sessionTeam != TEAM_SPECTATOR && client->ps.stats[STAT_PTEAM] == PTE_HUMANS)
   {
-    spawn_angles[ YAW ] += 180.0f;
-    AngleNormalize360( spawn_angles[ YAW ] );
+    spawn_angles[YAW] += 180.0f;
+    AngleNormalize360(spawn_angles[YAW]);
   }
 
-  // the respawned flag will be cleared after the attack and jump keys come up
+  //the respawned flag will be cleared after the attack and jump keys come up
   client->ps.pm_flags |= PMF_RESPAWNED;
 
+  BG_FindViewheightForClass(client->ps.stats[STAT_PCLASS], &PCvh, NULL);
+
+  client->ps.viewheight = PCvh;
   client->ps.gravity = g_gravity.integer;
   client->ps.speed = BG_FindSpeedForClass(client->ps.stats[STAT_PCLASS]);
 
-  trap_GetUsercmd( client - level.clients, &client->pers.cmd );
-  G_SetClientViewAngle( ent, spawn_angles );
+  trap_GetUsercmd(client - level.clients, &client->pers.cmd);
+  G_SetClientViewAngle(ent, spawn_angles);
 
-  if( !( client->sess.sessionTeam == TEAM_SPECTATOR ) )
+  if (!isSpectator)
   {
-    /*G_KillBox( ent );*/ //blame this if a newly spawned client gets stuck in another
-    trap_LinkEntity( ent );
+    G_KillBox(ent); //blame this if a newly spawned client gets stuck in another
 
-    // force the base weapon up
+    //force the base weapon up
     client->ps.weapon = WP_NONE;
     client->ps.weaponstate = WEAPON_READY;
   }
 
-  // don't allow full run speed for a bit
+  //don't allow full run speed for a bit
   client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
   client->ps.pm_time = 100;
 
@@ -1623,21 +1675,30 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   client->ps.torsoAnim = TORSO_STAND;
   client->ps.legsAnim = LEGS_IDLE;
 
-  if( level.intermissiontime )
-    MoveClientToIntermission( ent );
+  if (level.intermissiontime)
+  {
+    MoveClientToIntermission(ent);
+  }
   else
   {
-    // fire the targets of the spawn point
-    if( !spawn )
-      G_UseTargets( spawnPoint, ent );
+    if (!isSpectator)
+    {
+      trap_LinkEntity(ent);
+    }
 
-    // select the highest weapon number available, after any
-    // spawn given items have fired
+    //fire the targets of the spawn point
+    if (!spawn)
+    {
+      G_UseTargets(spawnPoint, ent);
+    }
+
+    //select the highest weapon number available, after any
+    //spawn given items have fired
     client->ps.weapon = 1;
 
-    for( i = WP_NUM_WEAPONS - 1; i > 0 ; i-- )
+    for(i = WP_NUM_WEAPONS - 1;i > 0; i--)
     {
-      if( BG_InventoryContainsWeapon( i, client->ps.stats ) )
+      if (BG_InventoryContainsWeapon(i, client->ps.stats))
       {
         client->ps.weapon = i;
         break;
@@ -1645,28 +1706,23 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     }
   }
 
-  // run a client frame to drop exactly to the floor,
-  // initialize animations and other things
+  //run a client frame to drop exactly to the floor,
+  //initialize animations and other things
   client->ps.commandTime = level.time - 100;
-  ent->client->pers.cmd.serverTime = level.time;
-  ClientThink( ent-g_entities );
+  client->pers.cmd.serverTime = level.time;
+  ClientThink(ent - g_entities);
 
-  // positively link the client, even if the command times are weird
-  if( client->sess.sessionTeam != TEAM_SPECTATOR )
-  {
-    BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
-    VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
-    trap_LinkEntity( ent );
-  }
+  BG_PlayerStateToEntityState(&client->ps, &ent->s, qtrue);
+  VectorCopy(client->ps.origin, ent->r.currentOrigin);
 
   //TA: must do this here so the number of active clients is calculated
-  CalculateRanks( );
+  CalculateRanks();
 
   // run the presend to set anything else
-  ClientEndFrame( ent );
+  ClientEndFrame(ent);
 
   // clear entity state values
-  BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
+  BG_PlayerStateToEntityState(&client->ps, &ent->s, qtrue);
 }
 
 
@@ -1682,54 +1738,59 @@ call trap_DropClient(), which will call this and do
 server system housekeeping.
 ============
 */
-void ClientDisconnect( int clientNum )
+void
+ClientDisconnect(int clientNum)
 {
   gentity_t *ent;
   gentity_t *tent;
-  int       i;
+  int i;
   buildHistory_t *ptr;
 
   ent = g_entities + clientNum;
 
-  if( !ent->client || ent->client->pers.connected == CON_DISCONNECTED )
-    return;
-
-  // look through the bhist and readjust it if the referenced ent has left
-  for( ptr = level.buildHistory; ptr; ptr = ptr->next )
+  if (!ent->client || ent->client->pers.connected == CON_DISCONNECTED)
   {
-    if( ptr->ent == ent )
+    return;
+  }
+
+  //look through the bhist and readjust it if the referenced ent has left
+  for(ptr = level.buildHistory;ptr;ptr = ptr->next)
+  {
+    if (ptr->ent == ent)
     {
       ptr->ent = NULL;
-      Q_strncpyz( ptr->name, ent->client->pers.netname, MAX_NETNAME );
+      Q_strncpyz(ptr->name, ent->client->pers.netname, MAX_NETNAME);
     }
   }
 
-  G_admin_namelog_update( ent->client, qtrue );
-  G_LeaveTeam( ent );
+  G_admin_namelog_update(ent->client, qtrue);
+  G_LeaveTeam(ent);
 
-  // send effect if they were completely connected
-  if( ent->client->pers.connected == CON_CONNECTED &&
-      ent->client->sess.sessionTeam != TEAM_SPECTATOR )
+  //send effect if they were completely connected
+  if (ent->client->pers.connected == CON_CONNECTED && ent->client->sess.sessionTeam != TEAM_SPECTATOR)
   {
-    tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
+    tent = G_TempEntity(ent->client->ps.origin, EV_PLAYER_TELEPORT_OUT);
     tent->s.clientNum = ent->s.clientNum;
   }
 
-  if( ent->client->pers.connection )
+  if (ent->client->pers.connection)
+  {
     ent->client->pers.connection->clientNum = -1;
+  }
 
-  G_LogPrintf( "ClientDisconnect: %i [%s] (%s) \"%s\"\n", clientNum,
-   ent->client->pers.ip, ent->client->pers.guid, ent->client->pers.netname );
+  G_RevertVote(ent->client);
 
-  trap_UnlinkEntity( ent );
+  G_LogPrintf("ClientDisconnect: %i\n", clientNum);
+
+  trap_UnlinkEntity(ent);
   ent->s.modelindex = 0;
   ent->inuse = qfalse;
   ent->classname = "disconnected";
   ent->client->pers.connected = CON_DISCONNECTED;
-  ent->client->ps.persistant[ PERS_TEAM ] = TEAM_FREE;
+  ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
   ent->client->sess.sessionTeam = TEAM_FREE;
 
-  trap_SetConfigstring( CS_PLAYERS + clientNum, "");
+  trap_SetConfigstring(CS_PLAYERS + clientNum, "");
 
-  CalculateRanks( );
+  CalculateRanks();
 }

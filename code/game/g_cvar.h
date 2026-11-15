@@ -34,7 +34,7 @@ G_CVAR(g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qf
 G_CVAR(g_friendlyFire, "g_friendlyFire", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue)
 G_CVAR(g_retribution, "g_retribution", "0", CVAR_ARCHIVE, 0, qtrue)
 
-G_CVAR(g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE, 0, qtrue)
+//G_CVAR(g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE, 0, qtrue)
 G_CVAR(g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE, 0, qtrue)
 
 G_CVAR(g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue)
