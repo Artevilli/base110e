@@ -1194,17 +1194,6 @@ qbool BG_ClassIsAllowed( pClass_t class );
 qbool BG_BuildableIsAllowed( buildable_t buildable );
 qbool BG_UpgradeClassAvailable( playerState_t *ps );
 
-typedef struct 
-{
-  unsigned int hi;
-  unsigned int lo;
-} clientList_t;
-qbool BG_ClientListTest( clientList_t *list, int clientNum );
-void BG_ClientListAdd( clientList_t *list, int clientNum );
-void BG_ClientListRemove( clientList_t *list, int clientNum );
-char *BG_ClientListString( clientList_t *list );
-void BG_ClientListParse( clientList_t *list, const char *s );
-
 // Friendly Fire Flags
 #define FFF_HUMANS         1
 #define FFF_ALIENS         2

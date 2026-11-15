@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static vec3_t playerMins = {-15, -15, -24};
 static vec3_t playerMaxs = {15, 15, 32};
 
+static char ban_reason[MAX_CVAR_VALUE_STRING];
+
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32) initial
 potential spawning position for deathmatch games.
 The first time a player enters the game, they will be at an 'initial' spot.
@@ -803,106 +805,6 @@ team_t TeamCount( int ignoreClientNum, int team )
 
 
 /*
-===========
-ClientCleanName
-============
-*/
-static void ClientCleanName( const char *in, char *out, int outSize )
-{
-  int   len, colorlessLen;
-  char  ch;
-  char  *p;
-  int   spaces;
-  qbool invalid = qfalse;
-
-  //save room for trailing null byte
-  outSize--;
-
-  len = 0;
-  colorlessLen = 0;
-  p = out;
-  *p = 0;
-  spaces = 0;
-
-  while( 1 )
-  {
-    ch = *in++;
-    if( !ch )
-      break;
-
-    // don't allow leading spaces
-    if( !*p && ch == ' ' )
-      continue;
-
-    // don't allow nonprinting characters or (dead) console keys
-    if( ch < ' ' || ch > '}' || ch == '`' )
-      continue;
-
-    // check colors
-    if( Q_IsColorString( in - 1 ) )
-    {
-      // make sure room in dest for both chars
-      if( len > outSize - 2 )
-        break;
-
-      *out++ = ch;
-      len += 2;
-
-      // solo trailing carat is not a color prefix
-      if( !*in ) {
-        *out++ = COLOR_WHITE;
-        break;
-      }
-
-      // don't allow black in a name, period
-      if( ColorIndex( *in ) == 0 )
-        *out++ = COLOR_WHITE;
-      else
-        *out++ = *in;
-
-      in++;
-      continue;
-    }
-
-    // don't allow too many consecutive spaces
-    if( ch == ' ' )
-    {
-      spaces++;
-      if( spaces > 3 )
-        continue;
-    }
-    else
-      spaces = 0;
-
-    if( len > outSize - 1 )
-      break;
-
-    *out++ = ch;
-    colorlessLen++;
-    len++;
-  }
-
-  *out = 0;
-
-  // don't allow names beginning with "[skipnotify]" because it messes up /ignore-related code
-  if( !Q_strncmp( p, "[skipnotify]", 12 ) )
-    invalid = qtrue;
-
-  // don't allow comment-beginning strings because it messes up various parsers
-  if( strstr( p, "//" ) || strstr( p, "/*" ) )
-    invalid = qtrue;
-
-  // don't allow empty names
-  if( *p == 0 || colorlessLen == 0 )
-    invalid = qtrue;
-
-  // if something made the name bad, put them back to UnnamedPlayer
-  if( invalid )
-    Q_strncpyz( p, "UnnamedPlayer", outSize );
-}
-
-
-/*
 ===================
 G_NextNewbieName
 
@@ -1000,24 +902,22 @@ The game can override any of the settings and call trap_SetUserinfo
 if desired.
 ============
 */
-void ClientUserinfoChanged( int clientNum, qbool forceName )
+qbool
+ClientUserinfoChanged(int clientNum)
 {
   gentity_t *ent;
-  int       teamTask, teamLeader, health;
-  char      *s;
-  char      model[ MAX_QPATH ];
-  char      buffer[ MAX_QPATH ];
-  char      filename[ MAX_QPATH ];
-  char      oldname[ MAX_NAME_LENGTH ];
-  char      newname[ MAX_NAME_LENGTH ];
-  char      err[ MAX_STRING_CHARS ];
-  qbool  revertName = qfalse;
-  qbool  showRenameMsg = qtrue;
+  int teamTask, teamLeader, health;
+  char *s;
+  char model[MAX_QPATH];
+  char buffer[MAX_QPATH];
+  char filename[MAX_QPATH];
+  char oldname[MAX_NAME_LENGTH];
+  char newname[MAX_NAME_LENGTH];
   gclient_t *client;
-  char      c1[ MAX_INFO_STRING ];
-  char      c2[ MAX_INFO_STRING ];
-  char      userinfo[ MAX_INFO_STRING ];
-  team_t    team;
+  char c1[8];
+  char c2[8];
+  char userinfo[MAX_INFO_STRING];
+  team_t team;
 
   ent = g_entities + clientNum;
   client = ent->client;
@@ -1027,15 +927,34 @@ void ClientUserinfoChanged( int clientNum, qbool forceName )
   // check for malformed or illegal info strings
   if (!Info_Validate(userinfo))
   {
-    trap_DropClient(ent - g_entities, "dropped: illegal or malformed userinfo");
+    Q_strcpy(ban_reason, "bad userinfo");
+
+    if (client && client->pers.connected != CON_DISCONNECTED)
+    {
+      trap_DropClient(clientNum, ban_reason);
+    }
+
+    return qfalse;
   }
 
+  if (client->pers.connected == CON_DISCONNECTED)
+  {
+    //we just checked if connecting player can join server
+    //so quit now as some important data like player team is still not set
+    return qtrue;
+  }
 
-  // check for local client
-  s = Info_ValueForKey( userinfo, "ip" );
+  //check for local client
+  s = Info_ValueForKey(userinfo, "ip");
 
-  if( !strcmp( s, "localhost" ) )
+  if (!strcmp(s, "localhost"))
+  {
     client->pers.localClient = qtrue;
+  }
+  else
+  {
+    client->pers.localClient = qfalse;
+  }
 
   // check the item prediction
   s = Info_ValueForKey( userinfo, "cg_predictItems" );
@@ -1046,79 +965,9 @@ void ClientUserinfoChanged( int clientNum, qbool forceName )
     client->pers.predictItemPickup = qtrue;
 
   // set name
-  Q_strncpyz( oldname, client->pers.netname, sizeof( oldname ) );
-  s = Info_ValueForKey( userinfo, "name" );
-  ClientCleanName( s, newname, sizeof( newname ) );
-
-  if( strcmp( oldname, newname ) )
-  {
-    if( !strlen( oldname ) && client->pers.connected != CON_CONNECTED )
-      showRenameMsg = qfalse;
-
-    // in case we need to revert and there's no oldname
-    ClientCleanName( va( "%s", client->pers.netname ), oldname, sizeof( oldname ) );
- 
-    if( g_newbieNumbering.integer )
-    {
-      if( !strcmp( newname, "UnnamedPlayer" ) )
-        Q_strncpyz( newname, G_NextNewbieName( ent ), sizeof( newname ) );
-      if( !strcmp( oldname, "UnnamedPlayer" ) )
-        Q_strncpyz( oldname, G_NextNewbieName( ent ), sizeof( oldname ) );
-    }
-
-
-    if( !forceName )
-    {
-      if( client->pers.muted )
-      {
-        trap_SendServerCommand(ent - g_entities, "print \"You cannot change your name while you are muted\n\"");
-        revertName = qtrue;
-      }
-      else if( client->pers.nameChangeTime &&
-      ( level.time - client->pers.nameChangeTime )
-      <= ( g_minNameChangePeriod.value * 1000 ) )
-      {
-        trap_SendServerCommand( ent - g_entities, va(
-            "print \"Name change spam protection (g_minNameChangePeriod = %d)\n\"",
-            g_minNameChangePeriod.integer ) );
-        revertName = qtrue;
-      }
-      else if( g_maxNameChanges.integer > 0
-      && client->pers.nameChanges >= g_maxNameChanges.integer  )
-      {
-        trap_SendServerCommand( ent - g_entities, va(
-            "print \"Maximum name changes reached (g_maxNameChanges = %d)\n\"",
-            g_maxNameChanges.integer ) );
-        revertName = qtrue;
-      }
-    }
-
-    if( !G_admin_name_check( ent, newname, err, sizeof( err ) ) )
-    {
-      trap_SendServerCommand( ent - g_entities, va( "print \"%s\n\"", err ) );
-      revertName = qtrue;
-    }
-
-    if( revertName )
-    {
-      Q_strncpyz( client->pers.netname, oldname,
-        sizeof( client->pers.netname ) );
-      Info_SetValueForKey( userinfo, "name", oldname );
-      trap_SetUserinfo( clientNum, userinfo );
-    }
-    else
-    {
-      Q_strncpyz( client->pers.netname, newname,
-        sizeof( client->pers.netname ) );
-      Info_SetValueForKey( userinfo, "name", newname );
-      trap_SetUserinfo( clientNum, userinfo );
-      if( client->pers.connected == CON_CONNECTED )
-      {
-        client->pers.nameChangeTime = level.time;
-        client->pers.nameChanges++;
-      }
-    }
-  }
+  Q_strncpyz(oldname, client->pers.netname, sizeof(oldname));
+  s = Info_ValueForKey(userinfo, "name");
+  BG_CleanName(s, client->pers.netname, sizeof(client->pers.netname), "UnnamedPlayer");
 
   if( client->sess.sessionTeam == TEAM_SPECTATOR )
   {
@@ -1126,35 +975,11 @@ void ClientUserinfoChanged( int clientNum, qbool forceName )
       Q_strncpyz( client->pers.netname, "scoreboard", sizeof( client->pers.netname ) );
   }
 
-  if( client->pers.connected >= CON_CONNECTING && showRenameMsg )
+  if (client->pers.connected == CON_CONNECTED)
   {
-    if( strcmp( oldname, client->pers.netname ) )
+    if (strcmp(oldname, client->pers.netname))
     {
-      G_BroadcastServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
-        " renamed to %s^7\n\"", oldname, client->pers.netname ) );
-      if( g_decolourLogfiles.integer)
-      {
-        char    decoloured[ MAX_STRING_CHARS ] = "";   
-        if( g_decolourLogfiles.integer == 1 )
-    {
-      Com_sprintf( decoloured, sizeof(decoloured), " (\"%s^7\" -> \"%s^7\")", oldname, client->pers.netname );
-      G_DecolorString( decoloured, decoloured );
-          G_LogPrintf( "ClientRename: %i [%s] (%s) \"%s^7\" -> \"%s^7\"%s\n", clientNum,
-             client->pers.ip, client->pers.guid, oldname, client->pers.netname, decoloured );
-    }
-    else
-    {
-          G_LogPrintf( "ClientRename: %i [%s] (%s) \"%s^7\" -> \"%s^7\"%s\n", clientNum,
-             client->pers.ip, client->pers.guid, oldname, client->pers.netname, decoloured );
-    }
-
-      }
-      else
-      {
-      G_LogPrintf( "ClientRename: %i [%s] (%s) \"%s^7\" -> \"%s^7\"\n", clientNum,
-         client->pers.ip, client->pers.guid, oldname, client->pers.netname );
-      }
-      G_admin_namelog_update( client, qfalse );
+      G_BroadcastServerCommand(-1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname, client->pers.netname));
     }
   }
 
@@ -1240,25 +1065,28 @@ void ClientUserinfoChanged( int clientNum, qbool forceName )
   teamLeader = client->sess.teamLeader;
 
   // colors
-  strcpy( c1, Info_ValueForKey( userinfo, "color1" ) );
-  strcpy( c2, Info_ValueForKey( userinfo, "color2" ) );
+  Q_strncpyz(c1, Info_ValueForKey(userinfo, "color1"), sizeof(c1));
+  Q_strncpyz(c2, Info_ValueForKey(userinfo, "color2"), sizeof(c2));
 
   team = client->pers.teamSelection;
 
   // send over a subset of the userinfo keys so other clients can
   // print scoreboards, display models, and play custom sounds
 
-  Com_sprintf( userinfo, sizeof( userinfo ),
+  Com_sprintf( userinfo, sizeof(userinfo),
     "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\"
     "hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\"
-    "tl\\%d\\ig\\%16s",
+    "tl\\%d",
     client->pers.netname, team, model, model, c1, c2,
     client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask,
-    teamLeader, BG_ClientListString( &client->sess.ignoreList ) );
+    teamLeader);
 
-  trap_SetConfigstring( CS_PLAYERS + clientNum, userinfo );
+  trap_SetConfigstring(CS_PLAYERS + clientNum, userinfo);
 
-  /*G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, userinfo );*/
+  //this is not the userinfo, more like the configstring actually
+  //G_LogPrintf("ClientUserinfoChanged: %i %s\n", clientNum, userinfo);
+
+  return qtrue;
 }
 
 
@@ -1282,118 +1110,141 @@ to the server machine, but qfalse on map changes and tournement
 restarts.
 ============
 */
-char *ClientConnect( int clientNum, qbool firstTime )
+const char
+*ClientConnect(int clientNum, qbool firstTime)
 {
-  char      *value;
+  char *value;
   gclient_t *client;
-  char      userinfo[ MAX_INFO_STRING ];
+  char userinfo[ MAX_INFO_STRING ];
   gentity_t *ent;
-  char      guid[ 33 ];
-  char      ip[ 16 ] = {""};
-  char      reason[ MAX_STRING_CHARS ] = {""};
-  int       i;
+  qbool isAdmin;
+  char guid[ 33 ];
+  char ip[ 16 ] = {""};
+  char reason[MAX_STRING_CHARS] = {""};
+  int i;
 
-  ent = &g_entities[ clientNum ];
+  if (clientNum >= level.maxclients)
+  {
+    return "Bad connection slot.";
+  }
 
-  trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+  ent = &g_entities[clientNum];
+  ent->client = level.clients + clientNum;
 
-  value = Info_ValueForKey( userinfo, "cl_guid" );
+  trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
+
+  value = Info_ValueForKey(userinfo, "cl_guid");
   Q_strncpyz( guid, value, sizeof( guid ) );
 
-  // check for admin ban
-  if( G_admin_ban_check( userinfo, reason, sizeof( reason ) ) )
+  //check for admin ban
+  if (G_admin_ban_check(userinfo, reason, sizeof(reason)))
   {
-    return va( "%s", reason );
+    return va("%s", reason);
   }
 
-
-  // IP filtering
-  // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
-  // recommanding PB based IP / GUID banning, the builtin system is pretty limited
-  // check to see if they are on the banned IP list
-  value = Info_ValueForKey( userinfo, "ip" );
-  i = 0;
-  while( *value && i <= sizeof( ip ) - 2 )
+  if (firstTime)
   {
-    if( *value != '.' && ( *value < '0' || *value > '9' ) )
-      break;
-    ip[ i++ ] = *value;
-    value++;
+    //cleanup previous data manually
+    //because client may silently (re)connect without ClientDisconnect in case of crash for example
+    if (level.clients[clientNum].pers.connected != CON_DISCONNECTED)
+    {
+      ClientDisconnect(clientNum);
+    }
+
+    //remove old entity from the world
+    trap_UnlinkEntity(ent);
+    ent->r.contents = 0;
+    ent->s.eType = ET_INVISIBLE;
+    ent->s.eFlags = 0;
+    ent->s.modelindex = 0;
+    ent->s.clientNum = clientNum;
+    ent->s.number = clientNum;
+    ent->takedamage = qfalse;
   }
-  ip[ i ] = '\0';
-  if( G_FilterPacket( value ) )
+
+  ent->inuse = qfalse;
+
+  //IP filtering
+  //https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
+  //recommanding PB based IP / GUID banning, the builtin system is pretty limited
+  //check to see if they are on the banned IP list
+  value = Info_ValueForKey(userinfo, "ip");
+
+  if (!strcmp(value, "localhost"))
+  {
+    isAdmin = qtrue;
+  }
+  else
+  {
+    isAdmin = qfalse;
+  }
+
+  if (!isAdmin && G_FilterPacket(value))
+  {
     return "You are banned from this server.";
+  }
 
-  // check for a password
-  value = Info_ValueForKey( userinfo, "password" );
+  //we don't check password for local client
+  //NOTE: local client <-> "ip" "localhost"
+  //this means this client is not running in our current process
+  if (!isAdmin)
+  {
+    //check for a password
+    if (g_password.string[0] && Q_stricmp(g_password.string, "none"))
+    {
+      value = Info_ValueForKey(userinfo, "password");
 
-  if( g_password.string[ 0 ] && Q_stricmp( g_password.string, "none" ) &&
-      strcmp( g_password.string, value ) != 0 )
-    return "Invalid password";
+      if (strcmp(g_password.string, value))
+      {
+        return "Invalid password";
+      }
+    }
+  }
 
-  // they can connect
+  //they can connect
   ent->client = level.clients + clientNum;
   client = ent->client;
 
-  memset( client, 0, sizeof(*client) );
+  memset(client, 0, sizeof(*client));
 
-  // add guid to session so we don't have to keep parsing userinfo everywhere
-  if( !guid[0] )
+  if (!ClientUserinfoChanged(clientNum))
   {
-    Q_strncpyz( client->pers.guid, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-      sizeof( client->pers.guid ) );
+    return ban_reason;
+  }
+
+  //add guid to session so we don't have to keep parsing userinfo everywhere
+  if (!guid[0])
+  {
+    Q_strncpyz(client->pers.guid, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", sizeof(client->pers.guid));
   }
   else
   {
-    Q_strncpyz( client->pers.guid, guid, sizeof( client->pers.guid ) );
+    Q_strncpyz(client->pers.guid, guid, sizeof(client->pers.guid));
   }
-  Q_strncpyz( client->pers.ip, ip, sizeof( client->pers.ip ) );
-  client->pers.adminLevel = G_admin_level( ent );
+
+  Q_strncpyz(client->pers.ip, ip, sizeof(client->pers.ip));
+  client->pers.adminLevel = G_admin_level(ent);
 
   client->pers.connected = CON_CONNECTING;
 
-  // read or initialize the session data
-  if( firstTime || level.newSession )
-    G_InitSessionData( client, userinfo );
-
-  G_ReadSessionData( client );
-
-  if( firstTime )
-    client->pers.firstConnect = qtrue;
-  else
-    client->pers.firstConnect = qfalse;
-
-  // get and distribute relevent paramters
-  ClientUserinfoChanged( clientNum, qfalse );
-  
-  G_admin_set_adminname( ent );
-  
-  if( g_decolourLogfiles.integer )
+  //read or initialize the session data
+  if (firstTime || level.newSession)
   {
-   char    decoloured[ MAX_STRING_CHARS ] = "";   
-   if( g_decolourLogfiles.integer == 1 )
-   {
-     Com_sprintf( decoloured, sizeof(decoloured), " (\"%s^7\")", client->pers.netname );
-     G_DecolorString( decoloured, decoloured );
-     G_LogPrintf( "ClientConnect: %i [%s] (%s) \"%s^7\"%s\n", clientNum,
-        client->pers.ip, client->pers.guid, client->pers.netname, decoloured );
-   }
-   else
-   {
-      G_LogPrintf( "ClientConnect: %i [%s] (%s) \"%s^7\"%s\n", clientNum,
-          client->pers.ip, client->pers.guid, client->pers.netname, decoloured );
-   }
+    G_InitSessionData(client, userinfo);
   }
-  else
-  {
-    G_LogPrintf( "ClientConnect: %i [%s] (%s) \"%s^7\"\n", clientNum,
-      client->pers.ip, client->pers.guid, client->pers.netname );
-  }
-  
-  if( client->pers.adminLevel )
-  { 
-     G_LogPrintf( "ClientAuth: %i [%s] \"%s^7\" authenticated to admin level %i using GUID %s (^7%s)\n", clientNum, client->pers.ip, client->pers.netname, client->pers.adminLevel, client->pers.guid, client->pers.adminName );
-  }
+
+  G_ReadSessionData(client);
+
+  ent->inuse = qtrue;
+
+  //get and distribute relevant parameters
+  G_LogPrintf("ClientConnect: %i\n", clientNum);
+
+  G_admin_set_adminname(ent);
+
+  client->pers.connected = CON_CONNECTING;
+
+  ClientUserinfoChanged(clientNum);
 
   // don't do the "xxx connected" messages if they were caried over from previous level
   if (firstTime)
@@ -1409,17 +1260,16 @@ char *ClientConnect( int clientNum, qbool firstTime )
   }
 
   // count current clients and rank for scoreboard
-  CalculateRanks( );
-  G_admin_namelog_update( client, qfalse );
-  
+  CalculateRanks();
+  G_admin_namelog_update(client, qfalse);
 
   // if this is after !restart keepteams or !restart switchteams, apply said selection
-  if ( client->sess.restartTeam != PTE_NONE ) {
-    G_ChangeTeam( ent, client->sess.restartTeam );
+  if (client->sess.restartTeam != PTE_NONE)
+  {
+    G_ChangeTeam(ent, client->sess.restartTeam);
     client->sess.restartTeam = PTE_NONE;
   }
 
-  
   return NULL;
 }
 
@@ -1432,25 +1282,23 @@ to be placed into the level.  This will happen every level load,
 and on transition between teams, but doesn't happen on respawns
 ============
 */
-void ClientBegin( int clientNum )
+void
+ClientBegin(int clientNum)
 {
   gentity_t *ent;
   gclient_t *client;
-  int       flags;
+  int flags;
 
   ent = g_entities + clientNum;
 
   client = level.clients + clientNum;
 
-  if (client->pers.connected == CON_CONNECTED)
+  if (ent->r.linked)
   {
-    return;
+    trap_UnlinkEntity(ent);
   }
 
-  if( ent->r.linked )
-    trap_UnlinkEntity( ent );
-
-  G_InitGentity( ent );
+  G_InitGentity(ent);
   ent->touch = 0;
   ent->pain = 0;
   ent->client = client;
@@ -1460,19 +1308,18 @@ void ClientBegin( int clientNum )
   client->pers.teamState.state = TEAM_BEGIN;
   client->pers.classSelection = PCL_NONE;
 
-  // save eflags around this, because changing teams will
-  // cause this to happen with a valid entity, and we
-  // want to make sure the teleport bit is set right
-  // so the viewpoint doesn't interpolate through the
-  // world to the new position
+  //save eflags around this, because changing teams will
+  //cause this to happen with a valid entity, and we
+  //want to make sure the teleport bit is set right
+  //so the viewpoint doesn't interpolate through the
+  //world to the new position
   flags = client->ps.eFlags;
-  memset( &client->ps, 0, sizeof( client->ps ) );
-  memset( &client->pmext, 0, sizeof( client->pmext ) );
+  memset(&client->ps, 0, sizeof(client->ps));
+  memset(&client->pmext, 0, sizeof(client->pmext));
   client->ps.eFlags = flags;
 
   // locate ent at a spawn point
-
-  ClientSpawn( ent, NULL, NULL, NULL );
+  ClientSpawn(ent, NULL, NULL, NULL);
 
   if (!client->pers.inGame)
   {
@@ -1481,16 +1328,16 @@ void ClientBegin( int clientNum )
 
   client->pers.inGame = qtrue;
 
-  // name can change between ClientConnect() and ClientBegin()
-  G_admin_namelog_update( client, qfalse );
+  //name can change between ClientConnect() and ClientBegin()
+  G_admin_namelog_update(client, qfalse);
 
-  // request the clients PTR code
-  trap_SendServerCommand( ent - g_entities, "ptrcrequest" );
+  //request the clients PTR code
+  trap_SendServerCommand(ent - g_entities, "ptrcrequest");
 
-  G_LogPrintf( "ClientBegin: %i\n", clientNum );
+  G_LogPrintf("ClientBegin: %i\n", clientNum);
 
-  // count current clients and rank for scoreboard
-  CalculateRanks( );
+  //count current clients and rank for scoreboard
+  CalculateRanks();
 }
 
 /*
@@ -1859,13 +1706,6 @@ void ClientDisconnect( int clientNum )
 
   G_admin_namelog_update( ent->client, qtrue );
   G_LeaveTeam( ent );
-
-  // stop any following clients
-  for( i = 0; i < level.maxclients; i++ )
-  {
-    // remove any /ignore settings for this clientNum
-    BG_ClientListRemove( &level.clients[ i ].sess.ignoreList, clientNum );
-  }
 
   // send effect if they were completely connected
   if( ent->client->pers.connected == CON_CONNECTED &&

@@ -240,12 +240,6 @@ g_admin_cmd_t g_admin_cmds[] =
   },
 
   {
-    "rename", G_admin_rename, "rename",
-    "rename a player",
-    "[^3name|slot#^7] [^3new name^7]"
-  },
-
-  {
     "restart", G_admin_restart, "restart",
     "restart the current map (optionally using named layout or keeping/switching teams)",
     "(^5layout^7) (^5keepteams|switchteams|keepteamslock|switchteamslock^7)"
@@ -3940,60 +3934,6 @@ G_admin_register(gentity_t *ent, int skiparg)
   
   return qtrue;
 }
-
-qbool G_admin_rename( gentity_t *ent, int skiparg )
-{
-  int pids[ MAX_CLIENTS ];
-  char name[ MAX_NAME_LENGTH ];
-  char newname[ MAX_NAME_LENGTH ];
-  char oldname[ MAX_NAME_LENGTH ];
-  char err[ MAX_STRING_CHARS ];
-  char userinfo[ MAX_INFO_STRING ];
-  char *s;
-  gentity_t *victim = NULL;
-
-  if( G_SayArgc() < 3 + skiparg )
-  {
-    ADMP( "^3!rename: ^7usage: !rename [name] [newname]\n" );
-    return qfalse;
-  }
-  G_SayArgv( 1 + skiparg, name, sizeof( name ) );
-  s = G_SayConcatArgs( 2 + skiparg );
-  Q_strncpyz( newname, s, sizeof( newname ) );
-  if( G_ClientNumbersFromString( name, pids ) != 1 )
-  {
-    G_MatchOnePlayer( pids, err, sizeof( err ) );
-    ADMP( va( "^3!rename: ^7%s\n", err ) );
-    return qfalse;
-  }
-  victim = &g_entities[ pids[ 0 ] ] ;
-  if( !admin_higher( ent, victim ) )
-  {
-    ADMP( "^3!rename: ^7sorry, but your intended victim has a higher admin"
-        " level than you\n" );
-    return qfalse;
-  }
-  if( !G_admin_name_check( victim, newname, err, sizeof( err ) ) )
-  {
-    G_admin_print( ent, va( "^3!rename: Invalid name: ^7%s\n", err ) );
-    return qfalse;
-  }
-  level.clients[ pids[ 0 ] ].pers.nameChanges--;
-  level.clients[ pids[ 0 ] ].pers.nameChangeTime = 0;
-  trap_GetUserinfo( pids[ 0 ], userinfo, sizeof( userinfo ) );
-  s = Info_ValueForKey( userinfo, "name" );
-  Q_strncpyz( oldname, s, sizeof( oldname ) );
-  Info_SetValueForKey( userinfo, "name", newname );
-  trap_SetUserinfo( pids[ 0 ], userinfo );
-  ClientUserinfoChanged( pids[ 0 ], qtrue );
-  if( strcmp( oldname, level.clients[ pids[ 0 ] ].pers.netname ) )
-    AP( va( "print \"^3!rename: ^7%s^7 has been renamed to %s^7 by %s\n\"",
-        oldname,
-        level.clients[ pids[ 0 ] ].pers.netname,
-        ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );
-  return qtrue;
-}
-
 
 qbool
 G_admin_speed(gentity_t *ent, int skiparg)

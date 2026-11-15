@@ -725,7 +725,6 @@ typedef struct {
   int playerIndex;
   int playerNumber;
   int myPlayerIndex;
-  int ignoreIndex;
   qbool teamLeader;
   char playerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
   char rawPlayerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
@@ -733,7 +732,6 @@ typedef struct {
   char rawTeamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
   int clientNums[MAX_CLIENTS];
   int teamClientNums[MAX_CLIENTS];
-  clientList_t ignoreList[MAX_CLIENTS];
 
   int mapCount;
   mapInfo mapList[MAX_MAPS];

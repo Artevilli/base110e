@@ -728,7 +728,7 @@ void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
   ent->client->pers.teamChangeTime = level.time;
 
   //update ClientInfo
-  ClientUserinfoChanged( ent->client->ps.clientNum, qfalse );
+  ClientUserinfoChanged( ent->client->ps.clientNum );
   G_CheckDBProtection( );
 }
 
@@ -737,7 +737,7 @@ void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
 Cmd_Team_f
 =================
 */
-void Cmd_Team_f( gentity_t *ent )
+static void Cmd_Team_f( gentity_t *ent )
 {
   pTeam_t team;
   pTeam_t oldteam = ent->client->pers.teamSelection;
@@ -948,7 +948,6 @@ G_Say
 */
 static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message, const char *prefix )
 {
-  qbool ignore = qfalse;
   qbool specAllChat = qfalse;
 
   if( !other )
@@ -977,13 +976,9 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
   
   if( mode == SAY_ADMINS && !G_admin_permission( other, ADMF_ADMINCHAT) )
      return;
-
-  if( BG_ClientListTest( &other->client->sess.ignoreList, ent-g_entities ) )
-    ignore = qtrue;
   
-  trap_SendServerCommand( other-g_entities, va( "%s \"%s%s%s%c%c%s\" %i",
+  trap_SendServerCommand( other-g_entities, va( "%s \"%s%s%c%c%s\" %i",
     ( mode == SAY_TEAM || mode == SAY_ACTION_T ) ? "tchat" : "chat",
-    ( ignore ) ? "[skipnotify]" : "",
     ( specAllChat ) ? prefix : "",
     name, Q_COLOR_ESCAPE, color, message, ent - g_entities ) );
 }
@@ -1645,7 +1640,7 @@ Cmd_Vote_f(gentity_t *ent)
 }
 
 
-void
+static void
 G_RevertVote(gclient_t *client)
 {
   if (level.voteTime)
@@ -1702,7 +1697,7 @@ G_RevertVote(gclient_t *client)
 Cmd_CallTeamVote_f
 ==================
 */
-void Cmd_CallTeamVote_f( gentity_t *ent )
+static void Cmd_CallTeamVote_f( gentity_t *ent )
 {
   int   i, team, cs_offset = 0;
   char  arg1[ MAX_STRING_TOKENS ];
@@ -2024,7 +2019,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 Cmd_TeamVote_f
 ==================
 */
-void Cmd_TeamVote_f( gentity_t *ent )
+static void Cmd_TeamVote_f( gentity_t *ent )
 {
   int     cs_offset = 0;
   char    msg[ 64 ];
@@ -2172,7 +2167,7 @@ static qbool G_RoomForClassChange( gentity_t *ent, pClass_t class,
 Cmd_Class_f
 =================
 */
-void Cmd_Class_f( gentity_t *ent )
+static void Cmd_Class_f( gentity_t *ent )
 {
   char      s[ MAX_TOKEN_CHARS ];
   int       clientNum;
@@ -2351,7 +2346,7 @@ void Cmd_Class_f( gentity_t *ent )
           //remove credit
           G_AddCreditToClient( ent->client, -(short)numLevels, qtrue );
           ent->client->pers.classSelection = newClass;
-          ClientUserinfoChanged( clientNum, qfalse );
+          ClientUserinfoChanged( clientNum );
           VectorCopy( infestOrigin, ent->s.pos.trBase );
           ClientSpawn( ent, ent, ent->s.pos.trBase, ent->s.apos.trBase );
           return;
@@ -2408,7 +2403,7 @@ DBCommand
 Send command to all designated builders of selected team
 =================
 */
-void DBCommand( pTeam_t team, const char *text )
+static void DBCommand( pTeam_t team, const char *text )
 {
   int i;
   gentity_t *ent;
@@ -2429,7 +2424,7 @@ void DBCommand( pTeam_t team, const char *text )
 Cmd_Destroy_f
 =================
 */
-void Cmd_Destroy_f( gentity_t *ent )
+static void Cmd_Destroy_f( gentity_t *ent )
 {
   vec3_t      forward, end;
   trace_t     tr;
@@ -2599,7 +2594,7 @@ Cmd_ActivateItem_f
 Activate an item
 =================
 */
-void Cmd_ActivateItem_f( gentity_t *ent )
+static void Cmd_ActivateItem_f( gentity_t *ent )
 {
   char  s[ MAX_TOKEN_CHARS ];
   int   upgrade, weapon;
@@ -2624,7 +2619,7 @@ Cmd_DeActivateItem_f
 Deactivate an item
 =================
 */
-void Cmd_DeActivateItem_f( gentity_t *ent )
+static void Cmd_DeActivateItem_f( gentity_t *ent )
 {
   char  s[ MAX_TOKEN_CHARS ];
   int   upgrade;
@@ -2644,7 +2639,7 @@ void Cmd_DeActivateItem_f( gentity_t *ent )
 Cmd_ToggleItem_f
 =================
 */
-void
+static void
 Cmd_ToggleItem_f(gentity_t *ent)
 {
   char  s[MAX_TOKEN_CHARS];
@@ -2693,7 +2688,7 @@ Cmd_ToggleItem_f(gentity_t *ent)
 Cmd_Buy_f
 =================
 */
-void Cmd_Buy_f( gentity_t *ent )
+static void Cmd_Buy_f( gentity_t *ent )
 {
   char      s[ MAX_TOKEN_CHARS ];
   int       i;
@@ -2894,7 +2889,7 @@ void Cmd_Buy_f( gentity_t *ent )
   }
 
   //update ClientInfo
-  ClientUserinfoChanged( ent->client->ps.clientNum, qfalse );
+  ClientUserinfoChanged( ent->client->ps.clientNum );
 }
 
 
@@ -2903,7 +2898,7 @@ void Cmd_Buy_f( gentity_t *ent )
 Cmd_Sell_f
 =================
 */
-void Cmd_Sell_f( gentity_t *ent )
+static void Cmd_Sell_f( gentity_t *ent )
 {
   char      s[ MAX_TOKEN_CHARS ];
   int       i;
@@ -3041,7 +3036,7 @@ void Cmd_Sell_f( gentity_t *ent )
   }
 
   //update ClientInfo
-  ClientUserinfoChanged( ent->client->ps.clientNum, qfalse );
+  ClientUserinfoChanged( ent->client->ps.clientNum );
 }
 
 
@@ -3050,7 +3045,7 @@ void Cmd_Sell_f( gentity_t *ent )
 Cmd_Build_f
 =================
 */
-void Cmd_Build_f( gentity_t *ent )
+static void Cmd_Build_f( gentity_t *ent )
 {
   char          s[ MAX_TOKEN_CHARS ];
   buildable_t   buildable;
@@ -3186,7 +3181,7 @@ void Cmd_Boost_f( gentity_t *ent )
 Cmd_Protect_f
 =================
 */
-void Cmd_Protect_f( gentity_t *ent )
+static void Cmd_Protect_f( gentity_t *ent )
 {
   vec3_t      forward, end;
   trace_t     tr;
@@ -3229,7 +3224,7 @@ void Cmd_Protect_f( gentity_t *ent )
  Cmd_Resign_f
  =================
  */
- void Cmd_Resign_f( gentity_t *ent )
+ static void Cmd_Resign_f( gentity_t *ent )
  {
    if( !ent->client->pers.designatedBuilder )
    {
@@ -3252,7 +3247,7 @@ void Cmd_Protect_f( gentity_t *ent )
 Cmd_Reload_f
 =================
 */
-void Cmd_Reload_f( gentity_t *ent )
+static void Cmd_Reload_f( gentity_t *ent )
 {
   if( ( ent->client->ps.weapon >= WP_ABUILD ) &&
     ( ent->client->ps.weapon <= WP_HBUILD ) )
@@ -3269,7 +3264,7 @@ void Cmd_Reload_f( gentity_t *ent )
 Cmd_MyStats_f
 =================
 */
-void Cmd_MyStats_f( gentity_t *ent )
+static void Cmd_MyStats_f( gentity_t *ent )
 {
 
    if(!ent) return;
@@ -3542,7 +3537,7 @@ void G_ToggleFollow( gentity_t *ent )
 Cmd_Follow_f
 =================
 */
-void Cmd_Follow_f( gentity_t *ent )
+static void Cmd_Follow_f( gentity_t *ent )
 {
   int   i;
   int   pids[ MAX_CLIENTS ];
@@ -3610,7 +3605,7 @@ void Cmd_Follow_f( gentity_t *ent )
 Cmd_FollowCycle_f
 =================
 */
-void Cmd_FollowCycle_f( gentity_t *ent )
+static void Cmd_FollowCycle_f( gentity_t *ent )
 {
   char args[ 11 ];
   int  dir = 1;
@@ -3634,7 +3629,7 @@ Cmd_PTRCVerify_f
 Check a PTR code is valid
 =================
 */
-void Cmd_PTRCVerify_f( gentity_t *ent )
+static void Cmd_PTRCVerify_f( gentity_t *ent )
 {
   connectionRecord_t  *connection;
   char                s[ MAX_TOKEN_CHARS ] = { 0 };
@@ -3681,7 +3676,7 @@ Cmd_PTRCRestore_f
 Restore against a PTR code
 =================
 */
-void Cmd_PTRCRestore_f( gentity_t *ent )
+static void Cmd_PTRCRestore_f( gentity_t *ent )
 {
   char                s[ MAX_TOKEN_CHARS ] = { 0 };
   int                 code;
@@ -3720,80 +3715,12 @@ void Cmd_PTRCRestore_f( gentity_t *ent )
   }
 }
 
-static void Cmd_Ignore_f( gentity_t *ent )
-{
-  int pids[ MAX_CLIENTS ];
-  char name[ MAX_NAME_LENGTH ];
-  char cmd[ 9 ];
-  int matches = 0;
-  int i;
-  qbool ignore = qfalse;
-
-  trap_Argv( 0, cmd, sizeof( cmd ) );
-  if( Q_stricmp( cmd, "ignore" ) == 0 )
-    ignore = qtrue;
-
-  if( trap_Argc() < 2 )
-  {
-    trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
-      "%s: usage \\%s [clientNum | partial name match]\n\"", cmd, cmd ) );
-    return;
-  }
-
-  Q_strncpyz( name, ConcatArgs( 1 ), sizeof( name ) );
-  matches = G_ClientNumbersFromString( name, pids ); 
-  if( matches < 1 )
-  {
-    trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
-      "%s: no clients match the name '%s'\n\"", cmd, name ) );
-    return;
-  }
-
-  for( i = 0; i < matches; i++ )
-  {
-    if( ignore )
-    {
-      if( !BG_ClientListTest( &ent->client->sess.ignoreList, pids[ i ] ) )
-      {
-        BG_ClientListAdd( &ent->client->sess.ignoreList, pids[ i ] );
-        ClientUserinfoChanged( ent->client->ps.clientNum, qfalse );
-        trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
-          "ignore: added %s^7 to your ignore list\n\"",
-          level.clients[ pids[ i ] ].pers.netname ) );
-      }
-      else
-      {
-        trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
-          "ignore: %s^7 is already on your ignore list\n\"",
-          level.clients[ pids[ i ] ].pers.netname ) );
-      }
-    }
-    else
-    {
-      if( BG_ClientListTest( &ent->client->sess.ignoreList, pids[ i ] ) )
-      {
-        BG_ClientListRemove( &ent->client->sess.ignoreList, pids[ i ] );
-        ClientUserinfoChanged( ent->client->ps.clientNum, qfalse );
-        trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
-          "unignore: removed %s^7 from your ignore list\n\"",
-          level.clients[ pids[ i ] ].pers.netname ) );
-      }
-      else
-      {
-        trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
-          "unignore: %s^7 is not on your ignore list\n\"",
-          level.clients[ pids[ i ] ].pers.netname ) );
-      }
-    }
-  }
-}
-
  /*
  =================
  Cmd_Share_f
  =================
  */
- void Cmd_Share_f( gentity_t *ent )
+void Cmd_Share_f( gentity_t *ent )
  {
    int   i, clientNum = 0, creds = 0, skipargs = 0;
    int   clientNums[ MAX_CLIENTS ] = { -1 };
@@ -4006,7 +3933,7 @@ static void Cmd_Ignore_f( gentity_t *ent )
  Alms for the poor
  =================
  */
- void Cmd_Donate_f( gentity_t *ent ) {
+void Cmd_Donate_f( gentity_t *ent ) {
    char s[ MAX_TOKEN_CHARS ] = "", *type = "evo(s)";
    int i, value, divisor, portion, new_credits, total=0,
      max = ALIEN_MAX_KILLS, *amounts, *totals;
@@ -4113,8 +4040,6 @@ commands_t cmds[ ] = {
   // normal commands
   { "team", 0, Cmd_Team_f },
   { "vote", 0, Cmd_Vote_f },
-  { "ignore", 0, Cmd_Ignore_f },
-  { "unignore", 0, Cmd_Ignore_f },
 
   // communication commands
   { "tell", CMD_MESSAGE, Cmd_Tell_f },
@@ -4355,7 +4280,7 @@ void G_DecolorString( char *in, char *out )
   *out = '\0';
 }
 
-void G_ParseEscapedString( char *buffer )
+static void G_ParseEscapedString( char *buffer )
 {
   int i = 0;
   int j = 0;
@@ -4385,7 +4310,7 @@ void G_ParseEscapedString( char *buffer )
   buffer[j] = 0;
 }
 
-void G_WordWrap( char *buffer, int maxwidth )
+static void G_WordWrap( char *buffer, int maxwidth )
 {
   char out[ MAX_STRING_CHARS ];
   int i = 0;
@@ -4460,13 +4385,12 @@ void G_WordWrap( char *buffer, int maxwidth )
 void G_PrivateMessage( gentity_t *ent )
 {
   int pids[ MAX_CLIENTS ];
-  int ignoreids[ MAX_CLIENTS ];
   char name[ MAX_NAME_LENGTH ];
   char cmd[ 12 ];
   char str[ MAX_STRING_CHARS ];
   char *msg;
   char color;
-  int pcount, matches, ignored = 0;
+  int pcount, matches;
   int i;
   int skipargs = 0;
   qbool teamonly = qfalse;
@@ -4514,13 +4438,6 @@ void G_PrivateMessage( gentity_t *ent )
 
       if( teamonly && !OnSameTeam( ent, tmpent ) )
         continue;
-
-      if( BG_ClientListTest( &tmpent->client->sess.ignoreList,
-        ent-g_entities ) )
-      {
-        ignoreids[ ignored++ ] = pids[ i ];
-        continue;
-      }
 
       pids[ count ] = pids[ i ];
       count++;
@@ -4586,20 +4503,6 @@ void G_PrivateMessage( gentity_t *ent )
       ( teamonly ) ? "tprivmsg" : "privmsg",
       ( ent ) ? ent->client->pers.netname : "console",
       name, msg );
-  }
-
-  if( ignored )
-  {
-    Q_strncpyz( str, va( "^%cignored by %i player%s: ^7", color, ignored,
-      ( ignored == 1 ) ? "" : "s" ), sizeof( str ) );
-    for( i=0; i < ignored; i++ )
-    {
-      tmpent = &g_entities[ ignoreids[ i ] ];
-      if( i > 0 )
-        Q_strcat( str, sizeof( str ), "^7, " );
-      Q_strcat( str, sizeof( str ), tmpent->client->pers.netname );
-    }
-    ADMP( va( "%s\n", str ) );
   }
 }
 

@@ -306,7 +306,6 @@ typedef struct
   int               spectatorClient;  // for chasecam and follow mode
   int               wins, losses;     // tournament stats
   qbool          teamLeader;       // true when this client is a team leader
-  clientList_t      ignoreList;
 } clientSession_t;
 
 #define MAX_NETNAME 36
@@ -837,7 +836,6 @@ int       G_SayArgc( void );
 qbool  G_SayArgv( int n, char *buffer, int bufferLength );
 char      *G_SayConcatArgs( int start );
 void      G_DecolorString( char *in, char *out );
-void      G_ParseEscapedString( char *buffer );
 void      G_LeaveTeam( gentity_t *self );
 void      G_ChangeTeam( gentity_t *ent, pTeam_t newTeam );
 void      G_SanitiseString( char *in, char *out, int len );
@@ -845,9 +843,6 @@ void      G_PrivateMessage( gentity_t *ent );
 char      *G_statsString( statsCounters_t *sc, pTeam_t *pt );
 void      Cmd_Share_f( gentity_t *ent );
 void      Cmd_Donate_f( gentity_t *ent );
-void      Cmd_TeamVote_f( gentity_t *ent ); 
-void      Cmd_Builder_f( gentity_t *ent );
-void      G_WordWrap( char *buffer, int maxwidth );
 void      G_CP( gentity_t *ent );
 
 //
@@ -1117,8 +1112,8 @@ qbool G_Flood_Limited( gentity_t *ent );
 //
 // g_client.c
 //
-char *ClientConnect( int clientNum, qbool firstTime );
-void ClientUserinfoChanged( int clientNum, qbool forceName );
+const char *ClientConnect( int clientNum, qbool firstTime );
+qbool ClientUserinfoChanged( int clientNum );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum );
 void ClientCommand( int clientNum );

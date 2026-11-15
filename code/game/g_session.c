@@ -46,7 +46,7 @@ void G_WriteClientSessionData( gclient_t *client )
   const char  *s;
   const char  *var;
 
-  s = va( "%i %i %i %i %i %i %i %i %s",
+  s = va( "%i %i %i %i %i %i %i %i",
     client->sess.sessionTeam,
     client->sess.restartTeam,
     client->sess.spectatorTime,
@@ -54,8 +54,7 @@ void G_WriteClientSessionData( gclient_t *client )
     client->sess.spectatorClient,
     client->sess.wins,
     client->sess.losses,
-    client->sess.teamLeader,
-    BG_ClientListString( &client->sess.ignoreList )
+    client->sess.teamLeader
     );
 
   var = va( "session%i", client - level.clients );
@@ -84,7 +83,7 @@ void G_ReadSessionData( gclient_t *client )
   var = va( "session%i", client - level.clients );
   trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-  Q_sscanf( s, "%i %i %i %i %i %i %i %i %x%x",
+  Q_sscanf( s, "%i %i %i %i %i %i %i %i",
     &sessionTeam,
     &restartTeam,
     &client->sess.spectatorTime,
@@ -92,9 +91,7 @@ void G_ReadSessionData( gclient_t *client )
     &client->sess.spectatorClient,
     &client->sess.wins,
     &client->sess.losses,
-    &teamLeader,
-    &client->sess.ignoreList.hi,
-    &client->sess.ignoreList.lo
+    &teamLeader
     );
   // bk001205 - format issues
   client->sess.sessionTeam = (team_t)sessionTeam;
@@ -138,7 +135,6 @@ void G_InitSessionData( gclient_t *client, char *userinfo )
   sess->spectatorState = SPECTATOR_FREE;
   sess->spectatorTime = level.time;
   sess->spectatorClient = -1;
-  memset( &sess->ignoreList, 0, sizeof( sess->ignoreList ) );
 
   G_WriteClientSessionData( client );
 }

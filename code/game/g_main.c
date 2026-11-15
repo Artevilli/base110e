@@ -122,7 +122,7 @@ vmMain(int command, int arg0, int arg1, int arg2)
 
     case
     GAME_CLIENT_USERINFO_CHANGED:
-      ClientUserinfoChanged(arg0, qfalse);
+      ClientUserinfoChanged(arg0);
       ret = 0;
       break;
 
@@ -969,7 +969,7 @@ void G_SpawnClients( pTeam_t team )
       ent = &g_entities[ clientNum ];
 
       ent->client->sess.sessionTeam = TEAM_FREE;
-      ClientUserinfoChanged( clientNum, qfalse );
+      ClientUserinfoChanged( clientNum );
       ClientSpawn( ent, spawn, spawn_origin, spawn_angles );
     }
   }

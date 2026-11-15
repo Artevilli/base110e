@@ -2152,8 +2152,6 @@ static void UI_BuildPlayerList( void ) {
     trap_GetConfigString( CS_PLAYERS + n, info, MAX_INFO_STRING );
 
     if (info[0]) {
-      BG_ClientListParse( &uiInfo.ignoreList[ uiInfo.playerCount ],
-        Info_ValueForKey( info, "ig" ) );
       Q_strncpyz( uiInfo.rawPlayerNames[uiInfo.playerCount],
         Info_ValueForKey( info, "n" ), MAX_NAME_LENGTH );
       Q_strncpyz( uiInfo.playerNames[uiInfo.playerCount],
@@ -4339,51 +4337,6 @@ static void UI_RunMenuScript(char **args) {
     } else if (Q_stricmp(name, "update") == 0) {
       if (String_Parse(args, &name2))
         UI_Update(name2);
-    } else if (Q_stricmp(name, "InitIgnoreList") == 0) {
-      UI_BuildPlayerList();
-    } else if (Q_stricmp(name, "ToggleIgnore") == 0) {
-      if( uiInfo.ignoreIndex >= 0 && uiInfo.ignoreIndex < uiInfo.playerCount )
-      {
-        if( BG_ClientListTest( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
-          uiInfo.clientNums[ uiInfo.ignoreIndex ] ) )
-        {
-          BG_ClientListRemove( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
-            uiInfo.clientNums[ uiInfo.ignoreIndex ] );
-          trap_Cmd_ExecuteText( EXEC_NOW, va( "unignore %i\n", 
-            uiInfo.clientNums[ uiInfo.ignoreIndex ] ) );
-        }
-        else
-        {
-          BG_ClientListAdd( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
-            uiInfo.clientNums[ uiInfo.ignoreIndex ] );
-          trap_Cmd_ExecuteText( EXEC_NOW, va( "ignore %i\n", 
-            uiInfo.clientNums[ uiInfo.ignoreIndex ] ) );
-        }
-      }
-    } else if (Q_stricmp(name, "IgnorePlayer") == 0) {
-      if( uiInfo.ignoreIndex >= 0 && uiInfo.ignoreIndex < uiInfo.playerCount )
-      {
-        if( !BG_ClientListTest( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
-          uiInfo.clientNums[ uiInfo.ignoreIndex ] ) )
-        {
-          BG_ClientListAdd( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
-            uiInfo.clientNums[ uiInfo.ignoreIndex ] );
-          trap_Cmd_ExecuteText( EXEC_NOW, va( "ignore %i\n", 
-            uiInfo.clientNums[ uiInfo.ignoreIndex ] ) );
-        }
-      }
-    } else if (Q_stricmp(name, "UnIgnorePlayer") == 0) {
-      if( uiInfo.ignoreIndex >= 0 && uiInfo.ignoreIndex < uiInfo.playerCount )
-      {
-        if( BG_ClientListTest( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
-          uiInfo.clientNums[ uiInfo.ignoreIndex ] ) )
-        {
-          BG_ClientListRemove( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
-            uiInfo.clientNums[ uiInfo.ignoreIndex ] );
-          trap_Cmd_ExecuteText( EXEC_NOW, va( "unignore %i\n", 
-            uiInfo.clientNums[ uiInfo.ignoreIndex ] ) );
-        }
-      }
     } else if (Q_stricmp(name, "setPbClStatus") == 0) {
       int stat;
       if ( Int_Parse( args, &stat ) )
@@ -5057,8 +5010,6 @@ static int UI_FeederCount(float feederID) {
       UI_BuildPlayerList();
     }
     return uiInfo.myTeamCount;
-  } else if (feederID == FEEDER_IGNORE_LIST) {
-    return uiInfo.playerCount;
   } else if (feederID == FEEDER_MODS) {
     return uiInfo.modCount;
   } else if (feederID == FEEDER_DEMOS) {
@@ -5230,22 +5181,6 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
     if (index >= 0 && index < uiInfo.myTeamCount) {
       return uiInfo.teamNames[index];
     }
-  } else if (feederID == FEEDER_IGNORE_LIST) {
-    if (index >= 0 && index < uiInfo.playerCount) {
-      switch( column )
-      {
-        case 1:
-          // am I ignoring him
-          return ( BG_ClientListTest(&uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
-            uiInfo.clientNums[ index ] ) ) ? "X" : "";
-        case 2:
-          // is he ignoring me
-          return ( BG_ClientListTest( &uiInfo.ignoreList[ index ],
-            uiInfo.playerNumber ) ) ? "X" : "";
-        default:
-          return uiInfo.playerNames[index];
-      }
-    }
   } else if (feederID == FEEDER_MODS) {
     if (index >= 0 && index < uiInfo.modCount) {
       if (uiInfo.modList[index].modDescr && *uiInfo.modList[index].modDescr) {
@@ -5409,8 +5344,6 @@ static void UI_FeederSelection(float feederID, int index) {
     uiInfo.playerIndex = index;
   } else if (feederID == FEEDER_TEAM_LIST) {
     uiInfo.teamIndex = index;
-  } else if (feederID == FEEDER_IGNORE_LIST) {
-    uiInfo.ignoreIndex = index;
   } else if (feederID == FEEDER_MODS) {
     uiInfo.modIndex = index;
   } else if (feederID == FEEDER_CINEMATICS) {
