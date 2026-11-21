@@ -728,8 +728,9 @@ void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
   ent->client->pers.teamChangeTime = level.time;
 
   //update ClientInfo
-  ClientUserinfoChanged( ent->client->ps.clientNum );
-  G_CheckDBProtection( );
+  G_WriteClientSessionData(ent->client);
+  ClientUserinfoChanged(ent->client->ps.clientNum);
+  G_CheckDBProtection();
 }
 
 /*
@@ -4126,7 +4127,7 @@ void ClientCommand( int clientNum )
   {
     if( !G_admin_cmd_check( ent, qfalse ) )
       trap_SendServerCommand( clientNum,
-        va( "print \"Unknown command %s\n\"", cmd ) );
+        va( "print \"Unknown cmd %s\n\"", cmd ) );
     return;
   }
 

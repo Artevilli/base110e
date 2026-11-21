@@ -1147,9 +1147,16 @@ void Svcmd_GameMem_f( void );
 //
 // g_session.c
 //
-void G_ReadSessionData( gclient_t *client );
-void G_InitSessionData( gclient_t *client, char *userinfo );
 void G_WriteSessionData( void );
+
+void
+G_InitSessionData(gclient_t *client, const char *team);
+void
+G_ReadClientSessionData(gclient_t *client);
+void
+G_WriteClientSessionData(gclient_t *client);
+void
+G_ClearClientSessionData(gclient_t *client);
 
 //
 // g_unlagged.c

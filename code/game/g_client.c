@@ -917,7 +917,6 @@ ClientUserinfoChanged(int clientNum)
   char c1[8];
   char c2[8];
   char userinfo[MAX_INFO_STRING];
-  team_t team;
 
   ent = g_entities + clientNum;
   client = ent->client;
@@ -1068,8 +1067,6 @@ ClientUserinfoChanged(int clientNum)
   Q_strncpyz(c1, Info_ValueForKey(userinfo, "color1"), sizeof(c1));
   Q_strncpyz(c2, Info_ValueForKey(userinfo, "color2"), sizeof(c2));
 
-  team = client->pers.teamSelection;
-
   // send over a subset of the userinfo keys so other clients can
   // print scoreboards, display models, and play custom sounds
 
@@ -1077,7 +1074,7 @@ ClientUserinfoChanged(int clientNum)
     "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\"
     "hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\"
     "tl\\%d",
-    client->pers.netname, team, model, model, c1, c2,
+    client->pers.netname, client->pers.teamSelection, model, model, c1, c2,
     client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask,
     teamLeader);
 
@@ -1230,10 +1227,12 @@ const char
   //read or initialize the session data
   if (firstTime || level.newSession)
   {
-    G_InitSessionData(client, userinfo);
+    value = Info_ValueForKey(userinfo, "team");
+    G_InitSessionData(client, value);
+    G_WriteClientSessionData(client);
   }
 
-  G_ReadSessionData(client);
+  G_ReadClientSessionData(client);
 
   ent->inuse = qtrue;
 
@@ -1546,7 +1545,7 @@ ClientSpawn(gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles)
 
   BG_FindBBoxForClass(client->pers.classSelection, ent->r.mins, ent->r.maxs, NULL, NULL, NULL);
 
-  if (client->sess.sessionTeam != TEAM_SPECTATOR)
+  if (isSpectator == qfalse)
   {
     client->pers.maxHealth = client->ps.stats[STAT_MAX_HEALTH] = BG_FindHealthForClass(client->pers.classSelection);
   }
@@ -1562,7 +1561,7 @@ ClientSpawn(gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles)
     BG_AddUpgradeToInventory(UP_MEDKIT, client->ps.stats);
     weapon = client->pers.humanItemSelection;
   }
-  else if (client->sess.sessionTeam != TEAM_SPECTATOR)
+  else if (isSpectator == qfalse)
   {
     weapon = BG_FindStartWeaponForClass(client->pers.classSelection);
   }
@@ -1607,7 +1606,7 @@ ClientSpawn(gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles)
 #define F_VEL 50.0f
 
   //give aliens some spawn velocity
-  if (client->sess.sessionTeam != TEAM_SPECTATOR && client->ps.stats[STAT_PTEAM] == PTE_ALIENS)
+  if (isSpectator == qfalse && client->ps.stats[STAT_PTEAM] == PTE_ALIENS)
   {
     if (ent == spawn)
     {
@@ -1634,7 +1633,7 @@ ClientSpawn(gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles)
       G_AddPredictableEvent(ent, EV_PLAYER_RESPAWN, 0);
     }
   }
-  else if (client->sess.sessionTeam != TEAM_SPECTATOR && client->ps.stats[STAT_PTEAM] == PTE_HUMANS)
+  else if (isSpectator == qfalse && client->ps.stats[STAT_PTEAM] == PTE_HUMANS)
   {
     spawn_angles[YAW] += 180.0f;
     AngleNormalize360(spawn_angles[YAW]);
@@ -1654,12 +1653,13 @@ ClientSpawn(gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles)
 
   if (!isSpectator)
   {
-    G_KillBox(ent); //blame this if a newly spawned client gets stuck in another
-
-    //force the base weapon up
-    client->ps.weapon = WP_NONE;
-    client->ps.weaponstate = WEAPON_READY;
+    //entity should be unlinked before calling G_KillBox()
+    G_KillBox(ent);
   }
+
+  //force the base weapon up
+  client->ps.weapon = WP_NONE;
+  client->ps.weaponstate = WEAPON_READY;
 
   //don't allow full run speed for a bit
   client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
@@ -1791,6 +1791,8 @@ ClientDisconnect(int clientNum)
   ent->client->sess.sessionTeam = TEAM_FREE;
 
   trap_SetConfigstring(CS_PLAYERS + clientNum, "");
+
+  G_ClearClientSessionData(ent->client);
 
   CalculateRanks();
 }

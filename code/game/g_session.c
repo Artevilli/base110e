@@ -69,7 +69,7 @@ G_ReadSessionData
 Called on a reconnect
 ================
 */
-void G_ReadSessionData( gclient_t *client )
+void G_ReadClientSessionData( gclient_t *client )
 {
   char  s[ MAX_STRING_CHARS ];
   const char  *var;
@@ -98,6 +98,26 @@ void G_ReadSessionData( gclient_t *client )
   client->sess.restartTeam = (pTeam_t)restartTeam;
   client->sess.spectatorState = (spectatorState_t)spectatorState;
   client->sess.teamLeader = (qbool)teamLeader;
+
+  if ((unsigned)client->sess.sessionTeam >= TEAM_NUM_TEAMS)
+  {
+    client->sess.sessionTeam = TEAM_SPECTATOR;
+  }
+}
+
+
+/*
+================
+G_ClearClientSessionData
+================
+*/
+void
+G_ClearClientSessionData(gclient_t *client)
+{
+  const char *var;
+
+  var = va("session%i", client - level.clients);
+  trap_Cvar_Set(var, "");
 }
 
 
@@ -108,35 +128,35 @@ G_InitSessionData
 Called on a first-time connect
 ================
 */
-void G_InitSessionData( gclient_t *client, char *userinfo )
+void
+G_InitSessionData(gclient_t *client, const char *team)
 {
-  clientSession_t  *sess;
-  const char      *value;
+  clientSession_t *sess;
 
   sess = &client->sess;
 
-  // initial team determination
-  value = Info_ValueForKey( userinfo, "team" );
-  if( value[ 0 ] == 's' )
+  //initial team determination
+  if (team[0] == 's' || team[0] == 'S')
   {
-    // a willing spectator, not a waiting-in-line
+    //a willing spectator, not a waiting-in-line
     sess->sessionTeam = TEAM_SPECTATOR;
   }
   else
   {
-    if( g_maxGameClients.integer > 0 &&
-      level.numNonSpectatorClients >= g_maxGameClients.integer )
+    if (g_maxGameClients.integer > 0 && level.numNonSpectatorClients >= g_maxGameClients.integer)
+    {
       sess->sessionTeam = TEAM_SPECTATOR;
+    }
     else
+    {
       sess->sessionTeam = TEAM_FREE;
+    }
   }
 
   sess->restartTeam = PTE_NONE;
   sess->spectatorState = SPECTATOR_FREE;
   sess->spectatorTime = level.time;
   sess->spectatorClient = -1;
-
-  G_WriteClientSessionData( client );
 }
 
 
