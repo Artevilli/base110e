@@ -167,9 +167,6 @@ void CG_RegisterCvars( void )
     }
   }
 
-  //repress standard Q3 console
-  trap_Cvar_Set( "con_notifytime", "-2" );
-
   // see if we are also running the server on this machine
   trap_Cvar_VariableStringBuffer( "sv_running", var, sizeof( var ) );
   cgs.localServer = atoi( var );
@@ -1406,8 +1403,7 @@ CG_LoadHudMenu
 */
 void CG_LoadHudMenu( void )
 {
-  char        buff[ 1024 ];
-  const char  *hudSet;
+  char hudFile[1024];
 
   cgDC.registerShaderNoMip  = &trap_R_RegisterShaderNoMip;
   cgDC.setColor             = &trap_R_SetColor;
@@ -1463,13 +1459,19 @@ void CG_LoadHudMenu( void )
 
   Menu_Reset( );
 
-  trap_Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
-  hudSet = buff;
+  Q_strncpyz(hudFile, cg_hudFiles.string, sizeof(hudFile));
 
-  if( hudSet[ 0 ] == '\0' )
-    hudSet = "ui/hud.txt";
-
-  CG_LoadMenus( hudSet );
+  if (CG_FileExists(hudFile))
+  {
+    CG_LoadMenus(hudFile);
+  }
+  else
+  {
+    CG_Printf(S_COLOR_YELLOW "WARNING: hudFile '%s' does not exist, using default\n", hudFile);
+    trap_Cvar_Set("cg_hudFiles", "ui/hud.txt");
+    Q_strncpyz(hudFile, "ui/hud.txt", sizeof(hudFile));
+    CG_LoadMenus(hudFile);
+  }
 }
 
 void CG_AssetCache( void )
