@@ -2514,7 +2514,7 @@ static void Cmd_Destroy_f( gentity_t *ent )
         return;
 
       // Don't allow destruction of buildables that cannot be rebuilt
-      if(G_TimeTilSuddenDeath() <= 0 && traceEnt->health > 0 &&
+      if(level.suddenDeath == qtrue && traceEnt->health > 0 &&
           ( ( g_suddenDeathMode.integer == SDMODE_SELECTIVE &&
               !BG_FindReplaceableTestForBuildable( traceEnt->s.modelindex ) ) ||
             ( g_suddenDeathMode.integer == SDMODE_BP &&
@@ -3066,7 +3066,7 @@ static void Cmd_Build_f( gentity_t *ent )
   buildable = BG_FindBuildNumForName( s );
 
 
-  if( G_TimeTilSuddenDeath() <= 0)
+  if( level.suddenDeath == qtrue )
   {
     if( g_suddenDeathMode.integer == SDMODE_SELECTIVE )
     {

@@ -757,8 +757,6 @@ typedef struct
   int               suddenDeathHBuildPoints;
   qbool          suddenDeath;
   int               suddenDeathBeginTime;
-  timeWarning_t     suddenDeathWarning;
-  timeWarning_t     timelimitWarning;
 
   spawnQueue_t      alienSpawnQueue;
   spawnQueue_t      humanSpawnQueue;
@@ -1107,7 +1105,6 @@ void G_BroadcastServerCommand( int ignoreClient, const char *command );
 void CheckVote( void );
 void CheckTeamVote( int teamnum );
 void LogExit( const char *string );
-int  G_TimeTilSuddenDeath( void );
 qbool G_Flood_Limited( gentity_t *ent );
 
 //

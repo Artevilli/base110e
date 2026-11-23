@@ -1007,22 +1007,6 @@ void G_CountSpawns( void )
         level.numAlienSpawns, level.numHumanSpawns ) );
 }
 
-/*
-============
-G_TimeTilSuddenDeath
-============
-*/
-int
-G_TimeTilSuddenDeath(void)
-{
-  if (level.suddenDeathBeginTime < 0)
-  {
-    return 999999999; // Always some time away
-  }
-
-  return (level.suddenDeathBeginTime - (level.time - level.startTime));
-}
-
 
 #define PLAYER_COUNT_MOD 5.0f
 
@@ -1038,7 +1022,8 @@ G_CalculateBuildPoints(void)
 {
   int i;
   const int suddenDeathTime = g_suddenDeathTime.integer;
-  const int timeTilSuddenDeath = G_TimeTilSuddenDeath();
+  int timeTilSuddenDeath;
+  static timeWarning_t suddenDeathWarning = TW_NOT;
   buildable_t buildable;
   gentity_t *ent;
   int localHTP = g_humanBuildPoints.integer;
@@ -1046,93 +1031,91 @@ G_CalculateBuildPoints(void)
  
   //level.suddenDeath says whether we've calculated BPs at the 'start' of SD or not
 
+  //can it be sudden death?
   if (suddenDeathTime > 0)
   {
     level.suddenDeathBeginTime = suddenDeathTime * 60000;
-  }
-  else
-  {
-    level.suddenDeathBeginTime = -1;
-  }
+    timeTilSuddenDeath = level.suddenDeathBeginTime - (level.time - level.startTime);
 
-  if (timeTilSuddenDeath <= 0) //Conditions to enter SD
-  {
-    //begin sudden death
-    if (level.suddenDeathWarning < TW_PASSED)
+    if (timeTilSuddenDeath <= 0) //Conditions to enter SD
     {
-      G_BroadcastServerCommand(-1, "cp \"Sudden Death!\"");
-      G_LogPrintf("Beginning Sudden Death (Mode %d)\n", g_suddenDeathMode.integer);
-      localHTP = 0;
-      localATP = 0;
-
-      if (g_suddenDeathMode.integer == SDMODE_SELECTIVE)
+      //begin sudden death
+      if (suddenDeathWarning < TW_PASSED)
       {
-        for(i = 1, ent = g_entities + i;i < level.num_entities;i++, ent++)
-        {
-          if (ent->s.eType != ET_BUILDABLE)
-          {
-            continue;
-          }
-        
-          if (BG_FindReplaceableTestForBuildable(ent->s.modelindex))
-          {
-            const int t = BG_FindTeamForBuildable(ent->s.modelindex);
+        G_BroadcastServerCommand(-1, "cp \"Sudden Death!\"");
+        G_LogPrintf("Beginning Sudden Death (Mode %d)\n", g_suddenDeathMode.integer);
+        localHTP = 0;
+        localATP = 0;
 
-            if (t == BIT_HUMANS)
+        if (g_suddenDeathMode.integer == SDMODE_SELECTIVE)
+        {
+          for(i = 1, ent = g_entities + i;i < level.num_entities;i++, ent++)
+          {
+            if (ent->s.eType != ET_BUILDABLE)
             {
-              localHTP += BG_FindBuildPointsForBuildable(ent->s.modelindex);
+              continue;
             }
-            else if (t == BIT_ALIENS)
+          
+            if (BG_FindReplaceableTestForBuildable(ent->s.modelindex))
             {
-              localATP += BG_FindBuildPointsForBuildable(ent->s.modelindex);
+              const int t = BG_FindTeamForBuildable(ent->s.modelindex);
+
+              if (t == BIT_HUMANS)
+              {
+                localHTP += BG_FindBuildPointsForBuildable(ent->s.modelindex);
+              }
+              else if (t == BIT_ALIENS)
+              {
+                localATP += BG_FindBuildPointsForBuildable(ent->s.modelindex);
+              }
             }
           }
         }
+
+        level.suddenDeathHBuildPoints = localHTP;
+        level.suddenDeathABuildPoints = localATP;
+        level.suddenDeathBeginTime = level.time;
+        level.suddenDeath = qtrue;
+
+        suddenDeathWarning = TW_PASSED;
+      }
+    }
+    else 
+    {
+      level.suddenDeath = qfalse;
+
+      //warn about sudden death when 5 minutes are left
+      if (timeTilSuddenDeath <= 300000 && suddenDeathWarning < TW_CLOSE)
+      {
+        G_BroadcastServerCommand(-1, va("cp \"Sudden Death in 5 minutes!\""));
+        suddenDeathWarning = TW_CLOSE;
       }
 
-      level.suddenDeathHBuildPoints = localHTP;
-      level.suddenDeathABuildPoints = localATP;
-      level.suddenDeathBeginTime = level.time;
-      level.suddenDeath = qtrue;
+      //warn about sudden death
+      if (timeTilSuddenDeath <= 60000 && suddenDeathWarning < TW_IMMINENT)
+      {
+        G_BroadcastServerCommand(-1, va("cp \"Sudden Death in 1 minute!\""));
+        suddenDeathWarning = TW_IMMINENT;
+      }
 
-      level.suddenDeathWarning = TW_PASSED;
+      //reset warning if changed
+      if (timeTilSuddenDeath > 300000 && suddenDeathWarning != TW_NOT)
+      {
+        suddenDeathWarning = TW_NOT;
+      }
     }
-  }
-  else 
-  {
-    level.suddenDeath = qfalse;
 
-    //warn about sudden death when 5 minutes are left
-    if (timeTilSuddenDeath <= 300000 && level.suddenDeathWarning < TW_CLOSE)
+    //set BP at each cycle
+    if (timeTilSuddenDeath <= 0)
     {
-      G_BroadcastServerCommand(-1, va("cp \"Sudden Death in 5 minutes!\""));
-      level.suddenDeathWarning = TW_CLOSE;
+      localHTP = level.suddenDeathHBuildPoints;
+      localATP = level.suddenDeathABuildPoints;
     }
-
-    //warn about sudden death
-    if (timeTilSuddenDeath <= 60000 && level.suddenDeathWarning < TW_IMMINENT)
-    {
-      G_BroadcastServerCommand(-1, va("cp \"Sudden Death in 1 minute!\""));
-      level.suddenDeathWarning = TW_IMMINENT;
-    }
-
-    //reset warning if changed
-    if (timeTilSuddenDeath > 300000 && level.suddenDeathWarning != TW_NOT)
-    {
-      level.suddenDeathWarning = TW_NOT;
-    }
-  }
-  
-  //set BP at each cycle
-  if (timeTilSuddenDeath <= 0)
-  {
-    localHTP = level.suddenDeathHBuildPoints;
-    localATP = level.suddenDeathABuildPoints;
   }
   else
   {
-    localHTP = g_humanBuildPoints.integer;
-    localATP = g_alienBuildPoints.integer;
+    level.suddenDeath = qfalse;
+    suddenDeathWarning = TW_NOT;
   }
 
   level.humanBuildPoints = level.humanBuildPointsPowered = localHTP;
@@ -1167,7 +1150,7 @@ G_CalculateBuildPoints(void)
         level.overmindPresent = qtrue;
       }
 
-      if (timeTilSuddenDeath > 0 || BG_FindReplaceableTestForBuildable(buildable))
+      if (level.suddenDeath == qfalse || BG_FindReplaceableTestForBuildable(buildable))
       {
         if (BG_FindTeamForBuildable(buildable) == BIT_HUMANS)
         {
@@ -1752,7 +1735,7 @@ void G_SendGameStat( pTeam_t team )
       level.averageNumHumanClients,
       map,
       level.time - level.startTime,
-      G_TimeTilSuddenDeath( ),
+      level.suddenDeathBeginTime - level.time,
       g_alienStage.integer,
       level.alienStage2Time - level.startTime,
       level.alienStage3Time - level.startTime,
@@ -2012,6 +1995,8 @@ CheckExitRules(void)
 
   if (g_timelimit.integer)
   {
+    static timeWarning_t timelimitWarning = TW_NOT;
+
     if (level.time - level.startTime >= g_timelimit.integer * 60000)
     {
       level.lastWin = PTE_NONE;
@@ -2021,19 +2006,19 @@ CheckExitRules(void)
       G_admin_maplog_result("t");
       return;
     }
-    else if (level.time - level.startTime >= (g_timelimit.integer - 5) * 60000 && level.timelimitWarning < TW_CLOSE)
+    else if (level.time - level.startTime >= (g_timelimit.integer - 5) * 60000 && timelimitWarning < TW_CLOSE)
     {
       G_BroadcastServerCommand(-1, "cp \"5 minutes remaining!\"");
-      level.timelimitWarning = TW_CLOSE;
+      timelimitWarning = TW_CLOSE;
     }
-    else if (level.time - level.startTime >= (g_timelimit.integer - 1) * 60000 && level.timelimitWarning < TW_PASSED)
+    else if (level.time - level.startTime >= (g_timelimit.integer - 1) * 60000 && timelimitWarning < TW_PASSED)
     {
       G_BroadcastServerCommand(-1, "cp \"1 minute remaining!\"");
-      level.timelimitWarning = TW_PASSED;
+      timelimitWarning = TW_PASSED;
     }
-    else if (level.time - level.startTime < (g_timelimit.integer - 5) * 60000 && level.timelimitWarning != TW_NOT)
+    else if (level.time - level.startTime < (g_timelimit.integer - 5) * 60000 && timelimitWarning != TW_NOT)
     {
-      level.timelimitWarning = TW_NOT;
+      timelimitWarning = TW_NOT;
     }
   }
 
