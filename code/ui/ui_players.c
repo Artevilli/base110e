@@ -495,7 +495,7 @@ static void UI_SwingAngles( float destination, float swingTolerance, float clamp
       *swinging = qfalse;
     }
     *angle = AngleMod( *angle + move );
-  } else if ( swing < 0 ) {
+  } else {
     move = uiInfo.uiDC.frameTime * scale * -speed;
     if ( move <= swing ) {
       move = swing;
@@ -1092,7 +1092,19 @@ static qbool UI_ParseAnimationFile( const char *filename, animation_t *animation
   for ( i = 0 ; i < MAX_PLAYER_ANIMATIONS ; i++ ) {
 
     token = COM_Parse( &text_p );
-    if ( !token ) {
+    if ( !token[0] ) {
+      if (i >= TORSO_GESTURE && i <= TORSO_NEGATIVE)
+      {
+        animations[i].firstFrame = animations[TORSO_GESTURE].firstFrame;
+        animations[i].frameLerp = animations[TORSO_GESTURE].frameLerp;
+        animations[i].initialLerp = animations[TORSO_GESTURE].initialLerp;
+        animations[i].loopFrames = animations[TORSO_GESTURE].loopFrames;
+        animations[i].numFrames = animations[TORSO_GESTURE].numFrames;
+        animations[i].reversed = qfalse;
+        animations[i].flipflop = qfalse;
+        continue;
+      }
+
       break;
     }
     animations[i].firstFrame = atoi( token );

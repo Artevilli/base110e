@@ -4090,7 +4090,6 @@ static void UI_RunMenuScript(char **args) {
     } else if (Q_stricmp(name, "closeJoin") == 0) {
       if (uiInfo.serverStatus.refreshActive) {
         UI_StopServerRefresh();
-        uiInfo.serverStatus.nextDisplayRefresh = 0;
         uiInfo.nextServerStatusRefresh = 0;
         uiInfo.nextFindPlayerRefresh = 0;
         UI_BuildServerDisplayList(qtrue);
@@ -4100,7 +4099,6 @@ static void UI_RunMenuScript(char **args) {
       }
     } else if (Q_stricmp(name, "StopRefresh") == 0) {
       UI_StopServerRefresh();
-      uiInfo.serverStatus.nextDisplayRefresh = 0;
       uiInfo.nextServerStatusRefresh = 0;
       uiInfo.nextFindPlayerRefresh = 0;
     } else if (Q_stricmp(name, "UpdateFilter") == 0) {
@@ -4539,7 +4537,7 @@ static void UI_BuildServerDisplayList(qbool force) {
 //  qbool startRefresh = qtrue; TTimo: unused
   static int numinvisible;
 
-  if (!(force || uiInfo.uiDC.realTime > uiInfo.serverStatus.nextDisplayRefresh)) {
+  if (!force) {
     return;
   }
   // if we shouldn't reset
@@ -4572,7 +4570,6 @@ static void UI_BuildServerDisplayList(qbool force) {
     // still waiting on a response from the master
     uiInfo.serverStatus.numDisplayServers = 0;
     uiInfo.serverStatus.numPlayersOnServers = 0;
-    uiInfo.serverStatus.nextDisplayRefresh = uiInfo.uiDC.realTime + 500;
     return;
   }
 
@@ -4632,10 +4629,9 @@ static void UI_BuildServerDisplayList(qbool force) {
   uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime;
 
   // if there were no servers visible for ping updates
-  if (!visible) {
+//  if (!visible) {
 //    UI_StopServerRefresh();
-//    uiInfo.serverStatus.nextDisplayRefresh = 0;
-  }
+//  }
 }
 
 typedef struct
@@ -6146,55 +6142,60 @@ static void UI_DoServerRefresh( void )
 UI_StartServerRefresh
 =================
 */
-static void UI_StartServerRefresh(qbool full)
+static void
+UI_StartServerRefresh(qbool full)
 {
-  int   i;
-  char  *ptr;
-  int   time;
+  int i;
+  char myargs[32], protocol[24];
+  int time;
   qtime_t q;
 
   time = trap_RealTime(&q);
-  trap_Cvar_Set( va("ui_lastServerRefresh_%i_time", ui_netSource.integer ),
-                        va( "%i", time ) );
-  trap_Cvar_Set( va("ui_lastServerRefresh_%i", ui_netSource.integer),
-			va("%s-%i, %i at %i:%02i", MonthAbbrev[q.tm_mon],q.tm_mday, 1900+q.tm_year,q.tm_hour,q.tm_min));
+  trap_Cvar_Set(va("ui_lastServerRefresh_%i_time", ui_netSource.integer), va("%i", time));
+  trap_Cvar_Set(va("ui_lastServerRefresh_%i", ui_netSource.integer), va("%s-%i, %i at %i:%02i", MonthAbbrev[q.tm_mon], q.tm_mday, 1900 + q.tm_year, q.tm_hour, q.tm_min));
 
-  if (!full) {
+  if (!full)
+  {
     UI_UpdatePendingPings();
     return;
   }
 
   uiInfo.serverStatus.refreshActive = qtrue;
-  uiInfo.serverStatus.nextDisplayRefresh = uiInfo.uiDC.realTime + 1000;
-  // clear number of displayed servers
+  //clear number of displayed servers
   uiInfo.serverStatus.numDisplayServers = 0;
   uiInfo.serverStatus.numPlayersOnServers = 0;
-  // mark all servers as visible so we store ping updates for them
+  //mark all servers as visible so we store ping updates for them
   trap_LAN_MarkServerVisible(ui_netSource.integer, -1, qtrue);
-  // reset all the pings
+  //reset all the pings
   trap_LAN_ResetPings(ui_netSource.integer);
-  //
-  if( ui_netSource.integer == AS_LOCAL ) {
-    trap_Cmd_ExecuteText( EXEC_NOW, "localservers\n" );
-    uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
+
+  //allow max 10 seconds of responses
+  uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + MAX_RESPONSE_TIME;
+
+  if (ui_netSource.integer == AS_LOCAL)
+  {
+    trap_Cmd_ExecuteText(EXEC_APPEND, "localservers\n");
     return;
   }
 
-  uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 5000;
-  if( ui_netSource.integer == AS_GLOBAL || ui_netSource.integer == AS_MPLAYER ) {
-    if( ui_netSource.integer == AS_GLOBAL ) {
-      i = 0;
-    }
-    else {
-      i = 1;
-    }
+  if (ui_netSource.integer == AS_GLOBAL || ui_netSource.integer == AS_MPLAYER)
+  {
+    myargs[0] = '\0';
 
-    ptr = UI_Cvar_VariableString("debug_protocol");
-    if (ptr[0] != '\0') {
-      trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s full empty\n", i, ptr));
+    strcat(myargs, " empty");
+    strcat(myargs, " full");
+
+    protocol[0] = '\0';
+
+    trap_Cvar_VariableStringBuffer("debug_protocol", protocol, sizeof(protocol));
+
+    if (protocol[0] != '\0')
+    {
+      trap_Cmd_ExecuteText(EXEC_APPEND, va("globalservers 0 %s%s\n", protocol, myargs));
     }
-    else {
-      trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %d full empty\n", i, (int)trap_Cvar_VariableValue( "protocol" ) ) );
+    else
+    {
+      trap_Cmd_ExecuteText(EXEC_APPEND, va("globalservers 0 %d%s\n", (int)trap_Cvar_VariableValue("protocol"), myargs));
     }
   }
 }

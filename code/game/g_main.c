@@ -28,8 +28,8 @@ level_locals_t  level;
 typedef struct
 {
   vmCvar_t  *vmCvar;
-  char    *cvarName;
-  char    *defaultString;
+  const char *cvarName;
+  const char *defaultString;
   int     cvarFlags;
   int     modificationCount;  // for tracking changes
   qbool  trackChange;  // track this variable, and announce if changed
@@ -1383,10 +1383,10 @@ void CalculateRanks( void )
       if( level.clients[ i ].pers.connected != CON_CONNECTED )
         continue;
 
-      level.numVotingClients++;
       if( level.clients[ i ].pers.teamSelection != PTE_NONE )
       {
         level.numPlayingClients++;
+        level.numVotingClients++;
         if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )
           level.numNonSpectatorClients++;
 
@@ -1589,7 +1589,7 @@ void ExitLevel( void )
   level.intermissiontime = 0;
 
   // reset all the scores so we don't enter the intermission again
-  for( i = 0; i < g_maxclients.integer; i++ )
+  for( i = 0; i < level.maxclients; i++ )
   {
     cl = level.clients + i;
     if( cl->pers.connected != CON_CONNECTED )
@@ -1598,12 +1598,12 @@ void ExitLevel( void )
     cl->ps.persistant[ PERS_SCORE ] = 0;
   }
 
-  // we need to do this here before chaning to CON_CONNECTING
+  // we need to do this here before changing to CON_CONNECTING
   G_WriteSessionData( );
 
   // change all client states to connecting, so the early players into the
   // next level will know the others aren't done reconnecting
-  for( i = 0; i < g_maxclients.integer; i++ )
+  for( i = 0; i < level.maxclients; i++ )
   {
     if( level.clients[ i ].pers.connected == CON_CONNECTED )
       level.clients[ i ].pers.connected = CON_CONNECTING;
@@ -1857,86 +1857,89 @@ If one or more players have not acknowledged the continue, the game will
 wait 10 seconds before going on.
 =================
 */
-void CheckIntermissionExit( void )
+void
+CheckIntermissionExit(void)
 {
-  int       ready, notReady, numPlayers;
+  int       ready, notReady;
   int       i;
   gclient_t *cl;
   int       readyMask;
 
-  //if no clients are connected, just exit
-  if( !level.numConnectedClients )
-  {
-    ExitLevel( );
-    return;
-  }
-
-  // see which players are ready
+  //see which players are ready
   ready = 0;
   notReady = 0;
   readyMask = 0;
-  numPlayers = 0;
-  for( i = 0; i < g_maxclients.integer; i++ )
+
+  for(i = 0;i < level.maxclients;i++)
   {
     cl = level.clients + i;
-    if( cl->pers.connected != CON_CONNECTED )
-      continue;
 
-    if( cl->ps.stats[ STAT_PTEAM ] == PTE_NONE )
+    if (cl->pers.connected != CON_CONNECTED)
+    {
       continue;
+    }
 
-    if( cl->readyToExit )
+    if (cl->ps.stats[STAT_PTEAM] == PTE_NONE)
+    {
+      continue;
+    }
+
+    if (cl->readyToExit)
     {
       ready++;
-      if( i < 16 )
+
+      if (i < 16)
+      {
         readyMask |= 1 << i;
+      }
     }
     else
+    {
       notReady++;
-
-    numPlayers++;
+    }
   }
 
-  trap_SetConfigstring( CS_CLIENTS_READY, va( "%d", readyMask ) );
+  if (level.voteTime || level.voteExecuteTime)
+  {
+    ready = 0;
+    notReady = 1;
+  }
 
-  // never exit in less than five seconds
+  trap_SetConfigstring(CS_CLIENTS_READY, va("%d", readyMask));
+
+  //never exit in less than five seconds
   if( level.time < level.intermissiontime + 5000 )
     return;
 
-  // never let intermission go on for over 1 minute
-  if( level.time > level.intermissiontime + 60000 )
-  {
-    ExitLevel( );
-    return;
-  }
-
   // if nobody wants to go, clear timer
-  if( !ready && numPlayers )
+  if (!ready && notReady)
   {
     level.readyToExit = qfalse;
     return;
   }
 
-  // if everyone wants to go, go now
-  if( !notReady )
+  //if everyone wants to go, go now
+  if (!notReady)
   {
-    ExitLevel( );
+    ExitLevel();
     return;
   }
 
-  // the first person to ready starts the thirty second timeout
-  if( !level.readyToExit )
+  //the first person to ready starts the thirty second timeout
+  if (!level.readyToExit)
   {
     level.readyToExit = qtrue;
-    level.exitTime = level.time;
+    level.exitTime = level.time + 10000;
   }
 
-  // if we have waited thirty seconds since at least one player
-  // wanted to exit, go ahead
-  if( level.time < level.exitTime + 30000 )
+  //if we have waited ten seconds since at least one player
+  //wanted to exit, go ahead
+  if (level.time < level.exitTime)
+  {
     return;
+  }
 
-  ExitLevel( );
+  ExitLevel();
 }
 
 /*
@@ -1944,7 +1947,7 @@ void CheckIntermissionExit( void )
 ScoreIsTied
 =============
 */
-qbool ScoreIsTied( void )
+static qbool ScoreIsTied( void )
 {
   int   a, b;
 
@@ -2067,7 +2070,7 @@ FUNCTIONS CALLED EVERY FRAME
 CheckVote
 ==================
 */
-void
+static void
 CheckVote(void)
 {
   if (level.voteExecuteTime)

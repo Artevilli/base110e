@@ -2413,6 +2413,77 @@ static void CG_CompactAndSortParticles( void )
     sortedParticles[ i ] = radixBuffer[ i ];
 }
 
+
+/*
+===============
+CG_EmitPolyVerts
+===============
+*/
+static void
+CG_EmitPolyVerts(const refEntity_t *re)
+{
+  polyVert_t verts[4];
+  float sinR;
+  float cosR;
+  float angle;
+  vec3_t left;
+  vec3_t up;
+  int i;
+
+  if (re->rotation)
+  {
+    angle = M_PI * re->rotation / 180.0;
+    sinR = sin(angle);
+    cosR = cos(angle);
+
+    VectorScale(cg.refdef.viewaxis[1], cosR * re->radius, left);
+    VectorMA(left, -sinR * re->radius, cg.refdef.viewaxis[2], left);
+
+    VectorScale(cg.refdef.viewaxis[2], cosR * re->radius, up);
+    VectorMA(up, sinR * re->radius, cg.refdef.viewaxis[1], up);
+  }
+  else
+  {
+    VectorScale(cg.refdef.viewaxis[1], re->radius, left);
+    VectorScale(cg.refdef.viewaxis[2], re->radius, up);
+  }
+
+  verts[0].xyz[0] = re->origin[0] + left[0] + up[0];
+  verts[0].xyz[1] = re->origin[1] + left[1] + up[1];
+  verts[0].xyz[2] = re->origin[2] + left[2] + up[2];
+  verts[0].st[0] = 0.0;
+  verts[0].st[1] = 0.0;
+
+  verts[1].xyz[0] = re->origin[0] - left[0] + up[0];
+  verts[1].xyz[1] = re->origin[1] - left[1] + up[1];
+  verts[1].xyz[2] = re->origin[2] - left[2] + up[2];
+  verts[1].st[0] = 1.0;
+  verts[1].st[1] = 0.0;
+
+  verts[2].xyz[0] = re->origin[0] - left[0] - up[0];
+  verts[2].xyz[1] = re->origin[1] - left[1] - up[1];
+  verts[2].xyz[2] = re->origin[2] - left[2] - up[2];
+  verts[2].st[0] = 1.0;
+  verts[2].st[1] = 1.0;
+
+  verts[3].xyz[0] = re->origin[0] + left[0] - up[0];
+  verts[3].xyz[1] = re->origin[1] + left[1] - up[1];
+  verts[3].xyz[2] = re->origin[2] + left[2] - up[2];
+  verts[3].st[0] = 0.0;
+  verts[3].st[1] = 1.0;
+
+  for(i = 0;i < 4;i++)
+  {
+    verts[i].modulate[0] = re->shaderRGBA[0];
+    verts[i].modulate[1] = re->shaderRGBA[1];
+    verts[i].modulate[2] = re->shaderRGBA[2];
+    verts[i].modulate[3] = re->shaderRGBA[3];
+  }
+
+  trap_R_AddPolyToScene(re->customShader, 4, verts);
+}
+
+
 /*
 ===============
 CG_RenderParticle
@@ -2420,157 +2491,165 @@ CG_RenderParticle
 Actually render a particle
 ===============
 */
-static void CG_RenderParticle( particle_t *p )
+static void
+CG_RenderParticle(particle_t *p)
 {
-  refEntity_t           re;
-  float                 timeFrac, scale;
-  int                   index;
-  baseParticle_t        *bp = p->class;
-  particleSystem_t      *ps = p->parent->parent;
-  baseParticleSystem_t  *bps = ps->class;
-  vec3_t                alight, dlight, lightdir;
-  int                   i;
-  vec3_t                up = { 0.0f, 0.0f, 1.0f };
+  refEntity_t re;
+  float timeFrac, scale;
+  int index;
+  baseParticle_t *bp = p->class;
+  particleSystem_t *ps = p->parent->parent;
+  baseParticleSystem_t *bps = ps->class;
+  vec3_t alight, dlight, lightdir;
+  int i;
+  vec3_t delta;
+  float len;
+  vec3_t up = {0.0f, 0.0f, 1.0f};
 
-  memset( &re, 0, sizeof( refEntity_t ) );
+  Com_Memset(&re, 0, sizeof(refEntity_t));
 
-  timeFrac = CG_CalculateTimeFrac( p->birthTime, p->lifeTime, 0 );
+  timeFrac = CG_CalculateTimeFrac(p->birthTime, p->lifeTime, 0);
 
-  scale = CG_LerpValues( p->radius.initial,
-                    p->radius.final,
-                    CG_CalculateTimeFrac( p->birthTime,
-                                          p->lifeTime,
-                                          p->radius.delay ) );
+  scale = CG_LerpValues(p->radius.initial, p->radius.final, CG_CalculateTimeFrac(p->birthTime, p->lifeTime, p->radius.delay));
 
   re.shaderTime = p->birthTime / 1000.0f;
 
-  if( bp->numFrames )       //shader based
+  if (bp->numFrames) //shader based
   {
     re.reType = RT_SPRITE;
 
     //apply environmental lighting to the particle
-    if( bp->realLight )
+    if (bp->realLight)
     {
-      trap_R_LightForPoint( p->origin, alight, dlight, lightdir );
-      for( i = 0; i <= 2; i++ )
-        re.shaderRGBA[ i ] = (byte)alight[ i ];
+      trap_R_LightForPoint(p->origin, alight, dlight, lightdir);
+
+      for(i = 0;i <= 2;i++)
+      {
+        re.shaderRGBA[i] = (byte)alight[i];
+      }
     }
     else
     {
-      vec3_t  colorRange;
+      vec3_t colorRange;
 
-      VectorSubtract( bp->finalColor,
-          bp->initialColor, colorRange );
+      VectorSubtract( bp->finalColor, bp->initialColor, colorRange );
 
-      VectorMA( bp->initialColor,
-          CG_CalculateTimeFrac( p->birthTime,
-            p->lifeTime,
-            p->colorDelay ),
-          colorRange, re.shaderRGBA );
+      VectorMA(bp->initialColor, CG_CalculateTimeFrac(p->birthTime, p->lifeTime, p->colorDelay), colorRange, re.shaderRGBA);
     }
 
-    re.shaderRGBA[ 3 ] = (byte)( (float)0xFF *
-                         CG_LerpValues( p->alpha.initial,
-                               p->alpha.final,
-                               CG_CalculateTimeFrac( p->birthTime,
-                                                     p->lifeTime,
-                                                     p->alpha.delay ) ) );
+    re.shaderRGBA[3] = (byte)((float)0xFF * CG_LerpValues(p->alpha.initial, p->alpha.final, CG_CalculateTimeFrac(p->birthTime, p->lifeTime, p->alpha.delay)));
 
     re.radius = scale;
 
-    re.rotation = CG_LerpValues( p->rotation.initial,
-                        p->rotation.final,
-                        CG_CalculateTimeFrac( p->birthTime,
-                                              p->lifeTime,
-                                              p->rotation.delay ) );
+    re.rotation = CG_LerpValues(p->rotation.initial, p->rotation.final, CG_CalculateTimeFrac(p->birthTime, p->lifeTime, p->rotation.delay));
 
-    // if the view would be "inside" the sprite, kill the sprite
-    // so it doesn't add too much overdraw
-    if( Distance( p->origin, cg.refdef.vieworg ) < re.radius && bp->overdrawProtection )
+    //if the view would be "inside" the sprite, kill the sprite
+    //so it doesn't add too much overdraw
+    VectorSubtract(p->origin, cg.refdef.vieworg, delta);
+    len = VectorLengthSquared(delta);
+
+    if (len < re.radius * re.radius && bp->overdrawProtection)
+    {
       return;
+    }
 
-    if( bp->framerate == 0.0f )
+    if (bp->framerate == 0.0f)
     {
       //sync animation time to lifeTime of particle
-      index = (int)( timeFrac * ( bp->numFrames + 1 ) );
+      index = (int)(timeFrac * (bp->numFrames + 1));
 
-      if( index >= bp->numFrames )
+      if (index >= bp->numFrames)
+      {
         index = bp->numFrames - 1;
+      }
 
-      re.customShader = bp->shaders[ index ];
+      re.customShader = bp->shaders[index];
     }
     else
     {
       //looping animation
-      index = (int)( bp->framerate * timeFrac * p->lifeTime * 0.001 ) % bp->numFrames;
-      re.customShader = bp->shaders[ index ];
+      index = (int)(bp->framerate * timeFrac * p->lifeTime * 0.001) % bp->numFrames;
+      re.customShader = bp->shaders[index];
     }
-
   }
-  else if( bp->numModels )  //model based
+  else if (bp->numModels) //model based
   {
     re.reType = RT_MODEL;
 
     re.hModel = p->model;
 
-    if( p->atRest )
-      AxisCopy( p->lastAxis, re.axis );
+    if (p->atRest)
+    {
+      AxisCopy(p->lastAxis, re.axis);
+    }
     else
     {
-      // convert direction of travel into axis
-      VectorNormalize2( p->velocity, re.axis[ 0 ] );
+      //convert direction of travel into axis
+      VectorNormalize2(p->velocity, re.axis[0]);
 
-      if( re.axis[ 0 ][ 0 ] == 0.0f && re.axis[ 0 ][ 1 ] == 0.0f )
-        AxisCopy( axisDefault, re.axis );
+      if (re.axis[0][0] == 0.0f && re.axis[0][1] == 0.0f)
+      {
+        AxisCopy(axisDefault, re.axis);
+      }
       else
       {
-        ProjectPointOnPlane( re.axis[ 2 ], up, re.axis[ 0 ] );
-        VectorNormalize( re.axis[ 2 ] );
-        CrossProduct( re.axis[ 2 ], re.axis[ 0 ], re.axis[ 1 ] );
+        ProjectPointOnPlane(re.axis[2], up, re.axis[0]);
+        VectorNormalize(re.axis[2]);
+        CrossProduct(re.axis[2], re.axis[0], re.axis[1]);
       }
 
-      AxisCopy( re.axis, p->lastAxis );
+      AxisCopy(re.axis, p->lastAxis);
     }
 
-    if( scale != 1.0f )
+    if (scale != 1.0f)
     {
-      VectorScale( re.axis[ 0 ], scale, re.axis[ 0 ] );
-      VectorScale( re.axis[ 1 ], scale, re.axis[ 1 ] );
-      VectorScale( re.axis[ 2 ], scale, re.axis[ 2 ] );
+      VectorScale(re.axis[0], scale, re.axis[0]);
+      VectorScale(re.axis[1], scale, re.axis[1]);
+      VectorScale(re.axis[2], scale, re.axis[2]);
       re.nonNormalizedAxes = qtrue;
     }
     else
+    {
       re.nonNormalizedAxes = qfalse;
+    }
 
     p->lf.animation = &bp->modelAnimation;
 
     //run animation
-    CG_RunLerpFrame( &p->lf );
+    CG_RunLerpFrame(&p->lf);
 
     re.oldframe = p->lf.oldFrame;
-    re.frame    = p->lf.frame;
+    re.frame = p->lf.frame;
     re.backlerp = p->lf.backlerp;
   }
 
-  if( bps->thirdPersonOnly &&
-      CG_AttachmentCentNum( &ps->attachment ) == cg.snap->ps.clientNum &&
-      !cg.renderingThirdPerson )
-    re.renderfx |= RF_THIRD_PERSON;
-
-  if( bp->dynamicLight && !( re.renderfx & RF_THIRD_PERSON ) )
+  if (bps->thirdPersonOnly && CG_AttachmentCentNum(&ps->attachment) == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
   {
-    trap_R_AddLightToScene( p->origin,
-      CG_LerpValues( p->dLightRadius.initial, p->dLightRadius.final,
-        CG_CalculateTimeFrac( p->birthTime, p->lifeTime, p->dLightRadius.delay ) ),
-        (float)bp->dLightColor[ 0 ] / (float)0xFF,
-        (float)bp->dLightColor[ 1 ] / (float)0xFF,
-        (float)bp->dLightColor[ 2 ] / (float)0xFF );
+    re.renderfx |= RF_THIRD_PERSON;
   }
 
-  VectorCopy( p->origin, re.origin );
+  if (bp->dynamicLight && !(re.renderfx & RF_THIRD_PERSON))
+  {
+    trap_R_AddLightToScene(p->origin, CG_LerpValues(p->dLightRadius.initial, p->dLightRadius.final, CG_CalculateTimeFrac(p->birthTime, p->lifeTime, p->dLightRadius.delay)), (float)bp->dLightColor[0] / (float)0xFF, (float)bp->dLightColor[1] / (float)0xFF, (float)bp->dLightColor[2] / (float)0xFF);
+  }
 
-  trap_R_AddRefEntityToScene( &re );
+  VectorCopy(p->origin, re.origin);
+
+#if 1
+  //FIXME
+  if (re.reType == RT_MODEL || re.renderfx & RF_THIRD_PERSON)
+  {
+    trap_R_AddRefEntityToScene(&re);
+  }
+  else
+  {
+    CG_EmitPolyVerts(&re);
+  }
+#else
+  trap_R_AddRefEntityToScene(&re);
+#endif
 }
+
 
 /*
 ===============

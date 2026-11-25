@@ -911,8 +911,7 @@ ClientUserinfoChanged(int clientNum)
   char model[MAX_QPATH];
   char buffer[MAX_QPATH];
   char filename[MAX_QPATH];
-  char oldname[MAX_NAME_LENGTH];
-  char newname[MAX_NAME_LENGTH];
+  char oldname[MAX_NETNAME];
   gclient_t *client;
   char c1[8];
   char c2[8];

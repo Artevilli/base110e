@@ -2694,18 +2694,15 @@ void Menu_HandleKey(menuDef_t *menu, int key, qbool down) {
 
   // default handling
   switch ( key ) {
-
+#if !defined(NDEBUG)
     case K_F11:
-      if (DC->getCVarValue("developer")) {
-        debugMode ^= 1;
-      }
+      DC->executeText(EXEC_APPEND, "screenshot\n");
       break;
 
     case K_F12:
-      if (DC->getCVarValue("developer")) {
-        DC->executeText(EXEC_APPEND, "screenshot\n");
-      }
+      debugMode ^= 1;
       break;
+#endif
     case K_KP_UPARROW:
     case K_UPARROW:
       Menu_SetPrevCursorItem(menu);

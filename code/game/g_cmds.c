@@ -25,52 +25,36 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 /*
 ==================
-G_SanitiseString
+SanitizeString
 
-Remove case and control characters from a player name
+Remove case and control characters
 ==================
 */
-void G_SanitiseString( char *in, char *out, int len )
+void
+SanitizeString(const char *in, char *out)
 {
-  qbool skip = qtrue;
-  int spaces = 0;
-
-  while( *in && len > 0 )
+  while(*in)
   {
-    // strip leading white space
-    if( *in == ' ' )
+    if (*in == 27)
     {
-      if( skip )
-      {
-        in++;
-        continue;
-      }
-      spaces++;
-    }
-    else
-    {
-      spaces = 0;
-      skip = qfalse;
-    }
-    
-    if( Q_IsColorString( in ) )
-    {
-      in += 2;    // skip color code
+      in += 2; //skip color code
       continue;
     }
 
-    if( *in < 32 )
+    if (*in < ' ')
     {
       in++;
       continue;
     }
 
-    *out++ = tolower( *in++ );
-    len--;
+    *out = tolower(*in);
+    out++;
+    in++;
   }
-  out -= spaces; 
-  *out = 0;
+
+  *out = '\0';
 }
+
 
 /*
 ==================
@@ -80,17 +64,18 @@ Returns a player number for either a number or name string
 Returns -1 if invalid
 ==================
 */
-int G_ClientNumberFromString( gentity_t *to, char *s )
+static int
+G_ClientNumberFromString(gentity_t *to, char *s)
 {
   gclient_t *cl;
-  int       idnum;
-  char      s2[ MAX_STRING_CHARS ];
-  char      n2[ MAX_STRING_CHARS ];
+  int idnum;
+  char s2[MAX_STRING_CHARS];
+  char n2[MAX_STRING_CHARS];
 
   // numeric values are just slot numbers
-  if( s[ 0 ] >= '0' && s[ 0 ] <= '9' )
+  if (s[0] >= '0' && s[0] <= '9')
   {
-    idnum = atoi( s );
+    idnum = atoi(s);
 
     if ((unsigned)idnum >= (unsigned)level.maxclients)
     {
@@ -109,18 +94,22 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
     return idnum;
   }
 
-  // check for a name match
-  G_SanitiseString( s, s2, sizeof( s2 ) );
+  //check for a name match
+  SanitizeString(s, s2);
 
-  for( idnum = 0, cl = level.clients; idnum < level.maxclients; idnum++, cl++ )
+  for(idnum = 0, cl = level.clients;idnum < level.maxclients;idnum++, cl++)
   {
-    if( cl->pers.connected == CON_DISCONNECTED )
+    if (cl->pers.connected != CON_CONNECTED)
+    {
       continue;
+    }
 
-    G_SanitiseString( cl->pers.netname, n2, sizeof( n2 ) );
+    SanitizeString(cl->pers.netname, n2);
 
-    if( !strcmp( n2, s2 ) )
+    if (!strcmp(n2, s2))
+    {
       return idnum;
+    }
   }
 
   trap_SendServerCommand(to - g_entities, va("print \"User %s is not on the server\n\"", s));
@@ -181,51 +170,62 @@ names that are a partial match for s.
 Returns number of matching clientids up to MAX_CLIENTS.
 ==================
 */
-int G_ClientNumbersFromString( char *s, int *plist)
+int
+G_ClientNumbersFromString(const char *s, int *plist)
 {
   gclient_t *p;
   int i, found = 0;
-  char n2[ MAX_NAME_LENGTH ] = {""};
-  char s2[ MAX_NAME_LENGTH ] = {""};
-  int max = MAX_CLIENTS;
+  char n2[MAX_NAME_LENGTH] = {""};
+  char s2[MAX_NAME_LENGTH] = {""};
 
-  // if a number is provided, it might be a slot #
-  for( i = 0; s[ i ] && ( s[ i ] >= '0' && s[ i ] <= '9' ); i++ );
-  if( !s[ i ] )
+  //if a number is provided, it might be a slot #
+  for(i = 0; s[i] && (s[i] >= '0' && s[i] <= '9');i++);
+  if (!s[i])
   {
-    i = atoi( s );
-    if( i >= 0 && i < level.maxclients )
+    i = atoi(s);
+
+    if (i >= 0 && i < level.maxclients)
     {
-      p = &level.clients[ i ];
-      if( p->pers.connected != CON_DISCONNECTED )
+      p = &level.clients[i];
+
+      if (p->pers.connected != CON_DISCONNECTED)
       {
         *plist = i;
         return 1;
       }
     }
-    // we must assume that if only a number is provided, it is a clientNum
+
+    //we must assume that if only a number is provided, it is a clientNum
     *plist = -1;
     return 0;
   }
 
-  // now look for name matches
-  G_SanitiseString( s, s2, sizeof( s2 ) );
-  if( strlen( s2 ) < 1 )
-    return 0;
-  for( i = 0; i < level.maxclients && found <= max; i++ )
+  //now look for name matches
+  SanitizeString(s, s2);
+
+  if (strlen(s2) < 1)
   {
-    p = &level.clients[ i ];
-    if( p->pers.connected == CON_DISCONNECTED )
+    return 0;
+  }
+
+  for(i = 0;i < level.maxclients && found <= MAX_CLIENTS;i++)
+  {
+    p = &level.clients[i];
+
+    if (p->pers.connected == CON_DISCONNECTED)
     {
       continue;
     }
-    G_SanitiseString( p->pers.netname, n2, sizeof( n2 ) );
-    if( strstr( n2, s2 ) )
+
+    SanitizeString(p->pers.netname, n2);
+
+    if (strstr(n2, s2))
     {
       *plist++ = i;
       found++;
     }
   }
+
   *plist = -1;
   return found;
 }
@@ -321,10 +321,10 @@ ConcatArgs
 */
 char *ConcatArgs( int start )
 {
-  int         i, c, tlen;
-  static char line[ MAX_STRING_CHARS ];
-  int         len;
-  char        arg[ MAX_STRING_CHARS ];
+  static char line[MAX_STRING_CHARS];
+  char arg[MAX_STRING_CHARS];
+  int i, c, tlen;
+  int len;
 
   len = 0;
   c = trap_Argc( );
@@ -350,7 +350,7 @@ char *ConcatArgs( int start )
     }
   }
 
-  line[ len ] = 0;
+  line[ len ] = '\0';
 
   return line;
 }
@@ -472,7 +472,7 @@ argv(0) god
 */
 void Cmd_God_f( gentity_t *ent )
 {
-  char  *msg;
+  const char *msg;
 
   ent->flags ^= FL_GODMODE;
 
@@ -496,7 +496,7 @@ argv(0) notarget
 */
 void Cmd_Notarget_f( gentity_t *ent )
 {
-  char  *msg;
+  const char *msg;
 
   ent->flags ^= FL_NOTARGET;
 
@@ -518,7 +518,7 @@ argv(0) noclip
 */
 void Cmd_Noclip_f( gentity_t *ent )
 {
-  char  *msg;
+  const char *msg;
 
   if( ent->client->noclip )
     msg = "noclip OFF\n";
@@ -4389,7 +4389,7 @@ void G_PrivateMessage( gentity_t *ent )
   char name[ MAX_NAME_LENGTH ];
   char cmd[ 12 ];
   char str[ MAX_STRING_CHARS ];
-  char *msg;
+  const char *msg;
   char color;
   int pcount, matches;
   int i;

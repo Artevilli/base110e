@@ -1308,13 +1308,19 @@ void CG_NextWeapon_f( void )
   if( !cg.snap )
     return;
 
+  cg.weaponSelectTime = cg.time;
+
+  if (cg.demoPlayback)
+  {
+    return;
+  }
+
   if( cg.snap->ps.pm_flags & PMF_FOLLOW )
   {
     trap_SendClientCommand( "followprev\n" );
     return;
   }
 
-  cg.weaponSelectTime = cg.time;
   original = cg.weaponSelect;
 
   for( i = 0; i < 64; i++ )
@@ -1352,13 +1358,19 @@ void CG_PrevWeapon_f( void )
   if( !cg.snap )
     return;
 
+  cg.weaponSelectTime = cg.time;
+
+  if (cg.demoPlayback)
+  {
+    return;
+  }
+
   if( cg.snap->ps.pm_flags & PMF_FOLLOW )
   {
     trap_SendClientCommand( "follownext\n" );
     return;
   }
 
-  cg.weaponSelectTime = cg.time;
   original = cg.weaponSelect;
 
   for( i = 0; i < 64; i++ )
@@ -1395,15 +1407,15 @@ void CG_Weapon_f( void )
   if( !cg.snap )
     return;
 
-  if( cg.snap->ps.pm_flags & PMF_FOLLOW )
+  cg.weaponSelectTime = cg.time;
+
+  if( cg.snap->ps.pm_flags & PMF_FOLLOW || cg.demoPlayback )
     return;
 
   num = atoi( CG_Argv( 1 ) );
 
-  if( num < 1 || num > 31 )
+  if( num < 1 || num > (MAX_WEAPONS * 2) - 1 )
     return;
-
-  cg.weaponSelectTime = cg.time;
 
   if( !BG_InventoryContainsWeapon( num, cg.snap->ps.stats ) )
     return;   // don't have the weapon
